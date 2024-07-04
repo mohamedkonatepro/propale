@@ -5,9 +5,9 @@ import { supabase } from '@/lib/supabaseClient';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { FaGoogle, FaFacebook, FaWhatsapp, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import SocialLinks from '@/components/SocialLinks';
 import CustomAlert from '@/components/Alert';
+import LoginHeader from '@/components/LoginHeader';
 
 type LoginFormInputs = {
   email: string;
@@ -52,18 +52,15 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pattern">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="min-h-screen flex flex-col justify-center items-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md flex flex-col justify-between" style={{ minHeight: '650px' }}>
         <div className="flex flex-col items-center">
-          <div className="flex items-center mb-6">
-            <Image src="/logo.png" alt="Propale" width={68} height={68} className="mr-2" />
-            <h2 className="text-3xl font-bold">Propale</h2>
-          </div>
+          <LoginHeader />
 
           <h3 className="text-xl font-bold mb-6">Connexion</h3>
           {message.length > 1 && <CustomAlert message={message[1]} />}
           
-          <form className="w-full mt-5" onSubmit={handleSubmit(handleLogin)}>
+          <form className="w-full" onSubmit={handleSubmit(handleLogin)}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
               <input
@@ -109,7 +106,9 @@ const Login = () => {
             <Image src="/Group.svg" alt="google" width={24} height={24} className="mr-2" /> Se connecter avec Google
           </button>
 
-          <SocialLinks />
+          <div className="mt-auto">
+            <SocialLinks />
+          </div>
         </div>
       </div>
     </div>

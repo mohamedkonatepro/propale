@@ -5,10 +5,9 @@ import SocialLinks from '@/components/SocialLinks';
 import SuccessAlert from '@/components/SuccessAlert';
 import ValidationAlertText from '@/components/ValidationAlertText';
 import { supabase } from '@/lib/supabaseClient';
-import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import SuccessText from '@/components/SuccessText';
+import LoginHeader from '@/components/LoginHeader';
 
 type ResetPasswordFormInputs = {
   password: string;
@@ -39,14 +38,11 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pattern">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="min-h-screen flex flex-col justify-center items-center">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md flex flex-col justify-between" style={{ minHeight: '650px' }}>
         <div className="flex flex-col items-center">
-          <div className="flex items-center mb-6">
-            <Image src="/logo.png" alt="Propale" width={68} height={68} className="mr-2" />
-            <h2 className="text-3xl font-bold">Propale</h2>
-          </div>
-          <h3 className="text-xl font-bold mb-6 mt-5">
+          <LoginHeader />
+          <h3 className="text-xl font-bold mb-6">
             {passwordReset ? 'C’est fait.' : 'Nouveau mot de passe'}
           </h3>
           {!passwordReset ? (
@@ -108,7 +104,9 @@ const ResetPassword = () => {
             </div>
           )}
         </div>
-        <SocialLinks />
+        <div className="mt-auto">
+          <SocialLinks />
+        </div>
       </div>
     </div>
   );

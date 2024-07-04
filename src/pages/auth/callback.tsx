@@ -30,7 +30,7 @@ const Callback = () => {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pattern">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h3 className="text-xl font-bold mb-6">Redirection en cours...</h3>
       </div>
