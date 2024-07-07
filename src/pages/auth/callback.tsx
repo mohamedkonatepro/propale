@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
@@ -15,11 +15,10 @@ const Callback = () => {
 
       if (session) {
         const { user } = session;
-
-        console.log('user ::: ', user.app_metadata.providers, user)
         if (!user.app_metadata.providers.includes('email')) {
           await supabase.auth.signOut();
-          router.push('/login');
+          await supabaseAdmin.auth.admin.deleteUser(user.id);
+          router.push('/');
         } else {
           router.push('/dashboard');
         }

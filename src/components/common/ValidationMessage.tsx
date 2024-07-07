@@ -1,12 +1,12 @@
 import { FC } from 'react';
 import { FaTimesCircle } from 'react-icons/fa';
 
-interface ValidationAlertTextProps {
+interface ValidationMessageProps {
   message: string;
   requirements: string[];
 }
 
-const ValidationAlertText: FC<ValidationAlertTextProps> = ({ message, requirements }) => {
+const ValidationMessage: FC<ValidationMessageProps> = ({ message, requirements }) => {
   return (
     <div className="rounded-md p-4">
       <div className="flex">
@@ -26,4 +26,4 @@ const ValidationAlertText: FC<ValidationAlertTextProps> = ({ message, requiremen
   );
 };
 
-export default ValidationAlertText;
+export default ValidationMessage;

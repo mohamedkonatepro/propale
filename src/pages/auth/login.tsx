@@ -5,9 +5,10 @@ import { supabase } from '@/lib/supabaseClient';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import SocialLinks from '@/components/SocialLinks';
-import CustomAlert from '@/components/Alert';
-import LoginHeader from '@/components/LoginHeader';
+import SocialLinks from '@/components/auth/SocialLinks';
+import CustomAlert from '@/components/common/Alert';
+import LoginHeader from '@/components/auth/LoginHeader';
+import { FcGoogle } from "react-icons/fc";
 
 type LoginFormInputs = {
   email: string;
@@ -34,21 +35,16 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    const data = await supabase.auth.signInWithOAuth({
+    await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/callback`,
+        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/callback`,
       },
     });
-    if (data.error) {
-      setMessage(['error', 'Erreur lors de la connexion avec Google.']);
-    } else {
-      setMessage(['']);
-    }
   };
 
   const navigateToForgotPassword = () => {
-    router.push('/forgot-password');
+    router.push('/auth/forgot-password');
   };
 
   return (
@@ -103,7 +99,7 @@ const Login = () => {
             type="button"
             onClick={handleGoogleLogin}
           >
-            <Image src="/Group.svg" alt="google" width={24} height={24} className="mr-2" /> Se connecter avec Google
+            <FcGoogle size={24} className="mr-2" /> Se connecter avec Google
           </button>
 
           <div className="mt-auto">

@@ -1,5 +1,7 @@
 import Image from 'next/image';
-import { FaFacebook, FaWhatsapp } from 'react-icons/fa';
+import { FaFacebook, FaWhatsapp, FaLinkedinIn } from 'react-icons/fa';
+import { RiTwitterXFill } from "react-icons/ri";
+
 import React from 'react';
 
 const SocialLinks = () => {
@@ -14,10 +16,10 @@ const SocialLinks = () => {
           <FaWhatsapp size={24} />
         </a>
         <a href="#" className="text-gray-500">
-          <Image src="/x-logo.svg" alt="x" width={24} height={24} />
+          <RiTwitterXFill size={24} />
         </a>
         <a href="#" className="text-gray-500">
-          <Image src="/linkedin-logo.svg" alt="linkedin" width={24} height={24} />
+          <FaLinkedinIn size={24} />
         </a>
       </div>
     </div>
