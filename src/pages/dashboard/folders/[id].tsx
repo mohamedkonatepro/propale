@@ -1,28 +1,69 @@
-import { DataTable } from '@/components/DataTable';
-import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
+import { useEffect, useState } from 'react';
 import { ColumnDef } from "@tanstack/react-table";
 import { FaPlus } from "react-icons/fa";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
-import { data } from '@/data/folders';
+import { DataTable } from '@/components/DataTable';
+import Header from '@/components/layout/Header';
+import Sidebar from '@/components/layout/Sidebar';
+import { fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
 import { Checkbox } from '@/components/common/Checkbox';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+import { Company, Profile } from '@/types/models';
+import { useRouter } from 'next/router';
 
 export type Folder = {
   id: string;
   name: string;
   activity_area: string;
   siret: string;
+  siren?: string;
 };
 
-const Dashboard = () => {
+interface FoldersProps {
+  user: Profile;
+}
+
+const Folders: React.FC<FoldersProps> = ({ user }) => {
+  const router = useRouter();
+  const { id } = router.query;
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [company, setCompany] = useState<Company | null>(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      const getCompanies = async (objectId: string) => {
+        let data;
+        
+        if (user.role === "sales") {
+          data = await fetchCompaniesWithParentByProfileId(objectId);
+        } else {
+          data = await fetchCompaniesByCompanyId(objectId);
+        }
+        
+        setCompanies(data);
+      };
+  
+      const getCompany = async () => {
+        const data = await fetchCompanyById(id as string);
+        setCompany(data);
+      };
+      if (company) {
+        getCompanies(company.id);
+      }
+      getCompany();
+    }
+  }, [company, id, user]);
 
   const handleAddButtonClick = () => {
-    // handle add button click logic here
+    // todo
   };
+
+  const handleSearch = () => {
+    // todo
+  }
 
   const columns: ColumnDef<Folder>[] = [
     {
@@ -124,15 +165,16 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex">
-        <Sidebar />
+        <Sidebar user={user} currentPage='folders' />
         <div className="flex-1 p-6">
-          <Header title="IPSUM Consulting" subtitle="Mes dossiers" siren="983 067 737" />
+          <Header title={company?.name} subtitle="Mes dossiers" siren={company?.siren} />
           <DataTable<Folder>
-            data={data}
+            data={companies}
             columns={columns}
             placeholder="Recherche"
             addButtonLabel="Ajouter un dossier"
             onAddButtonClick={handleAddButtonClick}
+            onChangeSearch={handleSearch}
           />
         </div>
       </div>
@@ -140,4 +182,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Folders;

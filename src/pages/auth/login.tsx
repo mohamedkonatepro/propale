@@ -9,6 +9,7 @@ import SocialLinks from '@/components/auth/SocialLinks';
 import CustomAlert from '@/components/common/Alert';
 import LoginHeader from '@/components/auth/LoginHeader';
 import { FcGoogle } from "react-icons/fc";
+import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
 
 type LoginFormInputs = {
   email: string;
@@ -25,12 +26,17 @@ const Login = () => {
 
   const handleLogin = async (data: LoginFormInputs) => {
     const { email, password } = data;
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setMessage(['error', 'Adresse email ou mot de passe incorrects. Veuillez réessayer.']);
     } else {
       setMessage(['']);
-      router.push('/dashboard');
+      if (user) {
+        const company = await fetchCompanyWithoutParentByProfileId(user?.id);
+        if (company) {
+          router.push(`/dashboard/folders/${company.id}`);
+        }
+      }
     }
   };
 

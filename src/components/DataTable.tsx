@@ -34,9 +34,10 @@ type DataTableProps<T> = {
   placeholder?: string;
   addButtonLabel?: string;
   onAddButtonClick?: () => void;
+  onChangeSearch?: (value: string) => void;
 }
 
-export function DataTable<T>({ data, columns, placeholder = "Recherche", addButtonLabel = "Ajouter", onAddButtonClick }: DataTableProps<T>) {
+export function DataTable<T>({ data, columns, placeholder = "Recherche", addButtonLabel = "Ajouter", onAddButtonClick, onChangeSearch }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -65,15 +66,11 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
     <div className="w-full">
       <div className="flex items-center py-4">
         <div className="flex w-full justify-between">
-          <InputSearch
+          {onChangeSearch && <InputSearch
             placeholder={placeholder}
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
+            onChange={(e) => onChangeSearch(e.target.value)}
             className="w-1/4"
-          />
-
+          />}
           {onAddButtonClick && (
             <button
               className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
@@ -140,7 +137,7 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  Aucun résultat.
                 </TableCell>
               </TableRow>
             )}
