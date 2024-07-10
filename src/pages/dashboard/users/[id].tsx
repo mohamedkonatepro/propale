@@ -30,7 +30,7 @@ const Users: React.FC<UsersProps> = ({ user }) => {
   useEffect(() => {
     if (user?.id) {
       const getCompanyData = async () => {
-        const companyData = await fetchCompanyById(id);
+        const companyData = await fetchCompanyById(id as string);
         setCompany(companyData);
 
         if (companyData) {
@@ -178,21 +178,16 @@ const Users: React.FC<UsersProps> = ({ user }) => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex">
-        <Sidebar user={user} currentPage='users' />
-        <div className="flex-1 p-6">
-          <Header title={company?.name} subtitle="Utilisateurs" siren={company?.siren} />
-          <DataTable<Profile>
-            data={profiles}
-            columns={columns}
-            placeholder="Recherche"
-            addButtonLabel="Ajouter un utilisateur"
-            onAddButtonClick={handleAddButtonClick}
-            onChangeSearch={handleSearch}
-          />
-        </div>
-      </div>
+    <div className="flex-1 p-6">
+      <Header title={company?.name} subtitle="Utilisateurs" siren={company?.siren} />
+      <DataTable<Profile>
+        data={profiles}
+        columns={columns}
+        placeholder="Recherche"
+        addButtonLabel="Ajouter un utilisateur"
+        onAddButtonClick={handleAddButtonClick}
+        onChangeSearch={handleSearch}
+      />
     </div>
   );
 };

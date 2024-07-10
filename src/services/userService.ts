@@ -1,3 +1,4 @@
+import { ROLES } from '@/constants/roles';
 import { supabase } from '@/lib/supabaseClient';
 import { Profile } from '@/types/models';
 
@@ -80,3 +81,29 @@ export const fetchProfileCountByCompanyId = async (companyId: string): Promise<n
   return count ?? 0;
 };
 
+export const fetchProfilesWithRoleSuperAdmin = async (): Promise<Profile[] | null> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('role', ROLES.SUPER_ADMIN);
+
+  if (error) {
+    return null;
+  }
+
+  return data as Profile[];
+};
+
+export const fetchProfilesCountWithRoleSuperAdmin = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('profiles')
+    .select('id', { count: 'exact' })
+    .eq('role', ROLES.SUPER_ADMIN);
+
+  if (error) {
+    console.error('Error fetching profile count:', error);
+    return 0;
+  }
+
+  return count ?? 0;
+};

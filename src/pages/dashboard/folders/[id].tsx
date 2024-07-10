@@ -13,6 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/component
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company, Profile } from '@/types/models';
 import { useRouter } from 'next/router';
+import { ROLES } from '@/constants/roles';
 
 export type Folder = {
   id: string;
@@ -37,7 +38,7 @@ const Folders: React.FC<FoldersProps> = ({ user }) => {
       const getCompanies = async (objectId: string) => {
         let data;
         
-        if (user.role === "sales") {
+        if (user.role === ROLES.SALES) {
           data = await fetchCompaniesWithParentByProfileId(objectId);
         } else {
           data = await fetchCompaniesByCompanyId(objectId);
@@ -163,21 +164,16 @@ const Folders: React.FC<FoldersProps> = ({ user }) => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex">
-        <Sidebar user={user} currentPage='folders' />
-        <div className="flex-1 p-6">
-          <Header title={company?.name} subtitle="Mes dossiers" siren={company?.siren} />
-          <DataTable<Folder>
-            data={companies}
-            columns={columns}
-            placeholder="Recherche"
-            addButtonLabel="Ajouter un dossier"
-            onAddButtonClick={handleAddButtonClick}
-            onChangeSearch={handleSearch}
-          />
-        </div>
-      </div>
+    <div className="flex-1 p-6">
+      <Header title={company?.name} subtitle="Mes dossiers" siren={company?.siren} />
+      <DataTable<Folder>
+        data={companies}
+        columns={columns}
+        placeholder="Recherche"
+        addButtonLabel="Ajouter un dossier"
+        onAddButtonClick={handleAddButtonClick}
+        onChangeSearch={handleSearch}
+      />
     </div>
   );
 };
