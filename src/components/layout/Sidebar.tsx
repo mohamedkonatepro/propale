@@ -8,11 +8,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Company, Profile } from '@/types/models';
 import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
-import { fetchProfileCountByCompanyId, fetchProfilesCountWithRoleSuperAdmin } from '@/services/userService';
+import { fetchProfilesCountWithRoleSuperAdmin } from '@/services/userService';
 import { ROLES } from '@/constants/roles';
+import { useUser } from '@/context/userContext';
+import { fetchProfileCountByCompanyId } from '@/services/profileService';
 
 interface SidebarProps {
-  user: Profile;
   currentPage: string;
   setPage: (page: string) => void;
   isDashboardHome: boolean;
@@ -28,11 +29,12 @@ interface NavigationLinkProps {
   onClick: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ user, currentPage = "folders", setPage, isDashboardHome }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isDashboardHome }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [company, setCompany] = useState<Company | null>(null);
+  const [company, setCompany] = useState<Company>();
   const [profileCount, setProfileCount] = useState<number>(0);
-  const isSuperAdmin = user.role === ROLES.SUPER_ADMIN;
+  const { user } = useUser();
+  const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -40,8 +42,12 @@ const Sidebar: React.FC<SidebarProps> = ({ user, currentPage = "folders", setPag
 
   useEffect(() => {
     const getCompany = async () => {
-      const companyData = await fetchCompanyWithoutParentByProfileId(user?.id);
-      setCompany(companyData);
+      if (user) {
+        const companyData = await fetchCompanyWithoutParentByProfileId(user?.id);
+        if (companyData) {
+          setCompany(companyData);
+        }
+      }
     };
     if (!isDashboardHome) {
       getCompany();
@@ -71,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, currentPage = "folders", setPag
         {(company || isDashboardHome) && (
           <>
             <NavigationLink
-              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/folders/${company.id}`}
+              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/folders/${company?.id}`}
               icon={MdFolderOpen}
               text="Mes dossiers"
               onClick={() => setPage("folders")}
@@ -79,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ user, currentPage = "folders", setPag
               isCollapsed={isCollapsed}
             />
             <NavigationLink
-              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/users/${company.id}`}
+              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/users/${company?.id}`}
               icon={PiUsers}
               text="Utilisateurs"
               onClick={() => setPage("users")}

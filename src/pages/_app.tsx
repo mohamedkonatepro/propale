@@ -1,44 +1,38 @@
-import App, { AppContext, AppInitialProps, AppProps } from 'next/app'
+// src/pages/_app.tsx
+import App, { AppContext, AppInitialProps, AppProps } from 'next/app';
 import "../app/globals.css";
 import { useEffect, useState } from 'react';
-import { getUserDetails } from '@/services/userService';
-import { Profile } from '@/types/models';
+import Modal from 'react-modal';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useRouter } from 'next/router';
+import { UserProvider } from '@/context/userContext';
 
-export default function MyApp({
-  Component,
-  pageProps,
-}: AppProps) {
+export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const [user, setUser] = useState<Profile | null>(null);
   const [page, setPage] = useState('folders');
 
   useEffect(() => {
-    const getUser = async () => {
-      const user = await getUserDetails();
-      setUser(user);
-    };
-    getUser();
+    Modal.setAppElement('#__next'); // Set the app element to the root div in Next.js
   }, []);
 
-  if (!user) return <div>Loading...</div>;
 
   const isDashboard = router.pathname.startsWith('/dashboard');
   const isDashboardHome = router.pathname === '/dashboard';
-  return isDashboard ? (
-    <DashboardLayout user={user} currentPage={isDashboardHome ? page : router.pathname.split('/')[2]} setPage={setPage} isDashboardHome={isDashboardHome}>
-      <Component {...pageProps} user={user} page={page} />
-    </DashboardLayout>
-  ) : (
-    <Component {...pageProps} user={user} />
+
+  return (
+    <UserProvider>
+      {isDashboard ? (
+        <DashboardLayout currentPage={isDashboardHome ? page : router.pathname.split('/')[2]} setPage={setPage} isDashboardHome={isDashboardHome}>
+          <Component {...pageProps} page={page} />
+        </DashboardLayout>
+      ) : (
+        <Component {...pageProps} />
+      )}
+    </UserProvider>
   );
 }
- 
-MyApp.getInitialProps = async (
-  context: AppContext
-): Promise<AppInitialProps> => {
-  const ctx = await App.getInitialProps(context)
 
-  return ctx
-}
+MyApp.getInitialProps = async (context: AppContext): Promise<AppInitialProps> => {
+  const ctx = await App.getInitialProps(context);
+  return ctx;
+};

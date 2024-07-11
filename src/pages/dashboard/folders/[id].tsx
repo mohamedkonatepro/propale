@@ -5,34 +5,33 @@ import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
 import { fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
 import { Checkbox } from '@/components/common/Checkbox';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { Company, Profile } from '@/types/models';
+import { Company } from '@/types/models';
 import { useRouter } from 'next/router';
 import { ROLES } from '@/constants/roles';
+import { useUser } from '@/context/userContext';
 
 export type Folder = {
   id: string;
   name: string;
-  activity_area: string;
+  activity_sector: string;
   siret: string;
   siren?: string;
 };
 
-interface FoldersProps {
-  user: Profile;
-}
+interface FoldersProps {}
 
-const Folders: React.FC<FoldersProps> = ({ user }) => {
+const Folders: React.FC<FoldersProps> = () => {
   const router = useRouter();
   const { id } = router.query;
   const [companies, setCompanies] = useState<Company[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
-
+  const { user } = useUser();
+  
   useEffect(() => {
     if (user?.id) {
       const getCompanies = async (objectId: string) => {
@@ -121,8 +120,8 @@ const Folders: React.FC<FoldersProps> = ({ user }) => {
       cell: ({ row }) => <div className="lowercase">{row.getValue("siret")}</div>,
     },
     {
-      accessorKey: "activity_area",
-      id: "activity_area",
+      accessorKey: "activity_sector",
+      id: "activity_sector",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -132,7 +131,7 @@ const Folders: React.FC<FoldersProps> = ({ user }) => {
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{row.getValue("activity_area")}</div>,
+      cell: ({ row }) => <div className="lowercase">{row.getValue("activity_sector")}</div>,
     },
     {
       id: "new_prospect",

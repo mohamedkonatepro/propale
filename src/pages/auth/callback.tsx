@@ -1,7 +1,7 @@
 import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
 import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 const Callback = () => {
   const router = useRouter();

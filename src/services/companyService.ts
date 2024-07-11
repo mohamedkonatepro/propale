@@ -1,8 +1,8 @@
 import { supabase } from '@/lib/supabaseClient';
-import { Company } from '../types/models';
+import { Company } from '@/types/models';
 
-// Function to fetch company by its ID
-export const fetchCompanyById = async (companyId: string) => {
+// Fetch company by its ID
+export const fetchCompanyById = async (companyId: string): Promise<Company | null> => {
   const { data, error } = await supabase
     .from('company')
     .select('*')
@@ -17,8 +17,8 @@ export const fetchCompanyById = async (companyId: string) => {
   return data;
 };
 
-// Function to recursively find the top-most parent company without a company_id
-const findTopMostParentCompany = async (company: Company) => {
+// Recursively find the top-most parent company without a company_id
+const findTopMostParentCompany = async (company: Company): Promise<Company> => {
   if (!company.company_id) {
     return company;
   }
@@ -31,9 +31,8 @@ const findTopMostParentCompany = async (company: Company) => {
   return findTopMostParentCompany(parentCompany);
 };
 
-// Function to fetch the company without a company_id by profile_id
-export const fetchCompanyWithoutParentByProfileId = async (profileId: string) => {
-  // Fetch the companies associated with the profile
+// Fetch the company without a company_id by profile_id
+export const fetchCompanyWithoutParentByProfileId = async (profileId: string): Promise<Company | null> => {
   const { data: companies, error: companiesError } = await supabase
     .from('companies_profiles')
     .select('company_id')
@@ -44,17 +43,14 @@ export const fetchCompanyWithoutParentByProfileId = async (profileId: string) =>
     return null;
   }
 
-  if (companies.length === 0) {
+  if (!companies || companies.length === 0) {
     console.log('No companies found for this profile.');
     return null;
   }
 
-  // Iterate through the companies to find the one without a company_id
   for (let { company_id } of companies) {
     const company = await fetchCompanyById(company_id);
-    if (!company) {
-      continue;
-    }
+    if (!company) continue;
 
     const topMostParentCompany = await findTopMostParentCompany(company);
     if (!topMostParentCompany.company_id) {
@@ -66,8 +62,8 @@ export const fetchCompanyWithoutParentByProfileId = async (profileId: string) =>
   return null;
 };
 
-export const fetchCompaniesWithParentByProfileId = async (profileId: string) => {
-  // Fetch the companies associated with the profile
+// Fetch companies with a parent by profile_id
+export const fetchCompaniesWithParentByProfileId = async (profileId: string): Promise<Company[]> => {
   const { data: companyProfileData, error: companyProfileError } = await supabase
     .from('companies_profiles')
     .select('company_id')
@@ -78,13 +74,12 @@ export const fetchCompaniesWithParentByProfileId = async (profileId: string) => 
     return [];
   }
 
-  if (companyProfileData.length === 0) {
+  if (!companyProfileData || companyProfileData.length === 0) {
     console.log('No companies found for this profile.');
     return [];
   }
 
-  // Fetch companies with a company_id
-  const companiesWithParent = [];
+  const companiesWithParent: Company[] = [];
   for (let { company_id } of companyProfileData) {
     const company = await fetchCompanyById(company_id);
     if (company && company.company_id) {
@@ -95,7 +90,8 @@ export const fetchCompaniesWithParentByProfileId = async (profileId: string) => 
   return companiesWithParent;
 };
 
-export const fetchCompaniesByCompanyId = async (companyId: string) => {
+// Fetch companies by company_id
+export const fetchCompaniesByCompanyId = async (companyId: string): Promise<Company[]> => {
   const { data, error } = await supabase
     .from('company')
     .select('*')
@@ -109,6 +105,7 @@ export const fetchCompaniesByCompanyId = async (companyId: string) => {
   return data;
 };
 
+// Fetch all companies without parent
 export const fetchAllCompaniesWithoutParent = async (): Promise<Company[]> => {
   const { data, error } = await supabase
     .from('company')
@@ -118,6 +115,34 @@ export const fetchAllCompaniesWithoutParent = async (): Promise<Company[]> => {
   if (error) {
     console.error('Error fetching companies without parent:', error);
     return [];
+  }
+
+  return data;
+};
+
+// Create a new company
+export const createCompany = async (dataModal: any): Promise<Company | null> => {
+  const { data, error } = await supabase
+    .from('company')
+    .insert([{
+      company_id: '',
+      prospect_id: '',
+      name: dataModal.companyName,
+      siret: '',
+      siren: dataModal.siren,
+      ape_code: dataModal.apeCode,
+      activity_sector: dataModal.activitySector,
+      address: '',
+      city: '',
+      postalcode: '',
+      country: '',
+    }])
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Error creating company:', error);
+    return null;
   }
 
   return data;

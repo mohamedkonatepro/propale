@@ -5,7 +5,7 @@ export interface Company {
   name: string;
   siret: string;
   siren: string;
-  activity_area: string;
+  activity_sector: string;
   address: string;
   city: string;
   postal_code: string;

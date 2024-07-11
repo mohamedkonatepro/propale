@@ -101,9 +101,9 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-lg border shadow-lg">
         <Table>
-          <TableHeader className="bg-gray-100">
+          <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -125,7 +125,7 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className={`hover:bg-blue-50 ${row.getIsSelected() ? 'bg-blue-50' : ''}`}
+                  className={`hover:bg-blue-50 ${row.getIsSelected() ? 'bg-blue-50' : 'bg-white'}`}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className={`${row.getIsSelected() ? "bg-blue-50" : ""}`}>

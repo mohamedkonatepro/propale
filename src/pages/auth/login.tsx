@@ -10,6 +10,8 @@ import CustomAlert from '@/components/common/Alert';
 import LoginHeader from '@/components/auth/LoginHeader';
 import { FcGoogle } from "react-icons/fc";
 import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
+import { ROLES } from '@/constants/roles';
+import { getUserDetails } from '@/services/profileService';
 
 type LoginFormInputs = {
   email: string;
@@ -32,6 +34,12 @@ const Login = () => {
     } else {
       setMessage(['']);
       if (user) {
+        const userDetails = await getUserDetails();
+        console.log(userDetails)
+        if (userDetails?.role === ROLES.SUPER_ADMIN) {
+          router.push('/dashboard')
+          return
+        }
         const company = await fetchCompanyWithoutParentByProfileId(user?.id);
         if (company) {
           router.push(`/dashboard/folders/${company.id}`);

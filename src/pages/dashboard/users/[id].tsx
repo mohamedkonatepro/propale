@@ -12,21 +12,21 @@ import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company, Profile } from '@/types/models';
-import { fetchProfilesWithUserDetails } from '@/services/userService';
 import { MdFolderOpen } from 'react-icons/md';
 import { useRouter } from 'next/router';
+import { useUser } from '@/context/userContext';
+import { fetchProfilesWithUserDetails } from '@/services/profileService';
 
-interface UsersProps {
-  user: Profile;
-}
+interface UsersProps {}
 
-const Users: React.FC<UsersProps> = ({ user }) => {
+const Users: React.FC<UsersProps> = () => {
   const router = useRouter();
   const { id } = router.query;
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
   const [foldersCount, setFoldersCount] = useState<{ [key: string]: number }>({});
-
+  const { user } = useUser();
+  
   useEffect(() => {
     if (user?.id) {
       const getCompanyData = async () => {
