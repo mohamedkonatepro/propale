@@ -9,7 +9,7 @@ import { z } from 'zod';
 type AddCompanyModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: any) => Promise<void>;
 };
 
 type FormInputs = z.infer<typeof companySchema>;
@@ -25,25 +25,33 @@ const customStyles = {
     width: '50%',
     padding: '2rem',
     borderRadius: '10px',
+    maxHeight: '100vh',
   },
 };
 
 const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClose, onSubmit }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormInputs>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormInputs>({
     resolver: zodResolver(companySchema),
   });
+
+  const onSubmitHandler = async (data: FormInputs) => {
+    await onSubmit(data);
+    reset();
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       style={customStyles}
+      overlayClassName="fixed inset-0 bg-black bg-opacity-90"
+      ariaHideApp={false}
     >
       <div className="flex justify-between items-center border-b pb-2 mb-4">
         <h2 className="text-xl font-semibold">Ajouter une entreprise</h2>
         <button onClick={onRequestClose}><FaTimes /></button>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
         <div>
           <h3 className="text-lg font-medium">Informations principales entreprise</h3>
           <div className="grid grid-cols-2 gap-4 mt-2">
