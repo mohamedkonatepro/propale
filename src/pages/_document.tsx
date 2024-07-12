@@ -32,7 +32,7 @@ class MyDocument extends Document {
     return (
       <Html lang="fr">
         <Head />
-        <body className="bg-dashboardGray">
+        <body className="bg-backgroundGray">
           <Main />
           <NextScript />
         </body>

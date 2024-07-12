@@ -35,7 +35,6 @@ const Login = () => {
       setMessage(['']);
       if (user) {
         const userDetails = await getUserDetails();
-        console.log(userDetails)
         if (userDetails?.role === ROLES.SUPER_ADMIN) {
           router.push('/dashboard')
           return

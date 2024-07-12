@@ -19,7 +19,8 @@ const config = {
     },
     extend: {
       colors: {
-        dashboardGray: 'rgba(241, 245, 249, 1)',
+        labelGray: 'rgba(151, 166, 186, 1)',
+        backgroundGray: 'rgba(241, 245, 249, 1)',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
