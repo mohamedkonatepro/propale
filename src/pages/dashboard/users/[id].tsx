@@ -76,7 +76,6 @@ const Users: React.FC<UsersProps> = () => {
 
   const handleCreateUser = async (dataModal: DataModal) => {
     try {
-  
       const user = await createUser(dataModal.email, dataModal.password);
       if (!user) return;
   

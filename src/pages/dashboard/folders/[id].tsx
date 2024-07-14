@@ -5,7 +5,7 @@ import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import { fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
+import { createCompany, fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
 import { Checkbox } from '@/components/common/Checkbox';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
@@ -14,6 +14,7 @@ import { Company } from '@/types/models';
 import { useRouter } from 'next/router';
 import { ROLES } from '@/constants/roles';
 import { useUser } from '@/context/userContext';
+import AddFolderModal from '@/components/modals/AddFolderModal';
 
 export type Folder = {
   id: string;
@@ -31,7 +32,21 @@ const Folders: React.FC<FoldersProps> = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
   const { user } = useUser();
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCreateFolder = async (data: any) => {
+    data.companyId = id;
+    await createCompany(data)
+    handleCloseModal();
+  };
   useEffect(() => {
     if (user?.id) {
       const getCompanies = async (objectId: string) => {
@@ -56,10 +71,6 @@ const Folders: React.FC<FoldersProps> = () => {
       getCompany();
     }
   }, [company, id, user]);
-
-  const handleAddButtonClick = () => {
-    // todo
-  };
 
   const handleSearch = () => {
     // todo
@@ -170,8 +181,13 @@ const Folders: React.FC<FoldersProps> = () => {
         columns={columns}
         placeholder="Recherche"
         addButtonLabel="Ajouter un dossier"
-        onAddButtonClick={handleAddButtonClick}
+        onAddButtonClick={handleOpenModal}
         onChangeSearch={handleSearch}
+      />
+      <AddFolderModal
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        onSubmit={handleCreateFolder}
       />
     </div>
   );

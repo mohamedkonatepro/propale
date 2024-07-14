@@ -125,10 +125,10 @@ export const createCompany = async (dataModal: any): Promise<Company | null> => 
   const { data, error } = await supabase
     .from('company')
     .insert([{
-      company_id: '',
+      company_id: dataModal.companyId ?? '',
       prospect_id: '',
       name: dataModal.companyName,
-      siret: '',
+      siret: dataModal.siret ?? '',
       siren: dataModal.siren,
       ape_code: dataModal.apeCode,
       activity_sector: dataModal.activitySector,
