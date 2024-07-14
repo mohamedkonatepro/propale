@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from 'react-modal';
 import { companySchema } from '@/schemas/company';
 import { FaTimes } from 'react-icons/fa';
 import { z } from 'zod';
+import axios from 'axios';
+import dataApeCode from '../../data/codes-ape.json';
 
 type AddCompanyModalProps = {
   isOpen: boolean;
@@ -30,7 +32,7 @@ const customStyles = {
 };
 
 const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClose, onSubmit }) => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormInputs>({
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<FormInputs>({
     resolver: zodResolver(companySchema),
   });
 
@@ -38,6 +40,36 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
     await onSubmit(data);
     reset();
   };
+
+  const sirenValue = watch('siren');
+
+  useEffect(() => {
+    const fetchCompanyDetails = async (siren: string) => {
+      try {
+        const response = await axios.get(`https://api.insee.fr/entreprises/sirene/V3.11/siren/${siren}`, {
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SIRENE_API_KEY}`, 
+          },
+        });
+        const companyData = response.data.uniteLegale;
+        const apeCode = companyData.periodesUniteLegale[0].activitePrincipaleUniteLegale;
+        setValue('apeCode', apeCode);
+        const naf = dataApeCode.find(code => code.id === apeCode);
+        if (naf) {
+          setValue('activitySector', naf?.label);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
+      }
+    };
+
+    if (sirenValue && sirenValue.length === 9) {
+      fetchCompanyDetails(sirenValue);
+    } else {
+      setValue('activitySector', '');
+      setValue('apeCode', '');
+    }
+  }, [sirenValue, setValue]);
 
   return (
     <Modal
@@ -75,12 +107,23 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
               />
               {errors.siren && <p className="text-red-500 text-xs">{errors.siren.message}</p>}
             </div>
+            {/* <input
+              type="hidden"
+              {...register('apeCode')}
+            />
+            <input
+              type="hidden"
+              {...register('activitySector')}
+            /> */}
             <div>
               <label className="block text-sm font-medium text-labelGray">Code APE</label>
               <input
                 {...register('apeCode')}
+
+                value={watch('apeCode')}
                 className="mt-1 block w-full bg-backgroundGray rounded p-2"
                 placeholder="9234A"
+                disabled
               />
               {errors.apeCode && <p className="text-red-500 text-xs">{errors.apeCode.message}</p>}
             </div>
@@ -88,8 +131,10 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
               <label className="block text-sm font-medium text-labelGray">Secteur d’activité</label>
               <input
                 {...register('activitySector')}
+                value={watch('activitySector')}
                 className="mt-1 block w-full bg-backgroundGray rounded p-2"
                 placeholder=""
+                disabled
               />
               {errors.activitySector && <p className="text-red-500 text-xs">{errors.activitySector.message}</p>}
             </div>
