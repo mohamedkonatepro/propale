@@ -15,9 +15,17 @@ import { Company, Profile } from '@/types/models';
 import { MdFolderOpen } from 'react-icons/md';
 import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
-import { fetchProfilesWithUserDetails } from '@/services/profileService';
+import { createProfile, fetchProfilesWithUserDetails } from '@/services/profileService';
+import AddUserModal from '@/components/modals/AddUserModal';
+import { userSchema } from '@/schemas/user';
+import { z } from 'zod';
+import { createUser } from '@/services/userService';
+import { associateProfileWithCompany } from '@/services/companyProfileService';
+import { supabase } from '@/lib/supabaseClient';
 
 interface UsersProps {}
+
+type DataModal = z.infer<typeof userSchema>;
 
 const Users: React.FC<UsersProps> = () => {
   const router = useRouter();
@@ -26,27 +34,37 @@ const Users: React.FC<UsersProps> = () => {
   const [company, setCompany] = useState<Company | null>(null);
   const [foldersCount, setFoldersCount] = useState<{ [key: string]: number }>({});
   const { user } = useUser();
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddButtonClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const getCompanyData = async () => {
+    const companyData = await fetchCompanyById(id as string);
+    setCompany(companyData);
+
+    if (companyData) {
+      const profileData = await fetchProfilesWithUserDetails(companyData.id);
+      if (profileData) {
+        setProfiles(profileData);
+
+        const folderCounts: { [key: string]: number } = {};
+        for (const profile of profileData) {
+          const count = await getNbFolders(profile.id);
+          folderCounts[profile.id] = count;
+        }
+        setFoldersCount(folderCounts);
+      }
+    }
+  }
+
   useEffect(() => {
     if (user?.id) {
-      const getCompanyData = async () => {
-        const companyData = await fetchCompanyById(id as string);
-        setCompany(companyData);
-
-        if (companyData) {
-          const profileData = await fetchProfilesWithUserDetails(companyData.id);
-          if (profileData) {
-            setProfiles(profileData);
-
-            const folderCounts: { [key: string]: number } = {};
-            for (const profile of profileData) {
-              const count = await getNbFolders(profile.id);
-              folderCounts[profile.id] = count;
-            }
-            setFoldersCount(folderCounts);
-          }
-        }
-      };
       getCompanyData();
     }
   }, [id, user]);
@@ -56,8 +74,24 @@ const Users: React.FC<UsersProps> = () => {
     return companies.length;
   };
 
-  const handleAddButtonClick = () => {
-    // Logique pour gérer le clic sur le bouton "Ajouter"
+  const handleCreateUser = async (dataModal: DataModal) => {
+    try {
+  
+      const user = await createUser(dataModal.email, dataModal.password);
+      if (!user) return;
+  
+      await createProfile(user.id, dataModal);
+      await associateProfileWithCompany(user.id, id as string);
+  
+      await supabase.auth.resetPasswordForEmail(dataModal.email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
+      });
+  
+      setIsModalOpen(false);
+      await getCompanyData();
+    } catch (error) {
+      console.error('Error creating company:', error);
+    }
   };
 
   const handleSearch = () => {
@@ -187,6 +221,11 @@ const Users: React.FC<UsersProps> = () => {
         addButtonLabel="Ajouter un utilisateur"
         onAddButtonClick={handleAddButtonClick}
         onChangeSearch={handleSearch}
+      />
+      <AddUserModal
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        onSubmit={handleCreateUser}
       />
     </div>
   );

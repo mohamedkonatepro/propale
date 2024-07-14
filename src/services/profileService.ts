@@ -31,7 +31,7 @@ export const createProfile = async (userId: string, dataModal: any): Promise<voi
       position: dataModal.position,
       phone: dataModal.phone,
       email: dataModal.email,
-      role: 'admin',
+      role: dataModal.role,
       blocked: false,
     }])
     .single();

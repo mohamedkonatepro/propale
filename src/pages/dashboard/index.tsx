@@ -17,7 +17,7 @@ interface HomeProps {
   page: string;
 }
 
-type DataModal = z.infer<typeof companySchema>;
+type DataModal = z.infer<typeof companySchema> & { role: string };
 
 const Home: React.FC<HomeProps> = ({ page }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,6 +33,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
   };
 
   const handleCreateCompany = async (dataModal: DataModal) => {
+    dataModal.role = 'admin';
     try {
       const companyCreated = await createCompany(dataModal);
       if (!companyCreated) return;

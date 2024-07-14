@@ -3,9 +3,10 @@ import { AuthUser } from '@supabase/supabase-js';
 import { ROLES } from '@/constants/roles';
 import { Profile } from '@/types/models';
 
-export const createUser = async (email: string): Promise<AuthUser | null> => {
+export const createUser = async (email: string, password?: string): Promise<AuthUser | null> => {
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email,
+    password,
     email_confirm: true,
     user_metadata: { name: 'New User' }
   });
