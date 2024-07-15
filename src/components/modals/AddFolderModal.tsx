@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { FaTimes, FaInfoCircle } from 'react-icons/fa';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
+import { folderSchema } from '@/schemas/folder';
 
 type AddFolderModalProps = {
   isOpen: boolean;
@@ -13,14 +14,6 @@ type AddFolderModalProps = {
   onSubmit: (data: any) => Promise<void>;
 };
 
-const folderSchema = z.object({
-  companyName: z.string().min(1, 'Nom est requis'),
-  siret: z.string().min(14, 'SIRET doit contenir 14 caractères').max(14, 'SIRET doit contenir 14 caractères'),
-  siren: z.string().optional(),
-  apeCode: z.string().optional(),
-  activitySector: z.string().optional(),
-  description: z.string().optional(),
-});
 
 type FormInputs = z.infer<typeof folderSchema>;
 
@@ -62,6 +55,13 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
           setValue('activitySector', naf?.label);
         }
         setValue('siren', companyData.siren);
+
+        const adresseEtablissement = companyData.adresseEtablissement
+
+        setValue('address', `${adresseEtablissement.numeroVoieEtablissement} ${adresseEtablissement.typeVoieEtablissement} ${adresseEtablissement.libelleVoieEtablissement}`);
+        setValue('city', adresseEtablissement.libelleCommuneEtablissement);
+        setValue('postalcode', adresseEtablissement.libelleCommuneEtablissement);
+        setValue('country', 'France');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
       }
@@ -71,6 +71,9 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
       fetchCompanyDetails(siretValue);
     } else {
       setValue('activitySector', '');
+      setValue('address', '');
+      setValue('city', '');
+      setValue('postalcode', '');
     }
   }, [siretValue, setValue]);
 

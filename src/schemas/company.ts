@@ -1,3 +1,4 @@
+import { ROLES } from '@/constants/roles';
 import { z } from 'zod';
 
 export const companySchema = z.object({
@@ -8,6 +9,14 @@ export const companySchema = z.object({
   firstname: z.string().min(1, 'Prénom est requis'),
   lastname: z.string().min(1, 'Nom est requis'),
   position: z.string().min(1, 'Fonction est requise'),
+  role: z.enum([ROLES.ADMIN, ROLES.SALES]).optional(),
   email: z.string().email('Email invalide'),
   phone: z.string().min(1, 'Téléphone est requis'),
+  address: z.string().optional(),
+  postalcode: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
 });
+
+
+export type CompanyFormInputs = z.infer<typeof companySchema>;

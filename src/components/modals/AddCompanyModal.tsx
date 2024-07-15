@@ -58,6 +58,13 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
         if (naf) {
           setValue('activitySector', naf?.label);
         }
+
+        const responseSearch = await axios.get(`https://recherche-entreprises.api.gouv.fr/search?q=${siren}`);
+        const company = responseSearch.data.results[0].siege
+        setValue('address', `${company.numero_voie} ${company.type_voie} ${company.libelle_voie}`);
+        setValue('city', company.libelle_commune);
+        setValue('postalcode', company.code_postal);
+        setValue('country', 'France');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
       }
@@ -68,6 +75,9 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
     } else {
       setValue('activitySector', '');
       setValue('apeCode', '');
+      setValue('address', '');
+      setValue('city', '');
+      setValue('postalcode', '');
     }
   }, [sirenValue, setValue]);
 

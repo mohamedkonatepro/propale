@@ -125,17 +125,18 @@ export const createCompany = async (dataModal: any): Promise<Company | null> => 
   const { data, error } = await supabase
     .from('company')
     .insert([{
-      company_id: dataModal.companyId ?? '',
+      company_id: dataModal.companyId,
       prospect_id: '',
       name: dataModal.companyName,
-      siret: dataModal.siret ?? '',
+      siret: dataModal.siret,
       siren: dataModal.siren,
       ape_code: dataModal.apeCode,
       activity_sector: dataModal.activitySector,
-      address: '',
-      city: '',
-      postalcode: '',
-      country: '',
+      description: dataModal.description,
+      address: dataModal.address,
+      city: dataModal.city,
+      postalcode: dataModal.postalcode,
+      country: dataModal.country,
     }])
     .select('*')
     .single();

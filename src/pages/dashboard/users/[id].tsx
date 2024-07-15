@@ -17,15 +17,13 @@ import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
 import { createProfile, fetchProfilesWithUserDetails } from '@/services/profileService';
 import AddUserModal from '@/components/modals/AddUserModal';
-import { userSchema } from '@/schemas/user';
+import { UserFormInputs, userSchema } from '@/schemas/user';
 import { z } from 'zod';
 import { createUser } from '@/services/userService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import { supabase } from '@/lib/supabaseClient';
 
 interface UsersProps {}
-
-type DataModal = z.infer<typeof userSchema>;
 
 const Users: React.FC<UsersProps> = () => {
   const router = useRouter();
@@ -74,15 +72,15 @@ const Users: React.FC<UsersProps> = () => {
     return companies.length;
   };
 
-  const handleCreateUser = async (dataModal: DataModal) => {
+  const handleCreateUser = async (formInputs: UserFormInputs) => {
     try {
-      const user = await createUser(dataModal.email, dataModal.password);
+      const user = await createUser(formInputs.email, formInputs.password);
       if (!user) return;
   
-      await createProfile(user.id, dataModal);
+      await createProfile(user.id, formInputs);
       await associateProfileWithCompany(user.id, id as string);
   
-      await supabase.auth.resetPasswordForEmail(dataModal.email, {
+      await supabase.auth.resetPasswordForEmail(formInputs.email, {
         redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
       });
   

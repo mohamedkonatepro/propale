@@ -15,6 +15,7 @@ import { useRouter } from 'next/router';
 import { ROLES } from '@/constants/roles';
 import { useUser } from '@/context/userContext';
 import AddFolderModal from '@/components/modals/AddFolderModal';
+import { FolderFormInputs } from '@/schemas/folder';
 
 export type Folder = {
   id: string;
@@ -42,11 +43,15 @@ const Folders: React.FC<FoldersProps> = () => {
     setIsModalOpen(false);
   };
 
-  const handleCreateFolder = async (data: any) => {
-    data.companyId = id;
-    await createCompany(data)
+  const handleCreateFolder = async (data: FolderFormInputs) => {
+    const folderData = {
+      ...data,
+      companyId: id as string,
+    };
+    await createCompany(folderData);
     handleCloseModal();
   };
+
   useEffect(() => {
     if (user?.id) {
       const getCompanies = async (objectId: string) => {

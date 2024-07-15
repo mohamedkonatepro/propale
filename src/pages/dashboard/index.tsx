@@ -3,7 +3,7 @@ import { DataTable } from '@/components/DataTable';
 import { Profile } from '@/types/models';
 import AddCompanyModal from '@/components/modals/AddCompanyModal';
 import { supabase } from '@/lib/supabaseClient';
-import { companySchema } from '@/schemas/company';
+import { CompanyFormInputs, companySchema } from '@/schemas/company';
 import { z } from 'zod';
 import { useUser } from '@/context/userContext';
 import { useFetchData } from '@/hooks/useFetchData';
@@ -16,8 +16,6 @@ import { associateProfileWithCompany } from '@/services/companyProfileService';
 interface HomeProps {
   page: string;
 }
-
-type DataModal = z.infer<typeof companySchema> & { role: string };
 
 const Home: React.FC<HomeProps> = ({ page }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,19 +30,26 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     setIsModalOpen(false);
   };
 
-  const handleCreateCompany = async (dataModal: DataModal) => {
-    dataModal.role = 'admin';
+  const handleCreateCompany = async (formInputs: CompanyFormInputs) => {
+    const companyData = {
+      ...formInputs,
+      role: 'admin',
+      companyId: '',
+      description: '',
+      siret: ''
+    };
+
     try {
-      const companyCreated = await createCompany(dataModal);
+      const companyCreated = await createCompany(companyData);
       if (!companyCreated) return;
   
-      const user = await createUser(dataModal.email);
+      const user = await createUser(companyData.email);
       if (!user) return;
   
-      await createProfile(user.id, dataModal);
+      await createProfile(user.id, companyData);
       await associateProfileWithCompany(user.id, companyCreated.id);
   
-      await supabase.auth.resetPasswordForEmail(dataModal.email, {
+      await supabase.auth.resetPasswordForEmail(companyData.email, {
         redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
       });
   
