@@ -87,7 +87,7 @@ const Users: React.FC<UsersProps> = () => {
       setIsModalOpen(false);
       await getCompanyData();
     } catch (error) {
-      console.error('Error creating company:', error);
+      console.error('Error creating user:', error);
     }
   };
 

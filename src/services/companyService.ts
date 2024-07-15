@@ -106,11 +106,17 @@ export const fetchCompaniesByCompanyId = async (companyId: string): Promise<Comp
 };
 
 // Fetch all companies without parent
-export const fetchAllCompaniesWithoutParent = async (): Promise<Company[]> => {
-  const { data, error } = await supabase
+export const fetchAllCompaniesWithoutParent = async (search?: string): Promise<Company[]> => {
+  let query = supabase
     .from('company')
     .select('*')
     .eq('company_id', '');
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,siren.ilike.%${search}%`);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Error fetching companies without parent:', error);

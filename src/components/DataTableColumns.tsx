@@ -2,12 +2,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { FaPlus } from "react-icons/fa";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
-import { MdFolderOpen } from 'react-icons/md';
 import { Checkbox } from '@/components/common/Checkbox';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Profile } from '@/types/models';
+import { SlSettings } from "react-icons/sl";
 
 export type Folder = {
   id: string;
@@ -81,12 +81,26 @@ export const folderColumns: ColumnDef<Folder>[] = [
     cell: ({ row }) => <div className="lowercase">{row.getValue("activity_sector")}</div>,
   },
   {
-    id: "new_prospect",
+    accessorKey: "status",
+    id: "status",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Statut
+        <LiaSortSolid className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div className="lowercase text-center">{'Actif'}</div>,
+  },
+  {
+    id: "settings",
     enableHiding: false,
     cell: ({ row }) => (
       <button className="flex items-center text-blue-500 border border-2 border-blue-500 py-2 px-4 rounded-lg shadow-md hover:bg-blue-100">
-        Nouveau prospect
-        <FaPlus className="ml-2" />
+        Paramètre
+        <SlSettings className="ml-2" />
       </button>
     ),
   },
@@ -102,7 +116,6 @@ export const folderColumns: ColumnDef<Folder>[] = [
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem>Modifier</DropdownMenuItem>
-          <DropdownMenuItem>Supprimer</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),
@@ -173,16 +186,6 @@ export const profileColumns: ColumnDef<Profile>[] = [
       </Button>
     ),
     cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    id: "manage_folders",
-    enableHiding: false,
-    cell: ({ row }) => (
-      <button className="flex items-center text-blue-500 border border-2 border-blue-500 p-2 rounded-lg shadow-md hover:bg-blue-100">
-        Gérer les dossiers
-        <MdFolderOpen className="ml-2" size="25" />
-      </button>
-    ),
   },
   {
     id: "menu",

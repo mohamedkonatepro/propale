@@ -19,11 +19,17 @@ export const createUser = async (email: string, password?: string): Promise<Auth
   return data?.user;
 };
 
-export const fetchProfilesWithRoleSuperAdmin = async (): Promise<Profile[] | null> => {
-  const { data, error } = await supabase
+export const fetchProfilesWithRoleSuperAdmin = async (search?: string): Promise<Profile[] | null> => {
+  let query = supabase
     .from('profiles')
     .select('*')
     .eq('role', ROLES.SUPER_ADMIN);
+
+  if (search) {
+    query = query.or(`firstname.ilike.%${search}%,lastname.ilike.%${search}%`);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return null;

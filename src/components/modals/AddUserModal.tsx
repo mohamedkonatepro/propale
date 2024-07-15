@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from 'react-modal';
@@ -11,6 +11,7 @@ type AddUserModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => Promise<void>;
+  page?: string;
 };
 
 type FormInputs = z.infer<typeof userSchema>;
@@ -30,11 +31,19 @@ const customStyles = {
   },
 };
 
-const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onSubmit }) => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<FormInputs>({
+const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onSubmit, page }) => {
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormInputs>({
     resolver: zodResolver(userSchema),
   });
+  
+  const roleValue = watch('role', page === ROLES.SUPER_ADMIN ? ROLES.SUPER_ADMIN : ROLES.ADMIN);
 
+  useEffect(() => {
+    if (page === ROLES.SUPER_ADMIN) {
+      setValue('role', ROLES.SUPER_ADMIN);
+    }
+  }, [page, setValue]);
+  
   const onSubmitHandler = async (data: FormInputs) => {
     await onSubmit(data);
     reset();
@@ -59,7 +68,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4 mt-2">
           <div>
-            <label className="block text-sm font-medium text-labelGray">Prénom</label>
+            <label className="block text-sm font-medium text-labelGray">Prénom*</label>
             <input
               {...register('firstname')}
               className="mt-1 block w-full bg-backgroundGray rounded p-2"
@@ -68,7 +77,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             {errors.firstname && <p className="text-red-500 text-xs">{errors.firstname.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-labelGray">Nom</label>
+            <label className="block text-sm font-medium text-labelGray">Nom*</label>
             <input
               {...register('lastname')}
               className="mt-1 block w-full bg-backgroundGray rounded p-2"
@@ -80,8 +89,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             <label className="block text-sm font-medium text-labelGray">Rôle</label>
             <select
               {...register('role')}
+              value={roleValue}
               className="mt-1 block w-full bg-backgroundGray rounded p-2"
+              onChange={(e) => setValue('role', e.target.value)}
+              disabled={page === ROLES.SUPER_ADMIN}
             >
+              <option value={ROLES.SUPER_ADMIN}>Super admin</option>
               <option value={ROLES.ADMIN}>Admin</option>
               <option value={ROLES.SALES}>Utilisateur</option>
             </select>
@@ -97,7 +110,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             {errors.position && <p className="text-red-500 text-xs">{errors.position.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-labelGray">Email</label>
+            <label className="block text-sm font-medium text-labelGray">Email*</label>
             <input
               {...register('email')}
               className="mt-1 block w-full bg-backgroundGray rounded p-2"
@@ -116,19 +129,15 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-labelGray">Mot de passe</label>
-          <input
-            type="password"
-            {...register('password')}
-            className="mt-1 block w-full bg-backgroundGray rounded p-2"
-            placeholder="***************"
-          />
-          {errors.password && <p className="text-red-500 text-xs">{errors.password.message}</p>}
+          <p className="text-xs">*Champs obligatoires</p>
         </div>
-        <div className="flex justify-center">
-          <button type="submit" className="bg-blue-700 text-white rounded px-4 py-2 mt-4">
-            Enregistrer
-          </button>
+        <div className="flex flex-col justify-center">
+          <div className="flex justify-center">
+            <button type="submit" className="bg-labelGray text-white rounded px-4 py-2 mt-4 w-1/4">
+              Enregistrer
+            </button>
+          </div>
+          <p className="text-center text-labelGray text-base mt-3">Un mail de création de mot de passe sera envoyé à l’adresse mail de l’utilisateur.</p>
         </div>
       </form>
     </Modal>
