@@ -22,18 +22,15 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ page }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const { user } = useUser();
   const [searchCompany, setSearchCompany] = useState('');
   const [searchUser, setSearchUser] = useState('');
   const { companies, profiles, fetchData } = useFetchData(page, user?.id, searchCompany, searchUser);
 
-  const handleAddButtonClickFolder = () => {
-    setIsModalOpen(true);
-  };
+  const handleAddButtonClickFolder = () => setIsModalOpen(true);
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
+  const handleCloseModal = () => setIsModalOpen(false);
 
   const handleCreateCompany = async (formInputs: CompanyFormInputs) => {
     const companyData = {
@@ -67,31 +64,20 @@ const Home: React.FC<HomeProps> = ({ page }) => {
 
   const handleSearchFolder = (dataSearch: string) => {
     setSearchCompany(dataSearch);
-    
-    if (dataSearch.length > 2) {
-      fetchData();
-    } else if (dataSearch.length === 0) {
+    if (dataSearch.length > 2 || dataSearch.length === 0) {
       fetchData();
     }
   };
 
   useEffect(() => {
-    if (searchCompany === '') {
-      fetchData();
-    }
-    if (searchUser  === '') {
+    if (searchCompany === '' || searchUser === '') {
       fetchData();
     }
   }, [searchCompany, searchUser]);
 
-  const handleAddButtonClickUser = () => {
-    setIsModalOpen(true);
+  const handleAddButtonClickUser = () => setIsUserModalOpen(true);
 
-  };
-
-  const handleCloseModalUser = () => {
-    setIsModalOpen(false);
-  };
+  const handleCloseModalUser = () => setIsUserModalOpen(false);
 
   const handleCreateUser = async (formInputs: UserFormInputs) => {
     try {
@@ -104,7 +90,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
       });
   
-      setIsModalOpen(false);
+      setIsUserModalOpen(false);
       fetchData();
     } catch (error) {
       console.error('Error creating user:', error);
@@ -113,10 +99,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
 
   const handleSearchUser = (dataSearch: string) => {
     setSearchUser(dataSearch);
-    
-    if (dataSearch.length > 2) {
-      fetchData();
-    } else if (dataSearch.length === 0) {
+    if (dataSearch.length > 3 || dataSearch.length === 0) {
       fetchData();
     }
   };
@@ -143,17 +126,22 @@ const Home: React.FC<HomeProps> = ({ page }) => {
           />
         </>
       ) : (
-        <><DataTable<Profile>
+        <>
+          <DataTable<Profile>
             data={profiles}
             columns={profileColumns}
             placeholder="Recherche"
             addButtonLabel="Ajouter un utilisateur"
             onAddButtonClick={handleAddButtonClickUser}
-            onChangeSearch={handleSearchUser} /><AddUserModal
-              page={ROLES.SUPER_ADMIN}
-              isOpen={isModalOpen}
-              onRequestClose={handleCloseModalUser}
-              onSubmit={handleCreateUser} /></>
+            onChangeSearch={handleSearchUser} 
+          />
+          <AddUserModal
+            page={ROLES.SUPER_ADMIN}
+            isOpen={isUserModalOpen}
+            onRequestClose={handleCloseModalUser}
+            onSubmit={handleCreateUser}
+          />
+        </>
       )}
     </div>
   );
