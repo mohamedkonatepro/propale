@@ -10,11 +10,12 @@ import { useFetchData } from '@/hooks/useFetchData';
 import { Folder, folderColumns, profileColumns } from '@/components/DataTableColumns';
 import { createCompany } from '@/services/companyService';
 import { createUser } from '@/services/userService';
-import { createProfile } from '@/services/profileService';
+import { createProfile, updateUserProfile } from '@/services/profileService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import AddUserModal from '@/components/modals/AddUserModal';
 import { UserFormInputs } from '@/schemas/user';
 import { ROLES } from '@/constants/roles';
+import EditUserModal from '@/components/modals/EditUserModal';
 
 interface HomeProps {
   page: string;
@@ -27,6 +28,8 @@ const Home: React.FC<HomeProps> = ({ page }) => {
   const [searchCompany, setSearchCompany] = useState('');
   const [searchUser, setSearchUser] = useState('');
   const { companies, profiles, fetchData } = useFetchData(page, user?.id, searchCompany, searchUser);
+  const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
 
   const handleAddButtonClickFolder = () => setIsModalOpen(true);
 
@@ -45,11 +48,15 @@ const Home: React.FC<HomeProps> = ({ page }) => {
       const companyCreated = await createCompany(companyData);
       if (!companyCreated) return;
   
-      const user = await createUser(companyData.email);
-      if (!user) return;
+      const userCreated = await createUser(companyData.email);
+      if (!userCreated) return;
   
-      await createProfile(user.id, companyData);
-      await associateProfileWithCompany(user.id, companyCreated.id);
+      const profileData = {
+        ...formInputs,
+        userId: userCreated.id
+      }
+      await createProfile(profileData);
+      await associateProfileWithCompany(userCreated.id, companyCreated.id);
   
       await supabase.auth.resetPasswordForEmail(companyData.email, {
         redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
@@ -81,10 +88,14 @@ const Home: React.FC<HomeProps> = ({ page }) => {
 
   const handleCreateUser = async (formInputs: UserFormInputs) => {
     try {
-      const user = await createUser(formInputs.email);
-      if (!user) return;
+      const userCreated = await createUser(formInputs.email);
+      if (!userCreated) return;
   
-      await createProfile(user.id, formInputs);
+      const profileData = {
+        ...formInputs,
+        userId: userCreated.id
+      }
+      await createProfile(profileData);
   
       await supabase.auth.resetPasswordForEmail(formInputs.email, {
         redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
@@ -104,6 +115,27 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     }
   };
 
+  const handleEditUser = (userSelected: Profile) => {
+    setSelectedUser(userSelected);
+    setIsModalOpenEdit(true);
+  };
+
+  const handleCloseModalEdit = () => {
+    setIsModalOpenEdit(false);
+    setSelectedUser(null);
+  };
+
+  const handleSubmit = async (data: Profile) => {
+    if (user?.id) {
+      const error = await updateUserProfile(data, user.id);
+      if (error) {
+        console.error('Error updating user profile:', error);
+        return;
+      }
+    }
+    handleCloseModalEdit();
+    fetchData();
+  };
   return (
     <div className="flex-1 p-6">
       <div className='flex flex-col'>
@@ -129,12 +161,20 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         <>
           <DataTable<Profile>
             data={profiles}
-            columns={profileColumns}
+            columns={profileColumns(handleEditUser)}
             placeholder="Recherche"
             addButtonLabel="Ajouter un utilisateur"
             onAddButtonClick={handleAddButtonClickUser}
             onChangeSearch={handleSearchUser} 
           />
+          {selectedUser && (
+            <EditUserModal
+              isOpen={isModalOpenEdit}
+              onRequestClose={handleCloseModalEdit}
+              onSubmit={handleSubmit}
+              defaultValues={selectedUser}
+            />
+          )}
           <AddUserModal
             page={ROLES.SUPER_ADMIN}
             isOpen={isUserModalOpen}

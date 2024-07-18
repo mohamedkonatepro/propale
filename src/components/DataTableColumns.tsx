@@ -122,7 +122,8 @@ export const folderColumns: ColumnDef<Folder>[] = [
   },
 ];
 
-export const profileColumns: ColumnDef<Profile>[] = [
+export const profileColumns = (handleEditUser: (user: Profile) => void): ColumnDef<Profile>[] => [
+
   {
     id: "select",
     header: ({ table }) => (
@@ -198,8 +199,7 @@ export const profileColumns: ColumnDef<Profile>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Modifier</DropdownMenuItem>
-          <DropdownMenuItem>Supprimer</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleEditUser(row.original)}>Modifier</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),

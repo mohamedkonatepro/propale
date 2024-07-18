@@ -77,7 +77,11 @@ const Users: React.FC<UsersProps> = () => {
       const user = await createUser(formInputs.email, formInputs.password);
       if (!user) return;
   
-      await createProfile(user.id, formInputs);
+      const profileData = {
+        ...formInputs,
+        userId: user.id
+      }
+      await createProfile(profileData);
       await associateProfileWithCompany(user.id, id as string);
   
       await supabase.auth.resetPasswordForEmail(formInputs.email, {

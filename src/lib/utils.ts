@@ -1,6 +1,22 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs: ClassValue[]) {
+export const cn =(...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs))
 }
+
+export const formatDate = (date: Date) => {
+  if (!(date instanceof Date)) {
+    const dateFormated = new Date(date);
+    const day = String(dateFormated.getUTCDate()).padStart(2, '0');
+    const month = String(dateFormated.getUTCMonth() + 1).padStart(2, '0');
+    const year = dateFormated.getUTCFullYear();
+  
+    return `${day}/${month}/${year}`;
+  }
+  return date.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+};

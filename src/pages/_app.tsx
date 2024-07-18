@@ -6,6 +6,8 @@ import Modal from 'react-modal';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useRouter } from 'next/router';
 import { UserProvider } from '@/context/userContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -28,6 +30,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       ) : (
         <Component {...pageProps} />
       )}
+      <ToastContainer />
     </UserProvider>
   );
 }

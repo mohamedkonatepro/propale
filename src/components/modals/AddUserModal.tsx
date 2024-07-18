@@ -65,9 +65,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
       <div className="flex justify-center items-center pb-2 mb-4">
         <h2 className="text-xl font-semibold">Informations utilisateur</h2>
       </div>
-      <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4 mt-2">
-          <div>
+      <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4 px-20">
+        <div className="grid grid-cols-12 gap-4 mt-2">
+          <div className='col-span-6'>
             <label className="block text-sm font-medium text-labelGray">Prénom*</label>
             <input
               {...register('firstname')}
@@ -76,7 +76,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             />
             {errors.firstname && <p className="text-red-500 text-xs">{errors.firstname.message}</p>}
           </div>
-          <div>
+          <div className='col-span-6'>
             <label className="block text-sm font-medium text-labelGray">Nom*</label>
             <input
               {...register('lastname')}
@@ -85,8 +85,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             />
             {errors.lastname && <p className="text-red-500 text-xs">{errors.lastname.message}</p>}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-labelGray">Rôle</label>
+          <div className='col-span-5'>
+            <label className="block text-sm font-medium text-labelGray">Rôle*</label>
             <select
               {...register('role')}
               value={roleValue}
@@ -100,7 +100,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             </select>
             {errors.role && <p className="text-red-500 text-xs">{errors.role.message}</p>}
           </div>
-          <div>
+          <div className='col-span-7'>
             <label className="block text-sm font-medium text-labelGray">Fonction</label>
             <input
               {...register('position')}
@@ -109,7 +109,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             />
             {errors.position && <p className="text-red-500 text-xs">{errors.position.message}</p>}
           </div>
-          <div>
+          <div className='col-span-8'>
             <label className="block text-sm font-medium text-labelGray">Email*</label>
             <input
               {...register('email')}
@@ -118,7 +118,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             />
             {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
           </div>
-          <div>
+          <div className='col-span-4'>
             <label className="block text-sm font-medium text-labelGray">Téléphone</label>
             <input
               {...register('phone')}
@@ -134,7 +134,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
         <div className="flex flex-col justify-center">
           <div className="flex justify-center">
             <button type="submit" className="bg-labelGray text-white rounded px-4 py-2 mt-4 w-1/4">
-              Enregistrer
+              Créer
             </button>
           </div>
           <p className="text-center text-labelGray text-base mt-3">Un mail de création de mot de passe sera envoyé à l’adresse mail de l’utilisateur.</p>

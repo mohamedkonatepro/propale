@@ -21,11 +21,11 @@ export const getUserDetails = async (): Promise<Profile | null> => {
   return data as Profile;
 };
 
-export const createProfile = async (userId: string, dataModal: any): Promise<void> => {
+export const createProfile = async (dataModal: any): Promise<void> => {
   const { error } = await supabase
     .from('profiles')
     .insert([{
-      id: userId,
+      id: dataModal.userId,
       firstname: dataModal.firstname,
       lastname: dataModal.lastname,
       position: dataModal.position,
@@ -85,4 +85,22 @@ export const fetchProfileCountByCompanyId = async (companyId: string): Promise<n
   }
 
   return count ?? 0;
+};
+
+export const updateUserProfile = async (data: Profile, userUpdatedId: string) => {
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      firstname: data.firstname,
+      lastname: data.lastname,
+      position: data.position,
+      phone: data.phone,
+      role: data.role,
+      blocked: data.blocked,
+      updated_by: userUpdatedId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', data.id);
+
+  return error;
 };
