@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from 'react-modal';
-import { z } from 'zod';
 import { FaTimes, FaInfoCircle } from 'react-icons/fa';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
@@ -36,7 +35,7 @@ const customStyles = {
 const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues }) => {
   const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm<FolderFormInputs>({
     resolver: zodResolver(folderSchema),
-    defaultValues: defaultValues || {} // Utiliser les valeurs par défaut si elles sont fournies
+    defaultValues: defaultValues || {}
   });
 
   const siretValue = watch('siret');

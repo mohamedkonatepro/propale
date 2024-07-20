@@ -128,6 +128,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
                 disabled={edit ? false : true}
               >
                 <option value={ROLES.SUPER_ADMIN}>Super admin</option>
+                <option value={ROLES.ADMIN}>Admin</option>
+                <option value={ROLES.SALES}>Utilisateur</option>
               </select>
               {errors.role && <p className="text-red-500 text-xs">{errors.role.message}</p>}
             </div>

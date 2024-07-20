@@ -15,13 +15,14 @@ import { Company, Profile } from '@/types/models';
 import { MdFolderOpen } from 'react-icons/md';
 import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
-import { createProfile, fetchProfilesWithUserDetails } from '@/services/profileService';
+import { createProfile, fetchProfilesWithUserDetails, updateUserProfile } from '@/services/profileService';
 import AddUserModal from '@/components/modals/AddUserModal';
 import { UserFormInputs, userSchema } from '@/schemas/user';
 import { z } from 'zod';
 import { createUser } from '@/services/userService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import { supabase } from '@/lib/supabaseClient';
+import EditUserModal from '@/components/modals/EditUserModal';
 
 interface UsersProps {}
 
@@ -33,6 +34,30 @@ const Users: React.FC<UsersProps> = () => {
   const [foldersCount, setFoldersCount] = useState<{ [key: string]: number }>({});
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+
+  const handleEditUser = (userSelected: Profile) => {
+    setSelectedUser(userSelected);
+    setIsModalOpenEdit(true);
+  };
+
+  const handleCloseModalEdit = () => {
+    setIsModalOpenEdit(false);
+    setSelectedUser(null);
+  };
+
+  const handleSubmitEdit = async (data: Profile) => {
+    if (user?.id) {
+      const error = await updateUserProfile(data, user.id);
+      if (error) {
+        console.error('Error updating user profile:', error);
+        return;
+      }
+    }
+    handleCloseModalEdit();
+    await getCompanyData();
+  };
 
   const handleAddButtonClick = () => {
     setIsModalOpen(true);
@@ -204,7 +229,7 @@ const Users: React.FC<UsersProps> = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Modifier</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEditUser(row.original)}>Modifier</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -222,6 +247,14 @@ const Users: React.FC<UsersProps> = () => {
         onAddButtonClick={handleAddButtonClick}
         onChangeSearch={handleSearch}
       />
+      {selectedUser && (
+        <EditUserModal
+          isOpen={isModalOpenEdit}
+          onRequestClose={handleCloseModalEdit}
+          onSubmit={handleSubmitEdit}
+          defaultValues={selectedUser}
+        />
+      )}
       <AddUserModal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
