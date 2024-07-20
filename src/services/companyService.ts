@@ -154,3 +154,24 @@ export const createCompany = async (dataModal: any): Promise<Company | null> => 
 
   return data;
 };
+
+export const updateCompany = async (data: any) => {
+  const { error } = await supabase
+    .from('company')
+    .update({
+      name: data.companyName,
+      siret: data.siret,
+      siren: data.siren,
+      ape_code: data.apeCode,
+      activity_sector: data.activitySector,
+      description: data.description,
+      updated_at: new Date().toISOString(),
+      address: data.address,
+      city: data.city,
+      postalcode: data.postalcode,
+      country: data.country,
+    })
+    .eq('id', data.id);
+
+  return error;
+};

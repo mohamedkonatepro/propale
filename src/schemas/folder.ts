@@ -11,6 +11,7 @@ export const folderSchema = z.object({
   postalcode: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
+  id: z.string().optional(),
 });
 
 export type FolderFormInputs = z.infer<typeof folderSchema>;

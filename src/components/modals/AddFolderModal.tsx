@@ -6,16 +6,17 @@ import { z } from 'zod';
 import { FaTimes, FaInfoCircle } from 'react-icons/fa';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
-import { folderSchema } from '@/schemas/folder';
+import { FolderFormInputs, folderSchema } from '@/schemas/folder';
+import { RiDeleteBinLine } from "react-icons/ri";
+import { supabase } from '@/lib/supabaseClient';
 
 type AddFolderModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => Promise<void>;
+  defaultValues?: FolderFormInputs | null; // Ajout des valeurs par défaut pour la modification
 };
 
-
-type FormInputs = z.infer<typeof folderSchema>;
 
 const customStyles = {
   content: {
@@ -32,9 +33,10 @@ const customStyles = {
   },
 };
 
-const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit }) => {
-  const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm<FormInputs>({
+const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues }) => {
+  const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm<FolderFormInputs>({
     resolver: zodResolver(folderSchema),
+    defaultValues: defaultValues || {} // Utiliser les valeurs par défaut si elles sont fournies
   });
 
   const siretValue = watch('siret');
@@ -60,7 +62,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
 
         setValue('address', `${adresseEtablissement.numeroVoieEtablissement} ${adresseEtablissement.typeVoieEtablissement} ${adresseEtablissement.libelleVoieEtablissement}`);
         setValue('city', adresseEtablissement.libelleCommuneEtablissement);
-        setValue('postalcode', adresseEtablissement.libelleCommuneEtablissement);
+        setValue('postalcode', adresseEtablissement.codePostalEtablissement);
         setValue('country', 'France');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
@@ -77,10 +79,22 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
     }
   }, [siretValue, setValue]);
 
-  const onSubmitHandler = async (data: FormInputs) => {
+  useEffect(() => {
+    if (defaultValues) {
+      for (const [key, value] of Object.entries(defaultValues)) {
+        setValue(key as keyof FolderFormInputs, value);
+      }
+    }
+  }, [defaultValues, setValue]);
+
+  const onSubmitHandler = async (data: FolderFormInputs) => {
     await onSubmit(data);
     reset();
   };
+
+  const deleteFolder = async () => {
+    await supabase.from('company').delete().eq('id', defaultValues?.id);
+  }
 
   return (
     <Modal
@@ -96,7 +110,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
         </button>
       </div>
       <div className="flex justify-center items-center pb-2 mb-4">
-        <h2 className="text-xl font-semibold">Ajouter un dossier</h2>
+        <h2 className="text-xl font-semibold">{defaultValues ? 'Modifier le dossier' : 'Ajouter un dossier'}</h2>
       </div>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
         <div>
@@ -139,9 +153,10 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
             placeholder="Description du dossier"
           />
         </div>
+        {defaultValues && <button onClick={deleteFolder} className='flex text-red-500'><RiDeleteBinLine className='mt-1 mr-2' /> Supprimer ce dossier</button>}
         <div className="flex justify-center">
           <button type="submit" className="bg-blue-600 text-white rounded-xl px-4 py-2 mt-4">
-            Créer le dossier
+            {defaultValues ? 'Modifier le dossier' : 'Créer le dossier'}
           </button>
         </div>
       </form>

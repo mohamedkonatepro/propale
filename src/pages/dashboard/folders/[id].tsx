@@ -5,8 +5,7 @@ import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import { createCompany, fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
-import { Checkbox } from '@/components/common/Checkbox';
+import { createCompany, fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById, updateCompany } from '@/services/companyService';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
@@ -34,76 +33,61 @@ const Folders: React.FC<FoldersProps> = () => {
   const [company, setCompany] = useState<Company | null>(null);
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<FolderFormInputs | null>();
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (data?: FolderFormInputs) => {
     setIsModalOpen(true);
+    setSelectedFolder(data)
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setSelectedFolder(null);
   };
 
   const handleCreateFolder = async (data: FolderFormInputs) => {
-    const folderData = {
-      ...data,
-      companyId: id as string,
-    };
-    await createCompany(folderData);
+    if (selectedFolder) {
+      const folderData = {
+        ...data,
+        id: selectedFolder.id,
+      };
+      await updateCompany(folderData);
+    } else {
+      const folderData = {
+        ...data,
+        companyId: id as string,
+      };
+      await createCompany(folderData);
+    }
+    await getCompanyData()
     handleCloseModal();
   };
 
-  useEffect(() => {
-    if (user?.id) {
-      const getCompanies = async (objectId: string) => {
-        let data;
-        
-        if (user.role === ROLES.SALES) {
-          data = await fetchCompaniesWithParentByProfileId(objectId);
-        } else {
-          data = await fetchCompaniesByCompanyId(objectId);
-        }
-        
-        setCompanies(data);
-      };
-  
-      const getCompany = async () => {
-        const data = await fetchCompanyById(id as string);
-        setCompany(data);
-      };
-      if (company) {
-        getCompanies(company.id);
+  const getCompanyData = async () => {
+    if (!user?.id || !id) return;
+
+    const companyData = await fetchCompanyById(id as string);
+    setCompany(companyData);
+
+    if (companyData) {
+      let data;
+      if (user.role === ROLES.SALES) {
+        data = await fetchCompaniesWithParentByProfileId(companyData.id);
+      } else {
+        data = await fetchCompaniesByCompanyId(companyData.id);
       }
-      getCompany();
+      setCompanies(data);
     }
-  }, [company, id, user]);
+  };
+  useEffect(() => {
+    getCompanyData();
+  }, [id, user]);
 
   const handleSearch = () => {
     // todo
   }
 
   const columns: ColumnDef<Folder>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: "name",
       id: "name",
@@ -160,7 +144,7 @@ const Folders: React.FC<FoldersProps> = () => {
       ),
     },
     {
-      id: "menu",
+      id: "menuFolder",
       enableHiding: false,
       cell: ({ row }) => (
         <DropdownMenu>
@@ -170,8 +154,7 @@ const Folders: React.FC<FoldersProps> = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Modifier</DropdownMenuItem>
-            <DropdownMenuItem>Supprimer</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleOpenModal({...row.original, companyName: row.original.name})}>Modifier</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -193,6 +176,7 @@ const Folders: React.FC<FoldersProps> = () => {
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
         onSubmit={handleCreateFolder}
+        defaultValues={selectedFolder}
       />
     </div>
   );
