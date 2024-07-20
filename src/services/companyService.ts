@@ -63,7 +63,7 @@ export const fetchCompanyWithoutParentByProfileId = async (profileId: string): P
 };
 
 // Fetch companies with a parent by profile_id
-export const fetchCompaniesWithParentByProfileId = async (profileId: string): Promise<Company[]> => {
+export const fetchCompaniesWithParentByProfileId = async (profileId: string, search?: string): Promise<Company[]> => {
   const { data: companyProfileData, error: companyProfileError } = await supabase
     .from('companies_profiles')
     .select('company_id')
@@ -79,23 +79,40 @@ export const fetchCompaniesWithParentByProfileId = async (profileId: string): Pr
     return [];
   }
 
-  const companiesWithParent: Company[] = [];
-  for (let { company_id } of companyProfileData) {
-    const company = await fetchCompanyById(company_id);
-    if (company && company.company_id) {
-      companiesWithParent.push(company);
-    }
+  let companyIds = companyProfileData.map(({ company_id }) => company_id);
+
+  let query = supabase
+    .from('company')
+    .select('*')
+    .in('id', companyIds)
+    .is('company_id', null);
+
+  if (search && search.length >= 3) {
+    query = query.or(`name.ilike.%${search}%,siret.ilike.%${search}%`);
   }
 
-  return companiesWithParent;
+  const { data: companiesData, error: companiesError } = await query;
+
+  if (companiesError) {
+    console.error('Error fetching company details:', companiesError);
+    return [];
+  }
+
+  return companiesData;
 };
 
 // Fetch companies by company_id
-export const fetchCompaniesByCompanyId = async (companyId: string): Promise<Company[]> => {
-  const { data, error } = await supabase
+export const fetchCompaniesByCompanyId = async (companyId: string, search?: string): Promise<Company[]> => {
+  let query = supabase
     .from('company')
     .select('*')
     .eq('company_id', companyId);
+
+  if (search && search.length >= 3) {
+    query = query.or(`name.ilike.%${search}%,siret.ilike.%${search}%`);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Error fetching companies:', error);

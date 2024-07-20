@@ -34,6 +34,7 @@ const Folders: React.FC<FoldersProps> = () => {
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<FolderFormInputs | null>();
+  const [search, setSearch] = useState<string>('');
 
   const handleOpenModal = (data?: FolderFormInputs) => {
     setIsModalOpen(true);
@@ -72,20 +73,21 @@ const Folders: React.FC<FoldersProps> = () => {
     if (companyData) {
       let data;
       if (user.role === ROLES.SALES) {
-        data = await fetchCompaniesWithParentByProfileId(companyData.id);
+        data = await fetchCompaniesWithParentByProfileId(companyData.id, search);
       } else {
-        data = await fetchCompaniesByCompanyId(companyData.id);
+        data = await fetchCompaniesByCompanyId(companyData.id, search);
       }
       setCompanies(data);
     }
   };
+
   useEffect(() => {
     getCompanyData();
-  }, [id, user]);
+  }, [id, user, search]);
 
-  const handleSearch = () => {
-    // todo
-  }
+  const handleSearch = (searchValue: string) => {
+    setSearch(searchValue);
+  };
 
   const columns: ColumnDef<Folder>[] = [
     {
