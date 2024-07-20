@@ -1,13 +1,10 @@
 import { useEffect, useState } from 'react';
 import { ColumnDef } from "@tanstack/react-table";
-import { FaPlus } from "react-icons/fa";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import Sidebar from '@/components/layout/Sidebar';
-import { fetchCompaniesWithParentByProfileId, fetchCompanyById, fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
-import { Checkbox } from '@/components/common/Checkbox';
+import { fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
@@ -15,10 +12,9 @@ import { Company, Profile } from '@/types/models';
 import { MdFolderOpen } from 'react-icons/md';
 import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
-import { createProfile, fetchProfilesWithUserDetails, updateUserProfile } from '@/services/profileService';
+import { fetchProfilesWithUserDetails, updateUserProfile } from '@/services/profileService';
 import AddUserModal from '@/components/modals/AddUserModal';
-import { UserFormInputs, userSchema } from '@/schemas/user';
-import { z } from 'zod';
+import { UserFormInputs } from '@/schemas/user';
 import { createUser } from '@/services/userService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import { supabase } from '@/lib/supabaseClient';
@@ -36,6 +32,7 @@ const Users: React.FC<UsersProps> = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
+  const [searchUser, setSearchUser] = useState('');
 
   const handleEditUser = (userSelected: Profile) => {
     setSelectedUser(userSelected);
@@ -72,7 +69,7 @@ const Users: React.FC<UsersProps> = () => {
     setCompany(companyData);
 
     if (companyData) {
-      const profileData = await fetchProfilesWithUserDetails(companyData.id);
+      const profileData = await fetchProfilesWithUserDetails(companyData.id, searchUser);
       if (profileData) {
         setProfiles(profileData);
 
@@ -84,13 +81,13 @@ const Users: React.FC<UsersProps> = () => {
         setFoldersCount(folderCounts);
       }
     }
-  }
+  };
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && id) {
       getCompanyData();
     }
-  }, [id, user]);
+  }, [id, user, searchUser]);
 
   const getNbFolders = async (id: string): Promise<number> => {
     const companies = await fetchCompaniesWithParentByProfileId(id);
@@ -120,33 +117,11 @@ const Users: React.FC<UsersProps> = () => {
     }
   };
 
-  const handleSearch = () => {
-    // Logique pour gérer la recherche
+  const handleSearch = async (dataSearch: string) => {
+    setSearchUser(dataSearch);
   };
 
   const columns: ColumnDef<Profile>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: "firstname",
       id: "name",

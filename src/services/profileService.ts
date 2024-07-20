@@ -42,7 +42,7 @@ export const createProfile = async (dataModal: any): Promise<void> => {
   }
 };
 
-export const fetchProfilesWithUserDetails = async (companyId: string): Promise<Profile[]> => {
+export const fetchProfilesWithUserDetails = async (companyId: string, search?: string): Promise<Profile[]> => {
   const { data: companyProfiles, error: companyProfilesError } = await supabase
     .from('companies_profiles')
     .select('profile_id')
@@ -53,24 +53,24 @@ export const fetchProfilesWithUserDetails = async (companyId: string): Promise<P
     return [];
   }
 
-  const profileDetailsPromises = companyProfiles.map(async ({ profile_id }) => {
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', profile_id)
-      .single();
+  let query = supabase
+    .from('profiles')
+    .select('*')
+    .in('id', companyProfiles.map(cp => cp.profile_id)); // Use 'in' to filter profiles by their IDs
 
-    if (profileError) {
-      console.error(`Error fetching details for profile ID ${profile_id}:`, profileError);
-      return null;
-    }
+  if (search && search.length >= 3) {
+    const searchLower = search.toLowerCase();
+    query = query.or(`firstname.ilike.%${searchLower}%,lastname.ilike.%${searchLower}%`);
+  }
 
-    return profileData;
-  });
+  const { data: profileDetails, error: profileError } = await query;
 
-  const profileDetails = await Promise.all(profileDetailsPromises);
+  if (profileError) {
+    console.error('Error fetching profile details:', profileError);
+    return [];
+  }
 
-  return profileDetails.filter(profile => profile !== null) as Profile[];
+  return profileDetails;
 };
 
 export const fetchProfileCountByCompanyId = async (companyId: string): Promise<number> => {
