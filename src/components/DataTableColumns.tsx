@@ -8,26 +8,7 @@ import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company, Profile } from '@/types/models';
 import { SlSettings } from "react-icons/sl";
 
-export const folderColumns: ColumnDef<Company>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+export const folderColumns = (handleEditCompany: (company: Company) => void): ColumnDef<Company>[] => [
   {
     accessorKey: "name",
     id: "name",
@@ -106,7 +87,7 @@ export const folderColumns: ColumnDef<Company>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Modifier</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleEditCompany(row.original)}>Modifier</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),
@@ -114,26 +95,6 @@ export const folderColumns: ColumnDef<Company>[] = [
 ];
 
 export const profileColumns = (handleEditUser: (user: Profile) => void): ColumnDef<Profile>[] => [
-
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "name",
     id: "name",

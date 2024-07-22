@@ -4,11 +4,10 @@ import { Company, Profile } from '@/types/models';
 import AddCompanyModal from '@/components/modals/AddCompanyModal';
 import { supabase } from '@/lib/supabaseClient';
 import { CompanyFormInputs, companySchema } from '@/schemas/company';
-import { z } from 'zod';
 import { useUser } from '@/context/userContext';
 import { useFetchData } from '@/hooks/useFetchData';
 import { folderColumns, profileColumns } from '@/components/DataTableColumns';
-import { createCompany } from '@/services/companyService';
+import { createCompany, updateCompany } from '@/services/companyService';
 import { createUser } from '@/services/userService';
 import { createProfile, updateUserProfile } from '@/services/profileService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
@@ -16,6 +15,7 @@ import AddUserModal from '@/components/modals/AddUserModal';
 import { UserFormInputs } from '@/schemas/user';
 import { ROLES } from '@/constants/roles';
 import EditUserModal from '@/components/modals/EditUserModal';
+import EditCompanyModal from '@/components/modals/EditCompanyModal';
 
 interface HomeProps {
   page: string;
@@ -30,6 +30,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
   const { companies, profiles, fetchData } = useFetchData(page, user?.id, searchCompany, searchUser);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   const handleAddButtonClickFolder = () => setIsModalOpen(true);
 
@@ -120,12 +121,18 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     setIsModalOpenEdit(true);
   };
 
+  const handleEditCompany = (companySelected: Company) => {
+    setSelectedCompany(companySelected);
+    setIsModalOpenEdit(true);
+  };
+
   const handleCloseModalEdit = () => {
     setIsModalOpenEdit(false);
     setSelectedUser(null);
+    setSelectedCompany(null);
   };
 
-  const handleSubmit = async (data: Profile) => {
+  const handleSubmitUser = async (data: Profile) => {
     if (user?.id) {
       const error = await updateUserProfile(data, user.id);
       if (error) {
@@ -133,6 +140,12 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         return;
       }
     }
+    handleCloseModalEdit();
+    fetchData();
+  };
+
+  const handleSubmitCompany = async (data: Company) => {
+    await updateCompany(data);
     handleCloseModalEdit();
     fetchData();
   };
@@ -145,12 +158,20 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         <>
           <DataTable<Company>
             data={companies}
-            columns={folderColumns}
+            columns={folderColumns(handleEditCompany)}
             placeholder="Recherche"
             addButtonLabel="Ajouter une entreprise"
             onAddButtonClick={handleAddButtonClickFolder}
             onChangeSearch={handleSearchFolder} 
           />
+          {selectedCompany && (
+            <EditCompanyModal
+              isOpen={isModalOpenEdit}
+              onRequestClose={handleCloseModalEdit}
+              onSubmit={handleSubmitCompany}
+              defaultValues={selectedCompany}
+            />
+          )}
           <AddCompanyModal
             isOpen={isModalOpen}
             onRequestClose={handleCloseModal}
@@ -171,7 +192,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
             <EditUserModal
               isOpen={isModalOpenEdit}
               onRequestClose={handleCloseModalEdit}
-              onSubmit={handleSubmit}
+              onSubmit={handleSubmitUser}
               defaultValues={selectedUser}
             />
           )}
