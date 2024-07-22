@@ -126,6 +126,11 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     setIsModalOpenEdit(true);
   };
 
+  const handleDeleteCompany = async (companyId: string) => {
+    await supabase.from('company').delete().eq('id', companyId);
+    fetchData();
+  };
+
   const handleCloseModalEdit = () => {
     setIsModalOpenEdit(false);
     setSelectedUser(null);
@@ -158,7 +163,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         <>
           <DataTable<Company>
             data={companies}
-            columns={folderColumns(handleEditCompany)}
+            columns={folderColumns(handleEditCompany, handleDeleteCompany)}
             placeholder="Recherche"
             addButtonLabel="Ajouter une entreprise"
             onAddButtonClick={handleAddButtonClickFolder}

@@ -1,14 +1,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
-import { Checkbox } from '@/components/common/Checkbox';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company, Profile } from '@/types/models';
 import { SlSettings } from "react-icons/sl";
 
-export const folderColumns = (handleEditCompany: (company: Company) => void): ColumnDef<Company>[] => [
+export const folderColumns = (handleEditCompany: (company: Company) => void, handleDeleteCompany: (companyId: string) => void): ColumnDef<Company>[] => [
   {
     accessorKey: "name",
     id: "name",
@@ -88,6 +87,7 @@ export const folderColumns = (handleEditCompany: (company: Company) => void): Co
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => handleEditCompany(row.original)}>Modifier</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleDeleteCompany(row.original.id)}>Supprimer</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),
