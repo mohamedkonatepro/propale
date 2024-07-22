@@ -1,23 +1,14 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { FaPlus } from "react-icons/fa";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { Checkbox } from '@/components/common/Checkbox';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { Profile } from '@/types/models';
+import { Company, Profile } from '@/types/models';
 import { SlSettings } from "react-icons/sl";
 
-export type Folder = {
-  id: string;
-  name: string;
-  activity_sector: string;
-  siret: string;
-  siren?: string;
-};
-
-export const folderColumns: ColumnDef<Folder>[] = [
+export const folderColumns: ColumnDef<Company>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -92,7 +83,7 @@ export const folderColumns: ColumnDef<Folder>[] = [
         <LiaSortSolid className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div className="lowercase text-center">{'Actif'}</div>,
+    cell: ({ row }) => <div className="text-center">{row.original.blocked ? 'Inactif' : 'Actif'}</div>,
   },
   {
     id: "settings",

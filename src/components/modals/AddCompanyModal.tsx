@@ -7,6 +7,7 @@ import { FaTimes } from 'react-icons/fa';
 import { z } from 'zod';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
+import { ROLES } from '@/constants/roles';
 
 type AddCompanyModalProps = {
   isOpen: boolean;
@@ -35,6 +36,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<FormInputs>({
     resolver: zodResolver(companySchema),
   });
+  setValue('role', ROLES.ADMIN);
 
   const onSubmitHandler = async (data: FormInputs) => {
     await onSubmit(data);

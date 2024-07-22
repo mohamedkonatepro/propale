@@ -107,7 +107,7 @@ const Users: React.FC<UsersProps> = () => {
       await associateProfileWithCompany(user.id, id as string);
   
       await supabase.auth.resetPasswordForEmail(formInputs.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
+        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
       });
   
       setIsModalOpen(false);

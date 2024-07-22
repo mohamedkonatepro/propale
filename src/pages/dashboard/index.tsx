@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { DataTable } from '@/components/DataTable';
-import { Profile } from '@/types/models';
+import { Company, Profile } from '@/types/models';
 import AddCompanyModal from '@/components/modals/AddCompanyModal';
 import { supabase } from '@/lib/supabaseClient';
 import { CompanyFormInputs, companySchema } from '@/schemas/company';
 import { z } from 'zod';
 import { useUser } from '@/context/userContext';
 import { useFetchData } from '@/hooks/useFetchData';
-import { Folder, folderColumns, profileColumns } from '@/components/DataTableColumns';
+import { folderColumns, profileColumns } from '@/components/DataTableColumns';
 import { createCompany } from '@/services/companyService';
 import { createUser } from '@/services/userService';
 import { createProfile, updateUserProfile } from '@/services/profileService';
@@ -59,7 +59,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
       await associateProfileWithCompany(userCreated.id, companyCreated.id);
   
       await supabase.auth.resetPasswordForEmail(companyData.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
+        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
       });
   
       setIsModalOpen(false);
@@ -98,7 +98,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
       await createProfile(profileData);
   
       await supabase.auth.resetPasswordForEmail(formInputs.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
+        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
       });
   
       setIsUserModalOpen(false);
@@ -143,7 +143,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
       </div>
       {page === 'folders' ? (
         <>
-          <DataTable<Folder>
+          <DataTable<Company>
             data={companies}
             columns={folderColumns}
             placeholder="Recherche"

@@ -51,7 +51,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   const handleResetPassword = async () => {
     const email = getValues('email');
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`,
+      redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`,
     });
 
     if (error) {
@@ -90,7 +90,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           </div>
           <h3 className="text-lg font-bold mt-4">{defaultValues.firstname} {defaultValues.lastname}</h3>
           <div className='flex'><label className="text-sm font-medium text-black">ID : </label><p className="text-sm text-gray-500 ml-1">ID67304093</p></div>
-          <span className="text-sm bg-green-100 text-green-600 border border-green-600 px-5 py-1 rounded-full mt-5">Actif</span>
+          <span className="text-sm bg-green-100 text-green-600 border border-green-600 px-5 py-1 rounded-full mt-5">{defaultValues.blocked ? 'Inactif' : 'Actif'}</span>
           <div className="mt-16 text-left">
             <label className="block text-sm font-medium text-labelGray">Date de création</label>
             <span>{formatDate(defaultValues?.created_at)}</span>

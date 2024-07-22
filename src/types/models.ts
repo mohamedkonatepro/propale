@@ -12,6 +12,8 @@ export interface Company {
   country: string;
   createdAt: Date;
   updatedAt: Date;
+  blocked: boolean;
+  description: string;
 }
 
 export interface Profile {

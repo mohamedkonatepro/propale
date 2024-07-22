@@ -20,7 +20,7 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (data: ForgotPasswordFormInputs) => {
     const { email } = data;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_REDIRECT_URL}/auth/reset-password`
+      redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
     });
     if (error) {
       setMessageSent(false);

@@ -16,14 +16,6 @@ import { useUser } from '@/context/userContext';
 import AddFolderModal from '@/components/modals/AddFolderModal';
 import { FolderFormInputs } from '@/schemas/folder';
 
-export type Folder = {
-  id: string;
-  name: string;
-  activity_sector: string;
-  siret: string;
-  siren?: string;
-};
-
 interface FoldersProps {}
 
 const Folders: React.FC<FoldersProps> = () => {
@@ -89,7 +81,7 @@ const Folders: React.FC<FoldersProps> = () => {
     setSearch(searchValue);
   };
 
-  const columns: ColumnDef<Folder>[] = [
+  const columns: ColumnDef<Company>[] = [
     {
       accessorKey: "name",
       id: "name",
@@ -166,7 +158,7 @@ const Folders: React.FC<FoldersProps> = () => {
   return (
     <div className="flex-1 p-6">
       <Header title={company?.name} subtitle="Mes dossiers" siren={company?.siren} />
-      <DataTable<Folder>
+      <DataTable<Company>
         data={companies}
         columns={columns}
         placeholder="Recherche"
