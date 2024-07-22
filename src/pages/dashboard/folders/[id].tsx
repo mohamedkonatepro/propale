@@ -163,7 +163,7 @@ const Folders: React.FC<FoldersProps> = () => {
         columns={columns}
         placeholder="Recherche"
         addButtonLabel="Ajouter un dossier"
-        onAddButtonClick={handleOpenModal}
+        onAddButtonClick={() => handleOpenModal()}
         onChangeSearch={handleSearch}
       />
       <AddFolderModal
