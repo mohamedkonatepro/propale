@@ -165,7 +165,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
             data={companies}
             columns={folderColumns(handleEditCompany, handleDeleteCompany)}
             placeholder="Recherche"
-            addButtonLabel="Ajouter une entreprise"
+            addButtonLabel="Nouveau client"
             onAddButtonClick={handleAddButtonClickFolder}
             onChangeSearch={handleSearchFolder} 
           />

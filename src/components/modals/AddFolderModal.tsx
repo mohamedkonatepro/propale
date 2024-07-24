@@ -62,7 +62,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
 
         const adresseEtablissement = companyData.adresseEtablissement
 
-        setValue('address', `${adresseEtablissement.numeroVoieEtablissement} ${adresseEtablissement.typeVoieEtablissement} ${adresseEtablissement.libelleVoieEtablissement}`);
+        setValue('address', `${adresseEtablissement.numeroVoieEtablissement} ${adresseEtablissement.typeVoieEtablissement ?? ''} ${adresseEtablissement.libelleVoieEtablissement}`);
         setValue('city', adresseEtablissement.libelleCommuneEtablissement);
         setValue('postalcode', adresseEtablissement.codePostalEtablissement);
         setValue('country', 'France');

@@ -6,6 +6,7 @@ import { getUserDetails } from '@/services/profileService';
 interface UserContextProps {
   user: Profile | null;
   setUser: React.Dispatch<React.SetStateAction<Profile | null>>;
+  refetchUser: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
@@ -13,19 +14,23 @@ const UserContext = createContext<UserContextProps | undefined>(undefined);
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Profile | null>(null);
   const router = useRouter();
-
+  const fetchUser = async () => {
+    const user = await getUserDetails();
+    if (user) {
+      setUser(user);
+    }
+  };
+  
   useEffect(() => {
-    const fetchUser = async () => {
-      const user = await getUserDetails();
-      if (user) {
-        setUser(user);
-      }
-    };
     fetchUser();
   }, [router]);
 
+  const refetchUser = async () => {
+    await fetchUser();
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, refetchUser}}>
       {children}
     </UserContext.Provider>
   );

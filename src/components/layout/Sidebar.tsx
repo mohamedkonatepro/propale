@@ -7,11 +7,13 @@ import { SlSettings } from "react-icons/sl";
 import Link from 'next/link';
 import Image from 'next/image';
 import { Company, Profile } from '@/types/models';
-import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
+import { fetchCompanyById, fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
 import { fetchProfilesCountWithRoleSuperAdmin } from '@/services/userService';
 import { ROLES } from '@/constants/roles';
 import { useUser } from '@/context/userContext';
-import { fetchProfileCountByCompanyId } from '@/services/profileService';
+import { fetchProfileCountByCompanyId, updateUserProfile } from '@/services/profileService';
+import { useRouter } from 'next/router';
+import EditUserModal from '../modals/EditUserModal';
 
 interface SidebarProps {
   currentPage: string;
@@ -33,17 +35,48 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [company, setCompany] = useState<Company>();
   const [profileCount, setProfileCount] = useState<number>(0);
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+  const router = useRouter();
+  const companyId = router.query.id;
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
+  const handleEditUser = () => {
+    setSelectedUser(user);
+    setIsModalOpenEdit(true);
+  };
+
+  const handleCloseModalEdit = () => {
+    setIsModalOpenEdit(false);
+    setSelectedUser(null);
+  };
+
+  const handleSubmitEdit = async (data: Profile) => {
+    if (user?.id) {
+      const error = await updateUserProfile(data, user.id);
+      if (error) {
+        console.error('Error updating user profile:', error);
+        return;
+      }
+    }
+    await refetchUser()
+    handleCloseModalEdit();
+  };
+
   useEffect(() => {
     const getCompany = async () => {
+      let companyData
       if (user) {
-        const companyData = await fetchCompanyWithoutParentByProfileId(user?.id);
+        if (companyId) {
+          companyData = await fetchCompanyById(companyId as string)
+        } else {
+          companyData = await fetchCompanyWithoutParentByProfileId(user?.id);
+        }
         if (companyData) {
           setCompany(companyData);
         }
@@ -53,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
       getCompany();
     }
     
-  }, [user, isDashboardHome]);
+  }, [user, isDashboardHome, companyId]);
 
   useEffect(() => {
     if (isSuperAdmin && isDashboardHome) {
@@ -72,7 +105,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
         <Image src="/logo.svg" alt="Propale" width={isCollapsed ? 30 : 40} height={isCollapsed ? 30 : 40} className="mr-2" />
         {!isCollapsed && <span className="text-2xl font-bold">Propale</span>}
       </Link>
-      <UserProfile name={`${user?.firstname} ${user?.lastname}`} email={user?.email} isCollapsed={isCollapsed} />
+      {user && <UserProfile user={user} isCollapsed={isCollapsed} handleEditUser={handleEditUser} />}
+      {selectedUser && (
+        <EditUserModal
+          isOpen={isModalOpenEdit}
+          onRequestClose={handleCloseModalEdit}
+          onSubmit={handleSubmitEdit}
+          defaultValues={selectedUser}
+        />
+      )}
       <nav className="mt-6 w-full">
         {(company || isDashboardHome) && (
           <>
@@ -96,7 +137,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
           </>
         )}
       </nav>
-      {!isSuperAdmin && !isDashboardHome && <div className="mt-auto w-full">
+      {isSuperAdmin && !isDashboardHome && <div className="mt-auto w-full">
         <NavigationLink
           href="/parametres"
           icon={SlSettings}
