@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from 'react-modal';
@@ -8,6 +8,8 @@ import dataApeCode from '../../data/codes-ape.json';
 import { FolderFormInputs, folderSchema } from '@/schemas/folder';
 import { RiDeleteBinLine } from "react-icons/ri";
 import { supabase } from '@/lib/supabaseClient';
+import { toast } from 'react-toastify';
+import CustomAlert from '../common/Alert';
 
 type AddFolderModalProps = {
   isOpen: boolean;
@@ -33,6 +35,7 @@ const customStyles = {
 };
 
 const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues }) => {
+  const [messageAlertSiret, setMessageAlertSiret] = useState('');
   const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm<FolderFormInputs>({
     resolver: zodResolver(folderSchema),
     defaultValues: defaultValues || {}
@@ -71,6 +74,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
     if (siretValue && siretValue.length === 14) {
       fetchCompanyDetails(siretValue);
     } else {
+      setMessageAlertSiret('')
       setValue('activitySector', '');
       setValue('address', '');
       setValue('city', '');
@@ -87,6 +91,16 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
   }, [defaultValues, setValue]);
 
   const onSubmitHandler = async (data: FolderFormInputs) => {
+    const { data: existingCompany } = await supabase
+      .from('company')
+      .select('*')
+      .eq('siret', data.siret)
+      .single();
+
+    if (existingCompany) {
+      setMessageAlertSiret('Une entreprise avec ce SIRET existe déjà.');
+      return;
+    }
     await onSubmit(data);
     reset();
   };
@@ -125,10 +139,11 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
           <label className="block text-sm font-medium text-labelGray">SIRET</label>
           <input
             {...register('siret')}
-            className="mt-1 block w-full bg-backgroundGray rounded p-2"
+            className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.siret || messageAlertSiret ? 'border border-red-500' : ''}`}
             placeholder="983 067 737 00034"
           />
           {errors.siret && <p className="text-red-500 text-xs">{errors.siret.message}</p>}
+          {messageAlertSiret && <p className="text-red-500 text-xs">{messageAlertSiret}</p>}
         </div>
 
         <div>

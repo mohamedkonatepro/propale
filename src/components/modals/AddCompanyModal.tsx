@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from 'react-modal';
@@ -8,6 +8,7 @@ import { z } from 'zod';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
 import { ROLES } from '@/constants/roles';
+import { supabase } from '@/lib/supabaseClient';
 
 type AddCompanyModalProps = {
   isOpen: boolean;
@@ -36,9 +37,33 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<FormInputs>({
     resolver: zodResolver(companySchema),
   });
+  const [messageAlertSiren, setMessageAlertSiren] = useState('');
+  const [messageAlertEmail, setMessageAlertEmail] = useState('');
   setValue('role', ROLES.ADMIN);
 
   const onSubmitHandler = async (data: FormInputs) => {
+    const { data: existingCompany } = await supabase
+      .from('company')
+      .select('*')
+      .eq('siren', data.siren)
+      .single();
+
+    if (existingCompany) {
+      setMessageAlertSiren('Une entreprise avec ce SIREN existe déjà.');
+      return;
+    }
+
+    const { data: existingUser } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', data.email)
+      .single();
+
+    if (existingUser) {
+      setMessageAlertEmail('Un utilisateur avec cet email existe déjà.');
+      return;
+    }
+
     await onSubmit(data);
     reset();
   };
@@ -75,6 +100,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
     if (sirenValue && sirenValue.length === 9) {
       fetchCompanyDetails(sirenValue);
     } else {
+      setMessageAlertSiren('');
       setValue('activitySector', '');
       setValue('apeCode', '');
       setValue('address', '');
@@ -118,15 +144,9 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
                 placeholder="123456789"
               />
               {errors.siren && <p className="text-red-500 text-xs">{errors.siren.message}</p>}
+              {messageAlertSiren && <p className="text-red-500 text-xs">{messageAlertSiren}</p>}
             </div>
-            {/* <input
-              type="hidden"
-              {...register('apeCode')}
-            />
-            <input
-              type="hidden"
-              {...register('activitySector')}
-            /> */}
+
             <div>
               <label className="block text-sm font-medium text-labelGray">Code APE</label>
               <input
@@ -187,10 +207,11 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
               <label className="block text-sm font-medium text-labelGray">Email</label>
               <input
                 {...register('email')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.email || messageAlertEmail ? 'border border-red-500' : ''}`}
                 placeholder="contact@mail.fr"
               />
               {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
+              {messageAlertEmail && <p className="text-red-500 text-xs">{messageAlertEmail}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-labelGray">Téléphone</label>

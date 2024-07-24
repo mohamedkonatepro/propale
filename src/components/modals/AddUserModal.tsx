@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from 'react-modal';
@@ -6,6 +6,8 @@ import { userSchema } from '@/schemas/user';
 import { FaTimes } from 'react-icons/fa';
 import { z } from 'zod';
 import { ROLES } from '@/constants/roles';
+import { supabase } from '@/lib/supabaseClient';
+import CustomAlert from '../common/Alert';
 
 type AddUserModalProps = {
   isOpen: boolean;
@@ -32,6 +34,7 @@ const customStyles = {
 };
 
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onSubmit, page }) => {
+  const [messageAlertEmail, setMessageAlertEmail] = useState('');
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormInputs>({
     resolver: zodResolver(userSchema),
   });
@@ -45,6 +48,16 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
   }, [page, setValue]);
   
   const onSubmitHandler = async (data: FormInputs) => {
+    const { data: existingUser } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', data.email)
+      .single();
+
+    if (existingUser) {
+      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+      return;
+    }
     await onSubmit(data);
     reset();
   };
@@ -63,8 +76,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
         </button>
       </div>
       <div className="flex justify-center items-center pb-2 mb-4">
-        <h2 className="text-xl font-semibold">Informations utilisateur</h2>
+        <h2 className="text-xl font-semibold">Ajouter un utilisateur</h2>
       </div>
+      {messageAlertEmail && <CustomAlert message={messageAlertEmail} title='Adresse mail déjà utilisée'/>}
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4 px-20">
         <div className="grid grid-cols-12 gap-4 mt-2">
           <div className='col-span-6'>
@@ -113,7 +127,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
             <label className="block text-sm font-medium text-labelGray">Email*</label>
             <input
               {...register('email')}
-              className="mt-1 block w-full bg-backgroundGray rounded p-2"
+              className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.email || messageAlertEmail ? 'border border-red-500' : ''}`}
               placeholder="jane.doe@email.com"
             />
             {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
