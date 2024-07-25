@@ -5,7 +5,7 @@ import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import { createCompany, fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById, updateCompany } from '@/services/companyService';
+import { createCompany, fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById, updateCompany, deleteCompany } from '@/services/companyService';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
@@ -16,22 +16,23 @@ import { useUser } from '@/context/userContext';
 import AddFolderModal from '@/components/modals/AddFolderModal';
 import { FolderFormInputs } from '@/schemas/folder';
 import { toast } from 'react-toastify';
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
 
-interface FoldersProps {}
-
-const Folders: React.FC<FoldersProps> = () => {
+const Folders: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const [companies, setCompanies] = useState<Company[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
   const { user } = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedFolder, setSelectedFolder] = useState<FolderFormInputs | null>();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<FolderFormInputs | null>(null);
   const [search, setSearch] = useState<string>('');
+  const [folderIdToDelete, setFolderIdToDelete] = useState<string | null>(null);
 
   const handleOpenModal = (data?: FolderFormInputs) => {
     setIsModalOpen(true);
-    setSelectedFolder(data)
+    setSelectedFolder(data || null);
   };
 
   const handleCloseModal = () => {
@@ -46,16 +47,16 @@ const Folders: React.FC<FoldersProps> = () => {
         id: selectedFolder.id,
       };
       await updateCompany(folderData);
-      toast.success(`${data.companyName} à bien été modifié.`)
+      toast.success(`${data.companyName} à bien été modifié.`);
     } else {
       const folderData = {
         ...data,
         companyId: id as string,
       };
       await createCompany(folderData);
-      toast.success(`${data.companyName} à bien été ajouté à la liste.`)
+      toast.success(`${data.companyName} à bien été ajouté à la liste.`);
     }
-    await getCompanyData()
+    await getCompanyData();
     handleCloseModal();
   };
 
@@ -66,12 +67,9 @@ const Folders: React.FC<FoldersProps> = () => {
     setCompany(companyData);
 
     if (companyData) {
-      let data;
-      if (user.role === ROLES.SALES) {
-        data = await fetchCompaniesWithParentByProfileId(companyData.id, search);
-      } else {
-        data = await fetchCompaniesByCompanyId(companyData.id, search);
-      }
+      const data = user.role === ROLES.SALES
+        ? await fetchCompaniesWithParentByProfileId(companyData.id, search)
+        : await fetchCompaniesByCompanyId(companyData.id, search);
       setCompanies(data);
     }
   };
@@ -82,6 +80,25 @@ const Folders: React.FC<FoldersProps> = () => {
 
   const handleSearch = (searchValue: string) => {
     setSearch(searchValue);
+  };
+
+  const openDeleteModal = (folderId: string) => {
+    setFolderIdToDelete(folderId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setFolderIdToDelete(null);
+  };
+
+  const handleDeleteFolder = async () => {
+    if (!folderIdToDelete) return;
+
+    await deleteCompany(folderIdToDelete);
+    toast.success("Le dossier a bien été supprimé !");
+    await getCompanyData();
+    closeDeleteModal();
   };
 
   const columns: ColumnDef<Company>[] = [
@@ -151,7 +168,12 @@ const Folders: React.FC<FoldersProps> = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleOpenModal({...row.original, companyName: row.original.name})}>Modifier</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleOpenModal({ ...row.original, companyName: row.original.name })}>
+              Modifier
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => openDeleteModal(row.original.id)}>
+              Supprimer
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -174,6 +196,12 @@ const Folders: React.FC<FoldersProps> = () => {
         onRequestClose={handleCloseModal}
         onSubmit={handleCreateFolder}
         defaultValues={selectedFolder}
+      />
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteFolder}
+        message="Êtes-vous sûr de vouloir supprimer ce dossier ?"
       />
     </div>
   );
