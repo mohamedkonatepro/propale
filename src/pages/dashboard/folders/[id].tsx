@@ -15,6 +15,7 @@ import { ROLES } from '@/constants/roles';
 import { useUser } from '@/context/userContext';
 import AddFolderModal from '@/components/modals/AddFolderModal';
 import { FolderFormInputs } from '@/schemas/folder';
+import { toast } from 'react-toastify';
 
 interface FoldersProps {}
 
@@ -45,12 +46,14 @@ const Folders: React.FC<FoldersProps> = () => {
         id: selectedFolder.id,
       };
       await updateCompany(folderData);
+      toast.success(`${data.companyName} à bien été modifié.`)
     } else {
       const folderData = {
         ...data,
         companyId: id as string,
       };
       await createCompany(folderData);
+      toast.success(`${data.companyName} à bien été ajouté à la liste.`)
     }
     await getCompanyData()
     handleCloseModal();

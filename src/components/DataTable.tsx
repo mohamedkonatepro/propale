@@ -27,6 +27,8 @@ import {
 } from "@/components/common/Table"
 import { InputSearch } from "./common/InputSearch"
 import { FaPlus } from "react-icons/fa"
+import { useUser } from "@/context/userContext"
+import { ROLES } from "@/constants/roles"
 
 type DataTableProps<T> = {
   data: T[];
@@ -42,7 +44,7 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-
+  const { user } = useUser();
   const table = useReactTable({
     data,
     columns,
@@ -71,7 +73,7 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
             onChange={(e) => onChangeSearch(e.target.value)}
             className="w-1/4"
           />}
-          {onAddButtonClick && (
+          {onAddButtonClick && user?.role !== ROLES.SALES && (
             <button
               className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
               onClick={onAddButtonClick}

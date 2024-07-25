@@ -7,7 +7,7 @@ import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company, Profile } from '@/types/models';
 import { SlSettings } from "react-icons/sl";
 
-export const folderColumns = (handleEditCompany: (company: Company) => void, handleDeleteCompany: (companyId: string) => void): ColumnDef<Company>[] => [
+export const folderColumns = (handleEditCompany: (company: Company) => void, openModalCompany: (companyId: string) => void): ColumnDef<Company>[] => [
   {
     accessorKey: "name",
     id: "name",
@@ -87,14 +87,14 @@ export const folderColumns = (handleEditCompany: (company: Company) => void, han
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => handleEditCompany(row.original)}>Modifier</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleDeleteCompany(row.original.id)}>Supprimer</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => openModalCompany(row.original.id)}>Supprimer</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),
   },
 ];
 
-export const profileColumns = (handleEditUser: (user: Profile) => void): ColumnDef<Profile>[] => [
+export const profileColumns = (handleEditUser: (user: Profile) => void, handleDeleteUser: (userId: string) => void): ColumnDef<Profile>[] => [
   {
     accessorKey: "name",
     id: "name",
@@ -152,6 +152,7 @@ export const profileColumns = (handleEditUser: (user: Profile) => void): ColumnD
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={() => handleEditUser(row.original)}>Modifier</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleDeleteUser(row.original.id)}>Supprimer</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     ),

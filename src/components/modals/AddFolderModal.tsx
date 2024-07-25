@@ -8,8 +8,6 @@ import dataApeCode from '../../data/codes-ape.json';
 import { FolderFormInputs, folderSchema } from '@/schemas/folder';
 import { RiDeleteBinLine } from "react-icons/ri";
 import { supabase } from '@/lib/supabaseClient';
-import { toast } from 'react-toastify';
-import CustomAlert from '../common/Alert';
 
 type AddFolderModalProps = {
   isOpen: boolean;
@@ -91,16 +89,6 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
   }, [defaultValues, setValue]);
 
   const onSubmitHandler = async (data: FolderFormInputs) => {
-    const { data: existingCompany } = await supabase
-      .from('company')
-      .select('*')
-      .eq('siret', data.siret)
-      .single();
-
-    if (existingCompany) {
-      setMessageAlertSiret('Une entreprise avec ce SIRET existe déjà.');
-      return;
-    }
     await onSubmit(data);
     reset();
   };

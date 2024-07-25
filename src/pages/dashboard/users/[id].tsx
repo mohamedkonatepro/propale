@@ -4,7 +4,7 @@ import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import { fetchCompaniesWithParentByProfileId, fetchCompanyById, fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
+import { fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
@@ -17,8 +17,10 @@ import AddUserModal from '@/components/modals/AddUserModal';
 import { UserFormInputs } from '@/schemas/user';
 import { createUser } from '@/services/userService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
 import EditUserModal from '@/components/modals/EditUserModal';
+import { toast } from 'react-toastify';
+import { ROLES } from '@/constants/roles';
 
 interface UsersProps {}
 
@@ -54,6 +56,7 @@ const Users: React.FC<UsersProps> = () => {
     }
     handleCloseModalEdit();
     await getCompanyData();
+    toast.success(`${data.firstname} ${data.lastname} à bien été modifié dans la liste.`)
   };
 
   const handleAddButtonClick = () => {
@@ -96,15 +99,18 @@ const Users: React.FC<UsersProps> = () => {
 
   const handleCreateUser = async (formInputs: UserFormInputs) => {
     try {
-      const user = await createUser(formInputs.email, formInputs.password);
-      if (!user) return;
+      const result = await createUser(formInputs.email, formInputs.password);
+      
+      if (!result || typeof result === 'string') {
+        return result;
+      }
   
       const profileData = {
         ...formInputs,
-        userId: user.id
+        userId: result.id
       }
       await createProfile(profileData);
-      await associateProfileWithCompany(user.id, id as string);
+      await associateProfileWithCompany(result.id, id as string);
   
       await supabase.auth.resetPasswordForEmail(formInputs.email, {
         redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
@@ -112,8 +118,10 @@ const Users: React.FC<UsersProps> = () => {
   
       setIsModalOpen(false);
       await getCompanyData();
+      toast.success(`${profileData.firstname} ${profileData.lastname} à bien été ajouté·e à la liste. Un email de confirmation à été envoyé à l'adresse indiquée.`)
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.log('Erreur de création d\'utilisateur:', error);
+      toast.error(`Erreur lors de la création de l'utilisateur: ${formInputs.firstname} ${formInputs.lastname}`)
     }
   };
 
@@ -121,6 +129,18 @@ const Users: React.FC<UsersProps> = () => {
     setSearchUser(dataSearch);
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+    if (error) {
+      toast.error("Error lors de la suppréssion de l'utilisateur")
+      return
+    }
+
+    await getCompanyData();
+    toast.success("l'utilisateur à bien été créé !");
+  };
+  
   const columns: ColumnDef<Profile>[] = [
     {
       accessorKey: "firstname",
@@ -193,7 +213,10 @@ const Users: React.FC<UsersProps> = () => {
         </button>
       ),
     },
-    {
+  ];
+
+  if (user?.role !== ROLES.SALES) {
+    columns.push({
       id: "menu",
       enableHiding: false,
       cell: ({ row }) => (
@@ -204,12 +227,17 @@ const Users: React.FC<UsersProps> = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEditUser(row.original)}>Modifier</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEditUser(row.original)}>
+              Modifier
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDeleteUser(row.original.id)}>
+              Supprimer
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
-    },
-  ];
+    });
+  }
 
   return (
     <div className="flex-1 p-6">

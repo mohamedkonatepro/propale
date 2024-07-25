@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { DataTable } from '@/components/DataTable';
 import { Company, Profile } from '@/types/models';
 import AddCompanyModal from '@/components/modals/AddCompanyModal';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
 import { CompanyFormInputs, companySchema } from '@/schemas/company';
 import { useUser } from '@/context/userContext';
 import { useFetchData } from '@/hooks/useFetchData';
@@ -16,6 +16,8 @@ import { UserFormInputs } from '@/schemas/user';
 import { ROLES } from '@/constants/roles';
 import EditUserModal from '@/components/modals/EditUserModal';
 import EditCompanyModal from '@/components/modals/EditCompanyModal';
+import { toast } from 'react-toastify';
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
 
 interface HomeProps {
   page: string;
@@ -23,6 +25,8 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ page }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalDeleteCompanyOpen, setIsModalDeleteCompanyOpen] = useState(false);
+  const [isModalDeleteUserOpen, setIsModalDeleteUserOpen] = useState(false);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const { user } = useUser();
   const [searchCompany, setSearchCompany] = useState('');
@@ -31,6 +35,8 @@ const Home: React.FC<HomeProps> = ({ page }) => {
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedCompanyIdToDelete, setSelectedCompanyIdToDelete] = useState<string | null>(null);
+  const [selectedUserIdToDelete, setSelectedUserIdToDelete] = useState<string | null>(null);
 
   const handleAddButtonClickFolder = () => setIsModalOpen(true);
 
@@ -49,8 +55,11 @@ const Home: React.FC<HomeProps> = ({ page }) => {
       const companyCreated = await createCompany(companyData);
       if (!companyCreated) return;
   
-      const userCreated = await createUser(companyData.email);
-      if (!userCreated) return;
+      const userCreated = await createUser(formInputs.email);
+      
+      if (!userCreated || typeof userCreated === 'string') {
+        return userCreated;
+      }
   
       const profileData = {
         ...formInputs,
@@ -65,8 +74,10 @@ const Home: React.FC<HomeProps> = ({ page }) => {
   
       setIsModalOpen(false);
       await fetchData();
+      toast.success(`${companyCreated.name} à bien été ajouté à la liste.`)
     } catch (error) {
       console.error('Error creating company:', error);
+      toast.error(`Erreur lors de la création de l'entreprise: ${formInputs.companyName}`)
     }
   };
 
@@ -89,12 +100,15 @@ const Home: React.FC<HomeProps> = ({ page }) => {
 
   const handleCreateUser = async (formInputs: UserFormInputs) => {
     try {
-      const userCreated = await createUser(formInputs.email);
-      if (!userCreated) return;
+      const result = await createUser(formInputs.email);
+      
+      if (!result || typeof result === 'string') {
+        return result;
+      }
   
       const profileData = {
         ...formInputs,
-        userId: userCreated.id
+        userId: result.id
       }
       await createProfile(profileData);
   
@@ -104,8 +118,10 @@ const Home: React.FC<HomeProps> = ({ page }) => {
   
       setIsUserModalOpen(false);
       fetchData();
+      toast.success(`${profileData.firstname} ${profileData.lastname} à bien été ajouté·e à la liste. Un email de confirmation à été envoyé à l'adresse indiquée.`)
     } catch (error) {
       console.error('Error creating user:', error);
+      toast.error(`Erreur lors de la création de l'utilisateur: ${formInputs.firstname} ${formInputs.lastname}`)
     }
   };
 
@@ -126,9 +142,26 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     setIsModalOpenEdit(true);
   };
 
-  const handleDeleteCompany = async (companyId: string) => {
-    await supabase.from('company').delete().eq('id', companyId);
+  const handleDeleteCompany = async () => {
+    await supabase.from('company').delete().eq('id', selectedCompanyIdToDelete);
     fetchData();
+    toast.success("La company a bien été supprimé !");
+    closeModalCompany()
+  };
+
+  const handleDeleteUser = async () => {
+    if (selectedUserIdToDelete) {
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(selectedUserIdToDelete);
+
+      if (error) {
+        toast.error("Error lors de la suppréssion de l'utilisateur")
+        return
+      }
+
+      fetchData();
+      toast.success("l'utilisateur à bien été supprimé !");
+      closeModalUser();
+    }
   };
 
   const handleCloseModalEdit = () => {
@@ -154,6 +187,26 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     handleCloseModalEdit();
     fetchData();
   };
+
+  const openModalCompany = (userId: string) => {
+    setSelectedCompanyIdToDelete(userId);
+    setIsModalDeleteCompanyOpen(true);
+  };
+
+  const closeModalCompany = () => {
+    setIsModalDeleteCompanyOpen(false);
+    setSelectedCompanyIdToDelete(null);
+  };
+
+  const openModalUser = (userId: string) => {
+    setSelectedUserIdToDelete(userId);
+    setIsModalDeleteUserOpen(true);
+  };
+
+  const closeModalUser = () => {
+    setIsModalDeleteUserOpen(false);
+    setSelectedUserIdToDelete(null);
+  };
   return (
     <div className="flex-1 p-6">
       <div className='flex flex-col'>
@@ -163,7 +216,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         <>
           <DataTable<Company>
             data={companies}
-            columns={folderColumns(handleEditCompany, handleDeleteCompany)}
+            columns={folderColumns(handleEditCompany, openModalCompany)}
             placeholder="Recherche"
             addButtonLabel="Nouveau client"
             onAddButtonClick={handleAddButtonClickFolder}
@@ -182,12 +235,18 @@ const Home: React.FC<HomeProps> = ({ page }) => {
             onRequestClose={handleCloseModal}
             onSubmit={handleCreateCompany}
           />
+          <ConfirmDeleteModal
+            isOpen={isModalDeleteCompanyOpen}
+            onClose={closeModalCompany}
+            onConfirm={handleDeleteCompany}
+            message={"Êtes-vous sûr de vouloir supprimer l'entreprise ?"}
+          />
         </>
       ) : (
         <>
           <DataTable<Profile>
             data={profiles}
-            columns={profileColumns(handleEditUser)}
+            columns={profileColumns(handleEditUser, openModalUser)}
             placeholder="Recherche"
             addButtonLabel="Ajouter un utilisateur"
             onAddButtonClick={handleAddButtonClickUser}
@@ -206,6 +265,12 @@ const Home: React.FC<HomeProps> = ({ page }) => {
             isOpen={isUserModalOpen}
             onRequestClose={handleCloseModalUser}
             onSubmit={handleCreateUser}
+          />
+          <ConfirmDeleteModal
+            isOpen={isModalDeleteUserOpen}
+            onClose={closeModalUser}
+            onConfirm={handleDeleteUser}
+            message={"Êtes-vous sûr de vouloir supprimer l'utilisateur ?"}
           />
         </>
       )}

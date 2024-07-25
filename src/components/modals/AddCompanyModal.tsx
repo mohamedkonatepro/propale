@@ -8,12 +8,11 @@ import { z } from 'zod';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
 import { ROLES } from '@/constants/roles';
-import { supabase } from '@/lib/supabaseClient';
 
 type AddCompanyModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: any) => Promise<string | null | undefined>;
 };
 
 type FormInputs = z.infer<typeof companySchema>;
@@ -42,29 +41,11 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
   setValue('role', ROLES.ADMIN);
 
   const onSubmitHandler = async (data: FormInputs) => {
-    const { data: existingCompany } = await supabase
-      .from('company')
-      .select('*')
-      .eq('siren', data.siren)
-      .single();
-
-    if (existingCompany) {
-      setMessageAlertSiren('Une entreprise avec ce SIREN existe déjà.');
-      return;
+    const result = await onSubmit(data);
+    if (result === 'email_already_exists') {
+      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+      return
     }
-
-    const { data: existingUser } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', data.email)
-      .single();
-
-    if (existingUser) {
-      setMessageAlertEmail('Un utilisateur avec cet email existe déjà.');
-      return;
-    }
-
-    await onSubmit(data);
     reset();
   };
 
