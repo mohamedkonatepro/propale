@@ -24,23 +24,37 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ page }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalDeleteCompanyOpen, setIsModalDeleteCompanyOpen] = useState(false);
-  const [isModalDeleteUserOpen, setIsModalDeleteUserOpen] = useState(false);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const { user } = useUser();
-  const [searchCompany, setSearchCompany] = useState('');
-  const [searchUser, setSearchUser] = useState('');
-  const { companies, profiles, fetchData } = useFetchData(page, user?.id, searchCompany, searchUser);
-  const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [selectedCompanyIdToDelete, setSelectedCompanyIdToDelete] = useState<string | null>(null);
-  const [selectedUserIdToDelete, setSelectedUserIdToDelete] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEntity, setSelectedEntity] = useState<Profile | Company | null>(null);
+  const [entityToDeleteId, setEntityToDeleteId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { companies, profiles, fetchData } = useFetchData(page, user?.id, searchQuery);
 
-  const handleAddButtonClickFolder = () => setIsModalOpen(true);
+  useEffect(() => {
+    if (searchQuery === '') {
+      fetchData();
+    }
+  }, [searchQuery]);
 
+  const handleAddButtonClick = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+  const handleSearch = (dataSearch: string) => {
+    setSearchQuery(dataSearch);
+    if (dataSearch.length > 2 || dataSearch.length === 0) {
+      fetchData();
+    }
+  };
+
+  const handleCreateEntity = async (formInputs: CompanyFormInputs | UserFormInputs) => {
+    if (page === 'folders') {
+      return await handleCreateCompany(formInputs as CompanyFormInputs);
+    } else {
+      return await handleCreateUser(formInputs as UserFormInputs);
+    }
+  };
 
   const handleCreateCompany = async (formInputs: CompanyFormInputs) => {
     const companyData = {
@@ -52,161 +66,108 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     };
 
     try {
-      const companyCreated = await createCompany(companyData);
-      if (!companyCreated) return;
-  
       const userCreated = await createUser(formInputs.email);
-      
       if (!userCreated || typeof userCreated === 'string') {
         return userCreated;
       }
-  
+
+      const companyCreated = await createCompany(companyData);
+      if (!companyCreated) return;
+
       const profileData = {
         ...formInputs,
         userId: userCreated.id
-      }
+      };
       await createProfile(profileData);
       await associateProfileWithCompany(userCreated.id, companyCreated.id);
-  
+
       await supabase.auth.resetPasswordForEmail(companyData.email, {
         redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
       });
-  
+
       setIsModalOpen(false);
       await fetchData();
-      toast.success(`${companyCreated.name} à bien été ajouté à la liste.`)
+      toast.success(`${companyCreated.name} a bien été ajouté à la liste.`);
     } catch (error) {
       console.error('Error creating company:', error);
-      toast.error(`Erreur lors de la création de l'entreprise: ${formInputs.companyName}`)
+      toast.error(`Erreur lors de la création de l'entreprise: ${formInputs.companyName}`);
     }
   };
-
-  const handleSearchFolder = (dataSearch: string) => {
-    setSearchCompany(dataSearch);
-    if (dataSearch.length > 2 || dataSearch.length === 0) {
-      fetchData();
-    }
-  };
-
-  useEffect(() => {
-    if (searchCompany === '' || searchUser === '') {
-      fetchData();
-    }
-  }, [searchCompany, searchUser]);
-
-  const handleAddButtonClickUser = () => setIsUserModalOpen(true);
-
-  const handleCloseModalUser = () => setIsUserModalOpen(false);
 
   const handleCreateUser = async (formInputs: UserFormInputs) => {
     try {
       const result = await createUser(formInputs.email);
-      
       if (!result || typeof result === 'string') {
         return result;
       }
-  
+
       const profileData = {
         ...formInputs,
         userId: result.id
-      }
+      };
       await createProfile(profileData);
-  
+
       await supabase.auth.resetPasswordForEmail(formInputs.email, {
         redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
       });
-  
-      setIsUserModalOpen(false);
+
+      setIsModalOpen(false);
       fetchData();
-      toast.success(`${profileData.firstname} ${profileData.lastname} à bien été ajouté·e à la liste. Un email de confirmation à été envoyé à l'adresse indiquée.`)
+      toast.success(`${profileData.firstname} ${profileData.lastname} a bien été ajouté·e à la liste. Un email de confirmation a été envoyé à l'adresse indiquée.`);
     } catch (error) {
       console.error('Error creating user:', error);
-      toast.error(`Erreur lors de la création de l'utilisateur: ${formInputs.firstname} ${formInputs.lastname}`)
+      toast.error(`Erreur lors de la création de l'utilisateur: ${formInputs.firstname} ${formInputs.lastname}`);
     }
   };
 
-  const handleSearchUser = (dataSearch: string) => {
-    setSearchUser(dataSearch);
-    if (dataSearch.length > 3 || dataSearch.length === 0) {
-      fetchData();
-    }
+  const handleEditEntity = (entity: Profile | Company) => {
+    setSelectedEntity(entity);
+    setIsEditModalOpen(true);
   };
 
-  const handleEditUser = (userSelected: Profile) => {
-    setSelectedUser(userSelected);
-    setIsModalOpenEdit(true);
-  };
-
-  const handleEditCompany = (companySelected: Company) => {
-    setSelectedCompany(companySelected);
-    setIsModalOpenEdit(true);
-  };
-
-  const handleDeleteCompany = async () => {
-    await supabase.from('company').delete().eq('id', selectedCompanyIdToDelete);
-    fetchData();
-    toast.success("La company a bien été supprimé !");
-    closeModalCompany()
-  };
-
-  const handleDeleteUser = async () => {
-    if (selectedUserIdToDelete) {
-      const { error } = await supabaseAdmin.auth.admin.deleteUser(selectedUserIdToDelete);
-
+  const handleDeleteEntity = async () => {
+    if (page === 'folders' && entityToDeleteId) {
+      await supabase.from('company').delete().eq('id', entityToDeleteId);
+      toast.success("L'entreprise a bien été supprimée !");
+    } else if (entityToDeleteId) {
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(entityToDeleteId);
       if (error) {
-        toast.error("Error lors de la suppréssion de l'utilisateur")
-        return
-      }
-
-      fetchData();
-      toast.success("l'utilisateur à bien été supprimé !");
-      closeModalUser();
-    }
-  };
-
-  const handleCloseModalEdit = () => {
-    setIsModalOpenEdit(false);
-    setSelectedUser(null);
-    setSelectedCompany(null);
-  };
-
-  const handleSubmitUser = async (data: Profile) => {
-    if (user?.id) {
-      const error = await updateUserProfile(data, user.id);
-      if (error) {
-        console.error('Error updating user profile:', error);
+        toast.error("Erreur lors de la suppression de l'utilisateur");
         return;
       }
+      toast.success("L'utilisateur a bien été supprimé !");
     }
-    handleCloseModalEdit();
+    fetchData();
+    closeModalDelete();
+  };
+
+  const closeModalDelete = () => {
+    setIsModalDeleteOpen(false);
+    setEntityToDeleteId(null);
+  };
+
+  const handleSubmitEdit = async (data: Profile | Company) => {
+    if (page === 'folders') {
+      await updateCompany(data as Company);
+    } else {
+      if (user?.id) {
+        const error = await updateUserProfile(data as Profile, user.id);
+        if (error) {
+          console.error('Error updating user profile:', error);
+          return;
+        }
+      }
+    }
+    setIsEditModalOpen(false);
+    setSelectedEntity(null);
     fetchData();
   };
 
-  const handleSubmitCompany = async (data: Company) => {
-    await updateCompany(data);
-    handleCloseModalEdit();
-    fetchData();
+  const openDeleteModal = (id: string) => {
+    setEntityToDeleteId(id);
+    setIsModalDeleteOpen(true);
   };
 
-  const openModalCompany = (userId: string) => {
-    setSelectedCompanyIdToDelete(userId);
-    setIsModalDeleteCompanyOpen(true);
-  };
-
-  const closeModalCompany = () => {
-    setIsModalDeleteCompanyOpen(false);
-    setSelectedCompanyIdToDelete(null);
-  };
-
-  const openModalUser = (userId: string) => {
-    setSelectedUserIdToDelete(userId);
-    setIsModalDeleteUserOpen(true);
-  };
-
-  const closeModalUser = () => {
-    setIsModalDeleteUserOpen(false);
-    setSelectedUserIdToDelete(null);
-  };
   return (
     <div className="flex-1 p-6">
       <div className='flex flex-col'>
@@ -216,29 +177,29 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         <>
           <DataTable<Company>
             data={companies}
-            columns={folderColumns(handleEditCompany, openModalCompany)}
+            columns={folderColumns(handleEditEntity, openDeleteModal)}
             placeholder="Recherche"
             addButtonLabel="Nouveau client"
-            onAddButtonClick={handleAddButtonClickFolder}
-            onChangeSearch={handleSearchFolder} 
+            onAddButtonClick={handleAddButtonClick}
+            onChangeSearch={handleSearch}
           />
-          {selectedCompany && (
+          {selectedEntity && (
             <EditCompanyModal
-              isOpen={isModalOpenEdit}
-              onRequestClose={handleCloseModalEdit}
-              onSubmit={handleSubmitCompany}
-              defaultValues={selectedCompany}
+              isOpen={isEditModalOpen}
+              onRequestClose={() => setIsEditModalOpen(false)}
+              onSubmit={handleSubmitEdit}
+              defaultValues={selectedEntity as Company}
             />
           )}
           <AddCompanyModal
             isOpen={isModalOpen}
             onRequestClose={handleCloseModal}
-            onSubmit={handleCreateCompany}
+            onSubmit={handleCreateEntity}
           />
           <ConfirmDeleteModal
-            isOpen={isModalDeleteCompanyOpen}
-            onClose={closeModalCompany}
-            onConfirm={handleDeleteCompany}
+            isOpen={isModalDeleteOpen}
+            onClose={closeModalDelete}
+            onConfirm={handleDeleteEntity}
             message={"Êtes-vous sûr de vouloir supprimer l'entreprise ?"}
           />
         </>
@@ -246,30 +207,30 @@ const Home: React.FC<HomeProps> = ({ page }) => {
         <>
           <DataTable<Profile>
             data={profiles}
-            columns={profileColumns(handleEditUser, openModalUser)}
+            columns={profileColumns(handleEditEntity, openDeleteModal)}
             placeholder="Recherche"
             addButtonLabel="Ajouter un utilisateur"
-            onAddButtonClick={handleAddButtonClickUser}
-            onChangeSearch={handleSearchUser} 
+            onAddButtonClick={handleAddButtonClick}
+            onChangeSearch={handleSearch}
           />
-          {selectedUser && (
+          {selectedEntity && (
             <EditUserModal
-              isOpen={isModalOpenEdit}
-              onRequestClose={handleCloseModalEdit}
-              onSubmit={handleSubmitUser}
-              defaultValues={selectedUser}
+              isOpen={isEditModalOpen}
+              onRequestClose={() => setIsEditModalOpen(false)}
+              onSubmit={handleSubmitEdit}
+              defaultValues={selectedEntity as Profile}
             />
           )}
           <AddUserModal
             page={ROLES.SUPER_ADMIN}
-            isOpen={isUserModalOpen}
-            onRequestClose={handleCloseModalUser}
-            onSubmit={handleCreateUser}
+            isOpen={isModalOpen}
+            onRequestClose={handleCloseModal}
+            onSubmit={handleCreateEntity}
           />
           <ConfirmDeleteModal
-            isOpen={isModalDeleteUserOpen}
-            onClose={closeModalUser}
-            onConfirm={handleDeleteUser}
+            isOpen={isModalDeleteOpen}
+            onClose={closeModalDelete}
+            onConfirm={handleDeleteEntity}
             message={"Êtes-vous sûr de vouloir supprimer l'utilisateur ?"}
           />
         </>
