@@ -109,9 +109,17 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
               onChange={(e) => setValue('role', e.target.value)}
               disabled={page === ROLES.SUPER_ADMIN}
             >
-              <option value={ROLES.SUPER_ADMIN}>Super admin</option>
-              <option value={ROLES.ADMIN}>Admin</option>
-              <option value={ROLES.SALES}>Utilisateur</option>
+                {page !== ROLES.SUPER_ADMIN && (
+                  <>
+                    <option value={ROLES.ADMIN}>Admin</option>
+                    <option value={ROLES.SALES}>Utilisateur</option>
+                  </>
+                )}
+                {page === ROLES.SUPER_ADMIN && (
+                  <>
+                    <option value={ROLES.SUPER_ADMIN}>Super admin</option>
+                  </>
+                )}
             </select>
             {errors.role && <p className="text-red-500 text-xs">{errors.role.message}</p>}
           </div>

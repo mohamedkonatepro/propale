@@ -125,11 +125,26 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               <select
                 {...register('role')}
                 className={`mt-1 block w-8/12 ${edit ? 'bg-backgroundGray rounded p-2' : 'border-none bg-white'}`}
-                disabled={edit ? false : true}
+                disabled={!edit}
               >
-                <option value={ROLES.SUPER_ADMIN}>Super admin</option>
-                <option value={ROLES.ADMIN}>Admin</option>
-                <option value={ROLES.SALES}>Utilisateur</option>
+                {defaultValues.role === ROLES.SALES && (
+                  <>
+                    <option value={ROLES.SALES}>Utilisateur</option>
+                  </>
+                )}
+                {defaultValues.role === ROLES.ADMIN && (
+                  <>
+                    <option value={ROLES.ADMIN}>Admin</option>
+                    <option value={ROLES.SALES}>Utilisateur</option>
+                  </>
+                )}
+                {defaultValues.role === ROLES.SUPER_ADMIN && (
+                  <>
+                    <option value={ROLES.SUPER_ADMIN}>Super admin</option>
+                    <option value={ROLES.ADMIN}>Admin</option>
+                    <option value={ROLES.SALES}>Utilisateur</option>
+                  </>
+                )}
               </select>
               {errors.role && <p className="text-red-500 text-xs">{errors.role.message}</p>}
             </div>
