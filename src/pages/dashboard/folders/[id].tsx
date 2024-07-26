@@ -17,6 +17,7 @@ import AddFolderModal from '@/components/modals/AddFolderModal';
 import { FolderFormInputs } from '@/schemas/folder';
 import { toast } from 'react-toastify';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
+import AddProspectModal from '@/components/modals/AddProspectModal'; // Assurez-vous d'importer le composant de modal de prospect
 
 const Folders: React.FC = () => {
   const router = useRouter();
@@ -29,6 +30,8 @@ const Folders: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<FolderFormInputs | null>(null);
   const [search, setSearch] = useState<string>('');
   const [folderIdToDelete, setFolderIdToDelete] = useState<string | null>(null);
+  const [isProspectModalOpen, setIsProspectModalOpen] = useState(false); // État pour gérer l'ouverture de la modal de prospect
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   const handleOpenModal = (data?: FolderFormInputs) => {
     setIsModalOpen(true);
@@ -101,6 +104,22 @@ const Folders: React.FC = () => {
     closeDeleteModal();
   };
 
+  const openProspectModal = (company: Company) => {
+    setSelectedCompany(company)
+    setIsProspectModalOpen(true);
+  };
+
+  const closeProspectModal = () => {
+    setIsProspectModalOpen(false);
+  };
+
+  const handleCreateProspect = async (data: any) => {
+    // Implémentez la logique de création de prospect ici
+    console.log(data);
+    closeProspectModal();
+    return 'test'
+  };
+
   const columns: ColumnDef<Company>[] = [
     {
       accessorKey: "name",
@@ -151,7 +170,10 @@ const Folders: React.FC = () => {
       id: "new_prospect",
       enableHiding: false,
       cell: ({ row }) => (
-        <button className="flex items-center text-blue-500 border border-2 border-blue-500 py-2 px-4 rounded-lg shadow-md hover:bg-blue-100">
+        <button 
+          className="flex items-center text-blue-500 border border-2 border-blue-500 py-2 px-4 rounded-lg shadow-md hover:bg-blue-100"
+          onClick={() => openProspectModal(row.original)}
+        >
           Nouveau prospect
           <FaPlus className="ml-2" />
         </button>
@@ -207,6 +229,12 @@ const Folders: React.FC = () => {
         onConfirm={handleDeleteFolder}
         message="Êtes-vous sûr de vouloir supprimer ce dossier ?"
       />
+      {selectedCompany && <AddProspectModal
+        isOpen={isProspectModalOpen}
+        onRequestClose={closeProspectModal}
+        onSubmit={handleCreateProspect}
+        company={selectedCompany}
+      />}
     </div>
   );
 };
