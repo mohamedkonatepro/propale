@@ -4,7 +4,7 @@ import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import { fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
+import { fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById } from '@/services/companyService';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
@@ -16,16 +16,15 @@ import { createProfile, fetchProfilesWithUserDetails, updateUserProfile } from '
 import AddUserModal from '@/components/modals/AddUserModal';
 import { UserFormInputs } from '@/schemas/user';
 import { createUser } from '@/services/userService';
-import { associateProfileWithCompany } from '@/services/companyProfileService';
+import { associateProfileWithCompany, fetchUserAccess, removeProfileFromCompany } from '@/services/companyProfileService';
 import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
 import EditUserModal from '@/components/modals/EditUserModal';
 import { toast } from 'react-toastify';
 import { ROLES } from '@/constants/roles';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
+import ManageAccessModal from '@/components/modals/ManageAccessModal';
 
-interface UsersProps {}
-
-const Users: React.FC<UsersProps> = () => {
+const Users: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -38,6 +37,9 @@ const Users: React.FC<UsersProps> = () => {
   const [searchUser, setSearchUser] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
+  const [isManageAccessModalOpen, setIsManageAccessModalOpen] = useState(false);
+  const [userAccess, setUserAccess] = useState<Set<string>>(new Set());
+  const [initialFolders, setInitialFolders] = useState<Company[]>([]);
 
   useEffect(() => {
     if (user?.id && id) {
@@ -59,12 +61,16 @@ const Users: React.FC<UsersProps> = () => {
         folderCounts[profile.id] = count;
       }
       setFoldersCount(folderCounts);
+
+      const folders = await fetchCompaniesByCompanyId(companyData.id);
+      setInitialFolders(folders);
     }
   };
 
-  const getNbFolders = async (id: string): Promise<number> => {
-    const companies = await fetchCompaniesWithParentByProfileId(id);
-    return companies.length;
+  const getNbFolders = async (profileId: string): Promise<number> => {
+    const currentAccess = await fetchUserAccess(profileId);
+    currentAccess.delete(id as string);
+    return currentAccess.size;
   };
 
   const handleEditUser = (userSelected: Profile) => {
@@ -148,6 +154,36 @@ const Users: React.FC<UsersProps> = () => {
     closeDeleteModal();
   };
 
+  const handleSaveManageAccess = async (updatedAccess: Set<string>) => {
+    if (!selectedUser) return;
+
+    const currentAccess = await fetchUserAccess(selectedUser.id);
+
+    const accessToAdd = new Set(Array.from(updatedAccess).filter(x => !currentAccess.has(x)));
+    const accessToRemove = new Set(Array.from(currentAccess).filter(x => !updatedAccess.has(x)));
+
+    for (let companyId of Array.from(accessToAdd)) {
+      await associateProfileWithCompany(selectedUser.id, companyId);
+    }
+
+    for (let companyId of Array.from(accessToRemove)) {
+      await removeProfileFromCompany(selectedUser.id, companyId);
+    }
+
+    setUserAccess(updatedAccess);
+    setIsManageAccessModalOpen(false);
+
+    await getCompanyData();
+    toast.success("Les accès ont été mis à jour avec succès.");
+  };
+
+  const openManageAccessModal = async (user: Profile) => {
+    setSelectedUser(user);
+    const userAccessSet = await fetchUserAccess(user.id);
+    setUserAccess(userAccessSet);
+    setIsManageAccessModalOpen(true);
+  };
+
   const columns: ColumnDef<Profile>[] = [
     {
       accessorKey: "firstname",
@@ -206,26 +242,27 @@ const Users: React.FC<UsersProps> = () => {
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => (
-        <div className="lowercase text-center">{foldersCount[row.original.id] || 0}</div>
-      ),
-    },
-    {
-      id: "manage_folders",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <button className="flex items-center text-blue-500 border border-2 border-blue-500 p-2 rounded-lg shadow-md hover:bg-blue-100">
-          Gérer les dossiers
-          <MdFolderOpen className="ml-2" size="25" />
-        </button>
-      ),
+      cell: ({ row }) => {
+        const folderCount = foldersCount[row.original.id];
+        return <div className="lowercase text-center">{folderCount !== undefined ? folderCount : 0}</div>;
+      },
     },
     ...(user?.role !== ROLES.SALES
       ? [
           {
+            id: "manage_folders",
+            enableHiding: false,
+            cell: ({ row }: any) => (
+              <button onClick={() => openManageAccessModal(row.original)} className="flex items-center text-blue-500 border border-2 border-blue-500 p-2 rounded-lg shadow-md hover:bg-blue-100">
+                Gérer les dossiers
+                <MdFolderOpen className="ml-2" size="25" />
+              </button>
+            ),
+          },
+          {
             id: "menu",
             enableHiding: false,
-            cell: ({ row }) => (
+            cell: ({ row }: any) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0">
@@ -277,6 +314,16 @@ const Users: React.FC<UsersProps> = () => {
         onConfirm={handleDeleteUser}
         message={"Êtes-vous sûr de vouloir supprimer l'utilisateur ?"}
       />
+      {selectedUser && (
+        <ManageAccessModal
+          isOpen={isManageAccessModalOpen}
+          onClose={() => setIsManageAccessModalOpen(false)}
+          user={selectedUser}
+          initialFolders={initialFolders}
+          userAccess={userAccess}
+          onSave={handleSaveManageAccess}
+        />
+      )}
     </div>
   );
 };

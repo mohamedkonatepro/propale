@@ -5,7 +5,8 @@ import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company, Profile } from '@/types/models';
-import { SlSettings } from "react-icons/sl";
+import { IoEyeOutline } from "react-icons/io5";
+import Link from "next/link";
 
 export const folderColumns = (handleEditCompany: (company: Company) => void, openModalCompany: (companyId: string) => void): ColumnDef<Company>[] => [
   {
@@ -63,16 +64,18 @@ export const folderColumns = (handleEditCompany: (company: Company) => void, ope
         <LiaSortSolid className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div className="text-center">{row.original.blocked ? 'Inactif' : 'Actif'}</div>,
+    cell: ({ row }) => <span className={`text-sm ${row.original.blocked ? 'bg-red-100 text-red-600 border border-red-600' : 'bg-green-100 text-green-600 border border-green-600'} px-5 py-1 rounded-full mt-5`}>{row.original.blocked ? 'Inactif' : 'Actif'}</span>
   },
   {
     id: "settings",
     enableHiding: false,
     cell: ({ row }) => (
+      <Link href={`/dashboard/folders/${row.original.id}`}>
       <button className="flex items-center text-blue-500 border border-2 border-blue-500 py-2 px-4 rounded-lg shadow-md hover:bg-blue-100">
-        Paramètre
-        <SlSettings className="ml-2" />
+        Ouvrir l’espace client
+        <IoEyeOutline className="ml-2" />
       </button>
+      </Link>
     ),
   },
   {

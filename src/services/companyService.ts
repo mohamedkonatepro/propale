@@ -85,7 +85,8 @@ export const fetchCompaniesWithParentByProfileId = async (profileId: string, sea
     .from('company')
     .select('*')
     .in('id', companyIds)
-    .is('company_id', null);
+    .not('company_id', 'is', null)
+    .neq('company_id', ''); 
 
   if (search && search.length >= 3) {
     query = query.or(`name.ilike.%${search}%,siret.ilike.%${search}%`);
@@ -191,4 +192,18 @@ export const updateCompany = async (data: any) => {
     .eq('id', data.id);
 
   return error;
+};
+
+export const deleteCompany = async (companyId: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('company')
+    .delete()
+    .eq('id', companyId);
+
+  if (error) {
+    console.error('Error deleting company:', error);
+    return false;
+  }
+
+  return true;
 };

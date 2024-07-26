@@ -68,7 +68,7 @@ const Folders: React.FC = () => {
 
     if (companyData) {
       const data = user.role === ROLES.SALES
-        ? await fetchCompaniesWithParentByProfileId(companyData.id, search)
+        ? await fetchCompaniesWithParentByProfileId(user.id, search)
         : await fetchCompaniesByCompanyId(companyData.id, search);
       setCompanies(data);
     }
@@ -157,27 +157,31 @@ const Folders: React.FC = () => {
         </button>
       ),
     },
-    {
-      id: "menuFolder",
-      enableHiding: false,
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleOpenModal({ ...row.original, companyName: row.original.name })}>
-              Modifier
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => openDeleteModal(row.original.id)}>
-              Supprimer
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
+    ...(user?.role !== ROLES.SALES
+      ? [
+          {
+            id: "menuFolder",
+            enableHiding: false,
+            cell: ({ row }: any) => (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleOpenModal({ ...row.original, companyName: row.original.name })}>
+                    Modifier
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => openDeleteModal(row.original.id)}>
+                    Supprimer
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
