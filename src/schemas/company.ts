@@ -9,7 +9,7 @@ export const companySchema = z.object({
   firstname: z.string().min(1, 'Prénom est requis'),
   lastname: z.string().min(1, 'Nom est requis'),
   position: z.string().optional(),
-  role: z.enum([ROLES.ADMIN, ROLES.SALES]).optional(),
+  role: z.enum([ROLES.ADMIN, ROLES.SALES, ROLES.PROSPECT]).optional(),
   email: z.string().email('Email invalide'),
   phone: z.string().optional(),
   address: z.string().optional(),

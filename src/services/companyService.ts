@@ -1,5 +1,8 @@
 import { supabase } from '@/lib/supabaseClient';
 import { Company } from '@/types/models';
+import { createUser, sendPasswordResetEmail } from './userService';
+import { createProfile } from './profileService';
+import { associateProfileWithCompany } from './companyProfileService';
 
 // Fetch company by its ID
 export const fetchCompanyById = async (companyId: string): Promise<Company | null> => {
@@ -36,7 +39,8 @@ export const fetchCompanyWithoutParentByProfileId = async (profileId: string): P
   const { data: companies, error: companiesError } = await supabase
     .from('companies_profiles')
     .select('company_id')
-    .eq('profile_id', profileId);
+    .eq('profile_id', profileId)
+    .is('type', null);
 
   if (companiesError) {
     console.error('Error fetching companies for profile:', companiesError);
@@ -67,7 +71,8 @@ export const fetchCompaniesWithParentByProfileId = async (profileId: string, sea
   const { data: companyProfileData, error: companyProfileError } = await supabase
     .from('companies_profiles')
     .select('company_id')
-    .eq('profile_id', profileId);
+    .eq('profile_id', profileId)
+    .is('type', null);
 
   if (companyProfileError) {
     console.error('Error fetching companies for profile:', companyProfileError);
@@ -86,7 +91,8 @@ export const fetchCompaniesWithParentByProfileId = async (profileId: string, sea
     .select('*')
     .in('id', companyIds)
     .not('company_id', 'is', null)
-    .neq('company_id', ''); 
+    .neq('company_id', '')
+    .is('type', null);
 
   if (search && search.length >= 3) {
     query = query.or(`name.ilike.%${search}%,siret.ilike.%${search}%`);
@@ -107,7 +113,8 @@ export const fetchCompaniesByCompanyId = async (companyId: string, search?: stri
   let query = supabase
     .from('company')
     .select('*')
-    .eq('company_id', companyId);
+    .eq('company_id', companyId)
+    .is('type', null);
 
   if (search && search.length >= 3) {
     query = query.or(`name.ilike.%${search}%,siret.ilike.%${search}%`);
@@ -128,7 +135,8 @@ export const fetchAllCompaniesWithoutParent = async (search?: string): Promise<C
   let query = supabase
     .from('company')
     .select('*')
-    .eq('company_id', '');
+    .eq('company_id', '')
+    .is('type', null);
 
   if (search) {
     query = query.or(`name.ilike.%${search}%,siren.ilike.%${search}%`);
@@ -161,6 +169,9 @@ export const createCompany = async (dataModal: any): Promise<Company | null> => 
       city: dataModal.city,
       postalcode: dataModal.postalcode,
       country: dataModal.country,
+      heat_level: dataModal.heatLevel,
+      status: dataModal.status,
+      type: dataModal.type,
     }])
     .select('*')
     .single();
@@ -206,4 +217,55 @@ export const deleteCompany = async (companyId: string): Promise<boolean> => {
   }
 
   return true;
+};
+
+
+export const createProspect = async (dataModal: any): Promise<Company | string | null> => {
+  const data = await createCompany({...dataModal, type: 'prospect'});
+
+  if (data) {
+    const user = await createUser(dataModal.email);
+    if (typeof user === 'string' || !user) {
+      return user;
+    }
+
+    await sendPasswordResetEmail(dataModal.email);
+
+    const profileData = {
+      userId: user.id,
+      firstname: dataModal.firstname,
+      lastname: dataModal.lastname,
+      position: dataModal.position,
+      phone: dataModal.phone,
+      email: dataModal.email,
+      role: dataModal.role || 'prospect',
+    };
+    await createProfile(profileData);
+
+    await associateProfileWithCompany(user.id, data.id)
+    for (const contact of dataModal.additionalContacts) {
+      const user = await createUser(contact.email);
+      if (typeof user === 'string' || !user) {
+        return user;
+      }
+
+      await sendPasswordResetEmail(contact.email);
+
+      const profileData = {
+        userId: user.id,
+        firstname: contact.firstname,
+        lastname: contact.lastname,
+        position: contact.position,
+        phone: contact.phone,
+        email: contact.email,
+        role: contact.role || 'prospect',
+      };
+      await createProfile(profileData);
+
+      await associateProfileWithCompany(user.id, data.id)
+    }
+
+    return data;
+  }
+  return null
 };

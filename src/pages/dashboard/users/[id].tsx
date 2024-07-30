@@ -15,7 +15,7 @@ import { useUser } from '@/context/userContext';
 import { createProfile, fetchProfilesWithUserDetails, updateUserProfile } from '@/services/profileService';
 import AddUserModal from '@/components/modals/AddUserModal';
 import { UserFormInputs } from '@/schemas/user';
-import { createUser } from '@/services/userService';
+import { createUser, sendPasswordResetEmail } from '@/services/userService';
 import { associateProfileWithCompany, fetchUserAccess, removeProfileFromCompany } from '@/services/companyProfileService';
 import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
 import EditUserModal from '@/components/modals/EditUserModal';
@@ -116,9 +116,7 @@ const Users: React.FC = () => {
       await createProfile(profileData);
       await associateProfileWithCompany(result.id, id as string);
 
-      await supabase.auth.resetPasswordForEmail(formInputs.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`,
-      });
+      await sendPasswordResetEmail(formInputs.email)
 
       setIsModalOpen(false);
       await getCompanyData();

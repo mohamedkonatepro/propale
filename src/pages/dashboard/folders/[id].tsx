@@ -5,7 +5,7 @@ import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable';
 import Header from '@/components/layout/Header';
-import { createCompany, fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById, updateCompany, deleteCompany } from '@/services/companyService';
+import { createCompany, fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, fetchCompanyById, updateCompany, deleteCompany, createProspect } from '@/services/companyService';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
@@ -114,11 +114,19 @@ const Folders: React.FC = () => {
   };
 
   const handleCreateProspect = async (data: any) => {
-    // Implémentez la logique de création de prospect ici
-    console.log(data);
-    closeProspectModal();
-    return 'test'
+    const result = await createProspect(data);
+    if (typeof result === 'string') {
+      return result
+    }
+    if (!result) {
+      toast.error('Une erreur est survenue lors de la création du prospect.');
+    } else {
+      toast.success('Le prospect a été créé avec succès.');
+      closeProspectModal();
+      await getCompanyData();
+    }
   };
+  
 
   const columns: ColumnDef<Company>[] = [
     {

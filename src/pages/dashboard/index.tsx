@@ -8,7 +8,7 @@ import { useUser } from '@/context/userContext';
 import { useFetchData } from '@/hooks/useFetchData';
 import { folderColumns, profileColumns } from '@/components/DataTableColumns';
 import { createCompany, updateCompany } from '@/services/companyService';
-import { createUser } from '@/services/userService';
+import { createUser, sendPasswordResetEmail } from '@/services/userService';
 import { createProfile, updateUserProfile } from '@/services/profileService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import AddUserModal from '@/components/modals/AddUserModal';
@@ -81,9 +81,8 @@ const Home: React.FC<HomeProps> = ({ page }) => {
       await createProfile(profileData);
       await associateProfileWithCompany(userCreated.id, companyCreated.id);
 
-      await supabase.auth.resetPasswordForEmail(companyData.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
-      });
+      await sendPasswordResetEmail(companyData.email);
+
 
       setIsModalOpen(false);
       await fetchData();
@@ -107,9 +106,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
       };
       await createProfile(profileData);
 
-      await supabase.auth.resetPasswordForEmail(formInputs.email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`
-      });
+      await sendPasswordResetEmail(formInputs.email);
 
       setIsModalOpen(false);
       fetchData();

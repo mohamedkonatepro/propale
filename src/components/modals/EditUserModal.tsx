@@ -7,8 +7,8 @@ import Image from 'next/image';
 import { Profile } from '@/types/models';
 import { ROLES } from '@/constants/roles';
 import { formatDate } from '@/lib/utils';
-import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'react-toastify';
+import { sendPasswordResetEmail } from '@/services/userService';
 
 type EditUserModalProps = {
   isOpen: boolean;
@@ -50,9 +50,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
   const handleResetPassword = async () => {
     const email = getValues('email');
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`,
-    });
+    const { error } = await sendPasswordResetEmail(email);
 
     if (error) {
       toast.error('Erreur lors de l\'envoi de l\'email de réinitialisation de mot de passe: ' + error.message);

@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from 'react-modal';
 import { companySchema } from '@/schemas/company';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaRegTrashAlt } from 'react-icons/fa';
 import { z } from 'zod';
 import axios from 'axios';
 import { ROLES } from '@/constants/roles';
 import dataApeCode from '../../data/codes-ape.json';
-import { IoSnow } from "react-icons/io5";
 import { Company } from '@/types/models';
 import { CiFolderOn } from "react-icons/ci";
+import CustomDropdown from '../common/CustomDropdown';
+import { heatLevels, statuses } from '@/constants';
 
 type AddProspectModalProps = {
   isOpen: boolean;
@@ -19,7 +20,16 @@ type AddProspectModalProps = {
   company: Company;
 };
 
-type FormInputs = z.infer<typeof companySchema>;
+type FormInputs = z.infer<typeof companySchema> & {
+  additionalContacts: {
+    firstname: string;
+    lastname: string;
+    position?: string;
+    role?: string;
+    email: string;
+    phone?: string;
+  }[];
+};
 
 const customStyles = {
   content: {
@@ -38,20 +48,54 @@ const customStyles = {
 };
 
 const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company }) => {
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<FormInputs>({
-    resolver: zodResolver(companySchema),
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = useForm<FormInputs>({
+    resolver: zodResolver(companySchema.extend({
+      additionalContacts: z.array(z.object({
+        firstname: z.string().min(1, "Prénom est requis"),
+        lastname: z.string().min(1, "Nom est requis"),
+        position: z.string().optional(),
+        role: z.string().default(ROLES.PROSPECT),
+        email: z.string().email("Email invalide").min(1, "Email est requis"),
+        phone: z.string().optional(),
+      })).default([]) // Ensure this defaults to an empty array
+    })),
+    defaultValues: {
+      companyName: '',
+      siren: '',
+      apeCode: '',
+      activitySector: '',
+      firstname: '',
+      lastname: '',
+      position: '',
+      email: '',
+      phone: '',
+      address: '',
+      postalcode: '',
+      city: '',
+      country: '',
+      role: ROLES.PROSPECT,
+      additionalContacts: [],
+    },
   });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'additionalContacts',
+  });
+
+  const [status, setStatus] = useState(statuses[0].value);
+  const [heatLevel, setHeatLevel] = useState(heatLevels[0].value);
   const [messageAlertSiren, setMessageAlertSiren] = useState('');
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
-  setValue('role', ROLES.ADMIN);
 
   const onSubmitHandler = async (data: FormInputs) => {
-    const result = await onSubmit(data);
+    const result = await onSubmit({ ...data, status, heatLevel, companyId: company.id });
     if (result === 'email_already_exists') {
       setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
       return;
     }
     reset();
+    setStatus(statuses[0].value);
+    setHeatLevel(heatLevels[0].value);
   };
 
   const sirenValue = watch('siren');
@@ -73,10 +117,10 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
         }
 
         const responseSearch = await axios.get(`https://recherche-entreprises.api.gouv.fr/search?q=${siren}`);
-        const company = responseSearch.data.results[0].siege;
-        setValue('address', `${company.numero_voie} ${company.type_voie} ${company.libelle_voie}`);
-        setValue('city', company.libelle_commune);
-        setValue('postalcode', company.code_postal);
+        const companySearch = responseSearch.data.results[0].siege;
+        setValue('address', `${companySearch.numero_voie} ${companySearch.type_voie} ${companySearch.libelle_voie}`);
+        setValue('city', companySearch.libelle_commune);
+        setValue('postalcode', companySearch.code_postal);
         setValue('country', 'France');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
@@ -124,12 +168,10 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
               {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message}</p>}
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-black">Statut</label>
-              <div className="text-sm bg-blue-100 text-blue-600 border border-blue-600 px-5 py-1 rounded-full mt-1 flex items-center justify-center">Nouveau</div>
+              <CustomDropdown options={statuses} label="Statut" selected={status} onChange={setStatus} />
             </div>
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-black">Chaleur</label>
-              <div className="text-sm bg-blue-100 text-blue-600 border border-blue-600 px-5 py-1 rounded-full mt-1 flex items-center justify-around">Froid <IoSnow /></div>
+              <CustomDropdown options={heatLevels} label="Chaleur" selected={heatLevel} onChange={setHeatLevel} />
             </div>
             <div className="col-span-3">
               <label className="block text-sm font-medium text-labelGray">Numéro SIREN</label>
@@ -218,11 +260,102 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
             </div>
           </div>
         </div>
-        {/* <div className="flex justify-between mt-4">
-          <button type="button" className="text-blue-500">
+
+        <div className='mt-10'>
+          {fields.map((field, index) => (
+            <div key={field.id} className='mt-10'>
+              <div className="flex items-center">
+                <h3 className="text-lg font-medium mr-5">Contacts supplémentaires {index + 1}</h3>
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <FaRegTrashAlt />
+                </button>
+              </div>
+              <div className="grid grid-cols-12 gap-4 mt-2">
+                <input
+                  {...register(`additionalContacts.${index}.role` as const)}
+                  defaultValue={ROLES.PROSPECT}
+                  type='hidden'
+                />
+                <div className="col-span-3">
+                  <label className="block text-sm font-medium text-labelGray">Prénom</label>
+                  <input
+                    {...register(`additionalContacts.${index}.firstname` as const, { required: 'Prénom est requis' })}
+                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                    placeholder="Paul"
+                    defaultValue={field.firstname}
+                  />
+                  {errors.additionalContacts?.[index]?.firstname && (
+                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.firstname?.message}</p>
+                  )}
+                </div>
+                <div className="col-span-3">
+                  <label className="block text-sm font-medium text-labelGray">Nom</label>
+                  <input
+                    {...register(`additionalContacts.${index}.lastname` as const, { required: 'Nom est requis' })}
+                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                    placeholder="Dupond"
+                    defaultValue={field.lastname}
+                  />
+                  {errors.additionalContacts?.[index]?.lastname && (
+                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.lastname?.message}</p>
+                  )}
+                </div>
+                <div className="col-span-6">
+                  <label className="block text-sm font-medium text-labelGray">Fonction</label>
+                  <input
+                    {...register(`additionalContacts.${index}.position` as const)}
+                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                    placeholder="commercial"
+                    defaultValue={field.position}
+                  />
+                  {errors.additionalContacts?.[index]?.position && (
+                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.position?.message}</p>
+                  )}
+                </div>
+                <div className="col-span-6">
+                  <label className="block text-sm font-medium text-labelGray">Email</label>
+                  <input
+                    {...register(`additionalContacts.${index}.email` as const, { required: 'Email est requis', pattern: { value: /^\S+@\S+$/i, message: 'Email invalide' } })}
+                    className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${
+                      errors.additionalContacts?.[index]?.email ? 'border border-red-500' : ''
+                    }`}
+                    placeholder="paul.dupond@mail.com"
+                    defaultValue={field.email}
+                  />
+                  {errors.additionalContacts?.[index]?.email && (
+                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.email?.message}</p>
+                  )}
+                </div>
+                <div className="col-span-6">
+                  <label className="block text-sm font-medium text-labelGray">Téléphone</label>
+                  <input
+                    {...register(`additionalContacts.${index}.phone` as const)}
+                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                    placeholder="0762347533"
+                    defaultValue={field.phone}
+                  />
+                  {errors.additionalContacts?.[index]?.phone && (
+                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.phone?.message}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="flex justify-between mt-4">
+          <button 
+            onClick={() => append({ firstname: '', lastname: '', position: '', email: '', phone: '', role: ROLES.PROSPECT })}
+            type="button"
+            className="text-blue-500">
             + Ajouter un contact
           </button>
-        </div> */}
+        </div> 
+
         <div className='flex justify-center'>
           <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
             Créer le prospect

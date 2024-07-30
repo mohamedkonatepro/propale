@@ -14,6 +14,9 @@ export interface Company {
   updatedAt: Date;
   blocked: boolean;
   description: string;
+  heat_level: string;
+  status: string;
+  type: string;
 }
 
 export interface Profile {

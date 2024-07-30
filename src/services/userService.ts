@@ -66,3 +66,11 @@ export const fetchProfileById = async (userId: string): Promise<Profile | null> 
 
   return data as Profile;
 };
+
+export const sendPasswordResetEmail = async (email: string) => {
+  const result = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_URL}/auth/reset-password`,
+  });
+
+  return result;
+};
