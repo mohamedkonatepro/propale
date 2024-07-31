@@ -57,7 +57,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
         role: z.string().default(ROLES.PROSPECT),
         email: z.string().email("Email invalide").min(1, "Email est requis"),
         phone: z.string().optional(),
-      })).default([]) // Ensure this defaults to an empty array
+      })).default([])
     })),
     defaultValues: {
       companyName: '',

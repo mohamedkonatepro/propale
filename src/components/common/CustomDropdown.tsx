@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { IconType } from 'react-icons/lib';
+import clsx from 'clsx';
+import { Color } from '@/constants'; // Import the Color type
 
 type Option = {
   label: string;
   value: string;
-  color: string;
+  color: Color;
   icon?: IconType;
 };
 
@@ -15,11 +17,40 @@ interface CustomDropdownProps {
   onChange: (value: string) => void;
 }
 
+const colorClasses = {
+  blue: {
+    bg: 'bg-blue-100',
+    text: 'text-blue-600',
+    border: 'border-blue-600',
+  },
+  orange: {
+    bg: 'bg-orange-100',
+    text: 'text-orange-600',
+    border: 'border-orange-600',
+  },
+  red: {
+    bg: 'bg-red-100',
+    text: 'text-red-600',
+    border: 'border-red-600',
+  },
+  green: {
+    bg: 'bg-green-100',
+    text: 'text-green-600',
+    border: 'border-green-600',
+  },
+  gray: {
+    bg: 'bg-gray-100',
+    text: 'text-gray-600',
+    border: 'border-gray-600',
+  },
+};
+
 const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, label, selected, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find(option => option.value === selected) || options[0];
+  const selectedColorClasses = colorClasses[selectedOption.color];
 
   const handleToggle = () => setIsOpen(!isOpen);
   const handleOptionClick = (option: Option) => {
@@ -40,9 +71,15 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, label, selecte
   return (
     <div className="w-full relative" ref={dropdownRef}>
       <label className="block text-sm font-medium text-black">{label}</label>
-      <div 
-        onClick={handleToggle} 
-        className={`text-sm bg-${selectedOption.color}-100 text-${selectedOption.color}-600 border border-${selectedOption.color}-600 px-5 py-1 rounded-full mt-1 flex items-center justify-between cursor-pointer`}
+      <div
+        onClick={handleToggle}
+        className={clsx(
+          'text-sm px-5 py-1 rounded-full mt-1 flex items-center justify-between cursor-pointer',
+          selectedColorClasses.bg,
+          selectedColorClasses.text,
+          selectedColorClasses.border,
+          'border'
+        )}
       >
         {selectedOption.label}
         {selectedOption.icon && <selectedOption.icon className="ml-2" />}

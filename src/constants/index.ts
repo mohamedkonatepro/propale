@@ -1,13 +1,14 @@
 import { IoFlame, IoSnow, IoSunny } from 'react-icons/io5';
 import { IconType } from 'react-icons/lib';
 
-export type Option = {
+export type Color = 'blue' | 'orange' | 'red' | 'green' | 'gray';
+
+export interface Option {
   label: string;
   value: string;
-  color: string;
+  color: Color;
   icon?: IconType;
-};
-
+}
 export const heatLevels: Option[] = [
   { label: 'Froid', value: 'cold', color: 'blue', icon: IoSnow },
   { label: 'Tiède', value: 'warm', color: 'orange', icon: IoSunny },
