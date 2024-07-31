@@ -32,4 +32,5 @@ export interface Profile {
   updated_by: string;
   role: string;
   blocked: boolean;
+  is_primary_contact: boolean;
 }

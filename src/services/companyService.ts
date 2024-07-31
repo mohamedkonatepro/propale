@@ -239,6 +239,7 @@ export const createProspect = async (dataModal: any): Promise<Company | string |
       phone: dataModal.phone,
       email: dataModal.email,
       role: dataModal.role || 'prospect',
+      is_primary_contact: true,
     };
     await createProfile(profileData);
 
@@ -259,6 +260,7 @@ export const createProspect = async (dataModal: any): Promise<Company | string |
         phone: contact.phone,
         email: contact.email,
         role: contact.role || 'prospect',
+        is_primary_contact: false,
       };
       await createProfile(profileData);
 

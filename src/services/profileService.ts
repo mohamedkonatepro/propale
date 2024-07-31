@@ -33,6 +33,7 @@ export const createProfile = async (dataModal: any): Promise<void> => {
       email: dataModal.email,
       role: dataModal.role,
       blocked: false,
+      is_primary_contact: dataModal.is_primary_contact || false,
     }])
     .single();
 
