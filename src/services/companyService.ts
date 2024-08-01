@@ -3,6 +3,7 @@ import { Company } from '@/types/models';
 import { createUser, sendPasswordResetEmail } from './userService';
 import { createProfile } from './profileService';
 import { associateProfileWithCompany } from './companyProfileService';
+import { ROLES } from '@/constants/roles';
 
 // Fetch company by its ID
 export const fetchCompanyById = async (companyId: string): Promise<Company | null> => {
@@ -270,4 +271,39 @@ export const createProspect = async (dataModal: any): Promise<Company | string |
     return data;
   }
   return null
+};
+
+export const fetchProspects = async (companyId: string, search?: string): Promise<Company[]> => {
+  let query = supabase
+    .from('company')
+    .select('*')
+    .eq('company_id', companyId)
+    .eq('type', ROLES.PROSPECT);
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,siren.ilike.%${search}%`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching prospects:', error);
+    return [];
+  }
+
+  return data;
+};
+
+export const deleteProspect = async (companyId: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('company')
+    .delete()
+    .eq('id', companyId);
+
+  if (error) {
+    console.error('Error deleting prospect:', error);
+    return false;
+  }
+
+  return true;
 };

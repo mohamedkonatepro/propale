@@ -17,7 +17,8 @@ import AddFolderModal from '@/components/modals/AddFolderModal';
 import { FolderFormInputs } from '@/schemas/folder';
 import { toast } from 'react-toastify';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
-import AddProspectModal from '@/components/modals/AddProspectModal'; // Assurez-vous d'importer le composant de modal de prospect
+import AddProspectModal from '@/components/modals/AddProspectModal';
+import Link from 'next/link';
 
 const Folders: React.FC = () => {
   const router = useRouter();
@@ -30,7 +31,7 @@ const Folders: React.FC = () => {
   const [selectedFolder, setSelectedFolder] = useState<FolderFormInputs | null>(null);
   const [search, setSearch] = useState<string>('');
   const [folderIdToDelete, setFolderIdToDelete] = useState<string | null>(null);
-  const [isProspectModalOpen, setIsProspectModalOpen] = useState(false); // État pour gérer l'ouverture de la modal de prospect
+  const [isProspectModalOpen, setIsProspectModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   const handleOpenModal = (data?: FolderFormInputs) => {
@@ -143,7 +144,9 @@ const Folders: React.FC = () => {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        <Link href={`/dashboard/prospect/${row.original.id}`} passHref>
+          <div className="capitalize cursor-pointer">{row.getValue("name")}</div>
+        </Link>
       ),
     },
     {
@@ -158,7 +161,11 @@ const Folders: React.FC = () => {
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{row.getValue("siret")}</div>,
+      cell: ({ row }) => (
+        <Link href={`/dashboard/prospect/${row.original.id}`} passHref>
+          <div className="lowercase cursor-pointer">{row.getValue("siret")}</div>
+        </Link>
+      ),
     },
     {
       accessorKey: "activity_sector",
@@ -172,7 +179,11 @@ const Folders: React.FC = () => {
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{row.getValue("activity_sector")}</div>,
+      cell: ({ row }) => (
+        <Link href={`/dashboard/prospect/${row.original.id}`} passHref>
+          <div className="lowercase cursor-pointer">{row.getValue("activity_sector")}</div>
+        </Link>
+      ),
     },
     {
       id: "new_prospect",
@@ -230,6 +241,7 @@ const Folders: React.FC = () => {
         onRequestClose={handleCloseModal}
         onSubmit={handleCreateFolder}
         defaultValues={selectedFolder}
+        role={user?.role}
       />
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}

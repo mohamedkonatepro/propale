@@ -8,12 +8,14 @@ import dataApeCode from '../../data/codes-ape.json';
 import { FolderFormInputs, folderSchema } from '@/schemas/folder';
 import { RiDeleteBinLine } from "react-icons/ri";
 import { supabase } from '@/lib/supabaseClient';
+import { ROLES } from '../../constants/roles';
 
 type AddFolderModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => Promise<void>;
-  defaultValues?: FolderFormInputs | null; // Ajout des valeurs par défaut pour la modification
+  defaultValues?: FolderFormInputs | null;
+  role?: string;
 };
 
 
@@ -32,9 +34,9 @@ const customStyles = {
   },
 };
 
-const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues }) => {
+const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues, role }) => {
   const [messageAlertSiret, setMessageAlertSiret] = useState('');
-  const { register, handleSubmit, control, formState: { errors }, reset, watch, setValue } = useForm<FolderFormInputs>({
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FolderFormInputs>({
     resolver: zodResolver(folderSchema),
     defaultValues: defaultValues || {}
   });
@@ -155,7 +157,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
             placeholder="Description du dossier"
           />
         </div>
-        {defaultValues && <button onClick={deleteFolder} className='flex text-red-500'><RiDeleteBinLine className='mt-1 mr-2' /> Supprimer ce dossier</button>}
+        {role === (ROLES.ADMIN || ROLES.SUPER_ADMIN) && defaultValues && <button onClick={deleteFolder} className='flex text-red-500'><RiDeleteBinLine className='mt-1 mr-2' /> Supprimer ce dossier</button>}
         <div className="flex justify-center">
           <button type="submit" className="bg-blue-600 text-white rounded-xl px-4 py-2 mt-4">
             {defaultValues ? 'Modifier le dossier' : 'Créer le dossier'}

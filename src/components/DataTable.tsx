@@ -29,6 +29,9 @@ import { InputSearch } from "./common/InputSearch"
 import { FaPlus } from "react-icons/fa"
 import { useUser } from "@/context/userContext"
 import { ROLES } from "@/constants/roles"
+import { FaRegTrashAlt } from "react-icons/fa";
+import { MdOutlineFileDownload } from "react-icons/md";
+import { RxDividerVertical } from "react-icons/rx";
 
 type DataTableProps<T> = {
   data: T[];
@@ -37,9 +40,11 @@ type DataTableProps<T> = {
   addButtonLabel?: string;
   onAddButtonClick?: () => void;
   onChangeSearch?: (value: string) => void;
+  handleDeleteClick?: (selectedRows: T[]) => void;
+  handleDownloadClick?: (selectedRows: T[]) => void;
 }
 
-export function DataTable<T>({ data, columns, placeholder = "Recherche", addButtonLabel = "Ajouter", onAddButtonClick, onChangeSearch }: DataTableProps<T>) {
+export function DataTable<T>({ data, columns, placeholder = "Recherche", addButtonLabel = "Ajouter", onAddButtonClick, onChangeSearch, handleDeleteClick, handleDownloadClick }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -64,14 +69,28 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
     },
   })
 
+  const selectedRows = table.getFilteredSelectedRowModel().rows.map(row => row.original);
+
+  const handleMultipleDeleteClick = () => {
+    if (handleDeleteClick) {
+      handleDeleteClick(selectedRows);
+    }
+  };
+
+  const handleMultipleDownloadClick = () => {
+    if (handleDownloadClick) {
+      handleDownloadClick(selectedRows);
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
-        <div className="flex w-full justify-between">
+        <div className="flex w-full justify-end">
           {onChangeSearch && <InputSearch
             placeholder={placeholder}
             onChange={(e) => onChangeSearch(e.target.value)}
-            className="w-1/4"
+            className="w-1/4 mr-5"
           />}
           {onAddButtonClick && user?.role !== ROLES.SALES && (
             <button
@@ -103,6 +122,22 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {handleDeleteClick && handleDownloadClick && (
+        <div className="flex bg-white w-fit p-2 items-center rounded-tr-lg">
+          <div className="text-gray-400 flex p-1">
+            {table.getFilteredSelectedRowModel().rows.length} sélectionnées
+          </div>
+          <RxDividerVertical className="h-full" />
+          <div className="text-blue-600 flex p-1 items-center cursor-pointer" onClick={handleMultipleDeleteClick}>
+            Supprimer <FaRegTrashAlt className="ml-1" />
+          </div>
+          <RxDividerVertical className="h-full" />
+          <div className="text-blue-600 flex p-1 items-center cursor-pointer" onClick={handleMultipleDownloadClick}>
+            Télécharger <MdOutlineFileDownload className="ml-1" />
+          </div>
+        </div>
+      )}
       <div className="rounded-lg border shadow-lg">
         <Table>
           <TableHeader className="bg-gray-50">
