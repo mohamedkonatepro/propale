@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { Company } from '@/types/models';
+import { Company, CompanyModalData } from '@/types/models';
 import { createUser, sendPasswordResetEmail } from './userService';
 import { createProfile } from './profileService';
 import { associateProfileWithCompany } from './companyProfileService';
@@ -154,17 +154,17 @@ export const fetchAllCompaniesWithoutParent = async (search?: string): Promise<C
 };
 
 // Create a new company
-export const createCompany = async (dataModal: any): Promise<Company | null> => {
+export const createCompany = async (dataModal: CompanyModalData): Promise<Company | null> => {
   const { data, error } = await supabase
     .from('company')
     .insert([{
       company_id: dataModal.companyId,
       prospect_id: '',
-      name: dataModal.companyName,
+      name: dataModal.name,
       siret: dataModal.siret,
       siren: dataModal.siren,
-      ape_code: dataModal.apeCode,
-      activity_sector: dataModal.activitySector,
+      ape_code: dataModal.ape_code,
+      activity_sector: dataModal.activity_sector,
       description: dataModal.description,
       address: dataModal.address,
       city: dataModal.city,
@@ -185,15 +185,15 @@ export const createCompany = async (dataModal: any): Promise<Company | null> => 
   return data;
 };
 
-export const updateCompany = async (data: any) => {
+export const updateCompany = async (data: Company) => {
   const { error } = await supabase
     .from('company')
     .update({
-      name: data.companyName,
+      name: data.name,
       siret: data.siret,
       siren: data.siren,
-      ape_code: data.apeCode,
-      activity_sector: data.activitySector,
+      ape_code: data.ape_code,
+      activity_sector: data.activity_sector,
       description: data.description,
       updated_at: new Date().toISOString(),
       address: data.address,
@@ -221,7 +221,7 @@ export const deleteCompany = async (companyId: string): Promise<boolean> => {
 };
 
 
-export const createProspect = async (dataModal: any): Promise<Company | null> => {
+export const createProspect = async (dataModal: CompanyModalData): Promise<Company | null> => {
   const data = await createCompany({...dataModal, type: 'prospect'});
 
   if (data) {
@@ -245,27 +245,30 @@ export const createProspect = async (dataModal: any): Promise<Company | null> =>
     await createProfile(profileData);
 
     await associateProfileWithCompany(user.id, data.id)
-    for (const contact of dataModal.additionalContacts) {
-      const user = await createUser(contact.email);
-      if (typeof user === 'string' || !user) {
-        return null;
+
+    if (dataModal.additionalContacts) {
+      for (const contact of dataModal.additionalContacts) {
+        const user = await createUser(contact.email);
+        if (typeof user === 'string' || !user) {
+          return null;
+        }
+  
+        await sendPasswordResetEmail(contact.email);
+  
+        const profileData = {
+          userId: user.id,
+          firstname: contact.firstname,
+          lastname: contact.lastname,
+          position: contact.position,
+          phone: contact.phone,
+          email: contact.email,
+          role: contact.role || 'prospect',
+          is_primary_contact: false,
+        };
+        await createProfile(profileData);
+  
+        await associateProfileWithCompany(user.id, data.id)
       }
-
-      await sendPasswordResetEmail(contact.email);
-
-      const profileData = {
-        userId: user.id,
-        firstname: contact.firstname,
-        lastname: contact.lastname,
-        position: contact.position,
-        phone: contact.phone,
-        email: contact.email,
-        role: contact.role || 'prospect',
-        is_primary_contact: false,
-      };
-      await createProfile(profileData);
-
-      await associateProfileWithCompany(user.id, data.id)
     }
 
     return data;

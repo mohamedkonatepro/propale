@@ -27,7 +27,7 @@ const useCompanyData = (companyId: string) => {
   const updateCompanyData = async (data: any) => {
     try {
       await updateCompany(data);
-      toast.success(`${data.companyName} à bien été modifié.`);
+      toast.success(`${data.name} à bien été modifié.`);
     } catch (err) {
       setError('Erreur lors de la modification de l\'entreprise.');
     }
@@ -36,7 +36,7 @@ const useCompanyData = (companyId: string) => {
   const createNewCompany = async (data: any) => {
     try {
       await createCompany(data);
-      toast.success(`${data.companyName} à bien été ajouté à la liste.`);
+      toast.success(`${data.name} à bien été ajouté à la liste.`);
     } catch (err) {
       setError('Erreur lors de la création de l\'entreprise.');
     }

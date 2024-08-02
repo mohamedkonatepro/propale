@@ -49,7 +49,7 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
       toast.success(`${companyCreated.name} a bien été ajouté à la liste.`);
     } catch (error) {
       console.error('Error creating company:', error);
-      toast.error(`Erreur lors de la création de l'entreprise: ${formInputs.companyName}`);
+      toast.error(`Erreur lors de la création de l'entreprise: ${formInputs.name}`);
     }
   };
 

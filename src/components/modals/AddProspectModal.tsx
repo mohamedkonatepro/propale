@@ -60,10 +60,10 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
       })).default([])
     })),
     defaultValues: {
-      companyName: '',
+      name: '',
       siren: '',
-      apeCode: '',
-      activitySector: '',
+      ape_code: '',
+      activity_sector: '',
       firstname: '',
       lastname: '',
       position: '',
@@ -105,11 +105,11 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
           },
         });
         const companyData = response.data.uniteLegale;
-        const apeCode = companyData.periodesUniteLegale[0].activitePrincipaleUniteLegale;
-        setValue('apeCode', apeCode);
-        const naf = dataApeCode.find(code => code.id === apeCode);
+        const ape_code = companyData.periodesUniteLegale[0].activitePrincipaleUniteLegale;
+        setValue('ape_code', ape_code);
+        const naf = dataApeCode.find(code => code.id === ape_code);
         if (naf) {
-          setValue('activitySector', naf?.label);
+          setValue('activity_sector', naf?.label);
         }
 
         const responseSearch = await axios.get(`https://recherche-entreprises.api.gouv.fr/search?q=${siren}`);
@@ -127,8 +127,8 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
       fetchCompanyDetails(sirenValue);
     } else {
       setMessageAlertSiren('');
-      setValue('activitySector', '');
-      setValue('apeCode', '');
+      setValue('activity_sector', '');
+      setValue('ape_code', '');
       setValue('address', '');
       setValue('city', '');
       setValue('postalcode', '');
@@ -157,11 +157,11 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
             <div className="col-span-7">
               <label className="block text-sm font-medium text-labelGray">Raison sociale</label>
               <input
-                {...register('companyName')}
+                {...register('name')}
                 className="mt-1 block w-full rounded p-2 bg-backgroundGray"
                 placeholder="Company tech"
               />
-              {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message}</p>}
+              {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
             </div>
             <div className="col-span-2">
               <CustomDropdown options={statuses} label="Statut" selected={status} onChange={setStatus} />
@@ -183,24 +183,24 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
             <div className="col-span-3">
               <label className="block text-sm font-medium text-labelGray">Code APE</label>
               <input
-                {...register('apeCode')}
-                value={watch('apeCode')}
+                {...register('ape_code')}
+                value={watch('ape_code')}
                 className="mt-1 block w-full bg-backgroundGray rounded p-2"
                 placeholder=""
                 disabled
               />
-              {errors.apeCode && <p className="text-red-500 text-xs">{errors.apeCode.message}</p>}
+              {errors.ape_code && <p className="text-red-500 text-xs">{errors.ape_code.message}</p>}
             </div>
             <div className="col-span-6">
               <label className="block text-sm font-medium text-labelGray">Secteur d’activité</label>
               <input
-                {...register('activitySector')}
-                value={watch('activitySector')}
+                {...register('activity_sector')}
+                value={watch('activity_sector')}
                 className="mt-1 block w-full bg-backgroundGray rounded p-2"
                 placeholder=""
                 disabled
               />
-              {errors.activitySector && <p className="text-red-500 text-xs">{errors.activitySector.message}</p>}
+              {errors.activity_sector && <p className="text-red-500 text-xs">{errors.activity_sector.message}</p>}
             </div>
           </div>
         </div>

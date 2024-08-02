@@ -107,7 +107,7 @@ const FoldersTable: React.FC<FoldersTableProps> = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleOpenModal({ ...row.original, companyName: row.original.name })}>
+                  <DropdownMenuItem onClick={() => handleOpenModal(row.original)}>
                     Modifier
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => openDeleteModal(row.original.id)}>

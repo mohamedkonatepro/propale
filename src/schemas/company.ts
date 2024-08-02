@@ -2,10 +2,10 @@ import { ROLES } from '@/constants/roles';
 import { z } from 'zod';
 
 export const companySchema = z.object({
-  companyName: z.string().min(1, 'Raison sociale est requise'),
+  name: z.string().min(1, 'Raison sociale est requise'),
   siren: z.string().min(9, 'Numéro SIREN doit être de 9 chiffres').max(9, 'Numéro SIREN doit être de 9 chiffres'),
-  apeCode: z.string().min(1, 'Code APE est requis'),
-  activitySector: z.string().min(1, 'Secteur d’activité est requis'),
+  ape_code: z.string().min(1, 'Code APE est requis'),
+  activity_sector: z.string().min(1, 'Secteur d’activité est requis'),
   firstname: z.string().min(1, 'Prénom est requis'),
   lastname: z.string().min(1, 'Nom est requis'),
   position: z.string().optional(),

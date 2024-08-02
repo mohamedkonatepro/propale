@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Company } from '@/types/models';
+import { Company, CompanyModalData } from '@/types/models';
 import { createProspect, deleteProspect, fetchProspects } from '@/services/companyService';
 
 const useProspects = (companyId: string, search: string) => {
@@ -23,7 +23,7 @@ const useProspects = (companyId: string, search: string) => {
     fetchData();
   }, [companyId, search]);
 
-  const addProspect = async (prospect: Company) => {
+  const addProspect = async (prospect: CompanyModalData) => {
     try {
       const newProspect = await createProspect(prospect);
       if (newProspect) {

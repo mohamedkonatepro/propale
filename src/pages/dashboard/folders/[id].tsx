@@ -6,7 +6,7 @@ import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
 import AddFolderModal from '@/components/modals/AddFolderModal';
 import AddProspectModal from '@/components/modals/AddProspectModal';
 import FoldersTable from '@/components/DataTable/FoldersTable';
-import { Company } from '@/types/models';
+import { Company, CompanyModalData } from '@/types/models';
 import { FolderFormInputs } from '@/schemas/folder';
 import useCompanies from '@/hooks/useCompanies';
 import useCompanyData from '@/hooks/useCompanyData';
@@ -86,7 +86,7 @@ const Folders: React.FC = () => {
     setIsProspectModalOpen(false);
   };
 
-  const handleCreateProspect = async (data: any) => {
+  const handleCreateProspect = async (data: CompanyModalData) => {
     await addProspect(data);
     closeProspectModal();
   };

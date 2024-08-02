@@ -52,11 +52,11 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
           },
         });
         const companyData = response.data.etablissement;
-        const apeCode = companyData.uniteLegale.activitePrincipaleUniteLegale;
-        setValue('apeCode', apeCode);
-        const naf = dataApeCode.find(code => code.id === apeCode);
+        const ape_code = companyData.uniteLegale.activitePrincipaleUniteLegale;
+        setValue('ape_code', ape_code);
+        const naf = dataApeCode.find(code => code.id === ape_code);
         if (naf) {
-          setValue('activitySector', naf?.label);
+          setValue('activity_sector', naf?.label);
         }
         setValue('siren', companyData.siren);
 
@@ -75,7 +75,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
       fetchCompanyDetails(siretValue);
     } else {
       setMessageAlertSiret('')
-      setValue('activitySector', '');
+      setValue('activity_sector', '');
       setValue('address', '');
       setValue('city', '');
       setValue('postalcode', '');
@@ -119,11 +119,11 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
         <div>
           <label className="block text-sm font-medium text-labelGray">Nom</label>
           <input
-            {...register('companyName')}
+            {...register('name')}
             className="mt-1 block w-full bg-backgroundGray rounded p-2"
             placeholder="IPSUM Design SAS"
           />
-          {errors.companyName && <p className="text-red-500 text-xs">{errors.companyName.message}</p>}
+          {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-labelGray">SIRET</label>
@@ -140,14 +140,14 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
           <label className="block text-sm font-medium">Secteur d’activité</label>
           <div className="flex items-center">
             <input
-              {...register('activitySector')}
+              {...register('activity_sector')}
               className="mt-1 block w-full bg-white rounded py-1"
               placeholder="Conception d’interfaces"
               disabled
             />
             <FaInfoCircle className="ml-2 text-gray-400" />
           </div>
-          {errors.activitySector && <p className="text-red-500 text-xs">{errors.activitySector.message}</p>}
+          {errors.activity_sector && <p className="text-red-500 text-xs">{errors.activity_sector.message}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-labelGray">Description</label>

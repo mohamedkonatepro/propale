@@ -5,8 +5,7 @@ import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
 import AddFolderModal from '@/components/modals/AddFolderModal';
 import AddProspectModal from '@/components/modals/AddProspectModal';
 import ProspectsTable from '@/components/DataTable/ProspectsTable';
-import { Company } from '@/types/models';
-import { FolderFormInputs } from '@/schemas/folder';
+import { Company, CompanyModalData } from '@/types/models';
 import { toast } from 'react-toastify';
 import useProspects from '@/hooks/useProspects';
 import { fetchCompanyById, updateCompany } from '@/services/companyService';
@@ -44,7 +43,7 @@ const ProspectList: React.FC = () => {
     setIsProspectModalOpen(true);
   };
 
-  const handleOpenModal = (data?: FolderFormInputs) => {
+  const handleOpenModal = () => {
     setIsModalOpenFolder(true);
   };
 
@@ -56,7 +55,7 @@ const ProspectList: React.FC = () => {
     setIsModalOpenFolder(false);
   };
 
-  const handleCreateProspect = async (data: any) => {
+  const handleCreateProspect = async (data: CompanyModalData) => {
     await addProspect(data);
     closeProspectModal();
     fetchData();
@@ -66,14 +65,10 @@ const ProspectList: React.FC = () => {
     setSearch(searchValue);
   };
 
-  const handleCreateFolder = async (data: FolderFormInputs) => {
+  const handleCreateFolder = async (data: Company) => {
     if (company) {
-      const folderData = {
-        ...data,
-        id: company.id,
-      };
-      await updateCompany(folderData);
-      toast.success(`${data.companyName} à bien été modifié.`);
+      await updateCompany(data);
+      toast.success(`${data.name} à bien été modifié.`);
     }
     await getCompanyData();
     handleCloseModalFolder();
@@ -137,7 +132,7 @@ const ProspectList: React.FC = () => {
             <div className='flex items-center'>
               <h2 className="text-3xl font-bold mb-2 mr-2 ">{company?.name}</h2>
               {company && <GrFormEdit
-                onClick={() => handleOpenModal({ ...company, companyName: company.name })}
+                onClick={() => handleOpenModal()}
                 className="text-2xl cursor-pointer text-stone-400"
               />}
             </div>
@@ -165,7 +160,7 @@ const ProspectList: React.FC = () => {
           isOpen={isModalOpenFolder}
           onRequestClose={handleCloseModalFolder}
           onSubmit={handleCreateFolder}
-          defaultValues={{ ...company, companyName: company?.name }}
+          defaultValues={company}
           role={user?.role}
         />
       )}
