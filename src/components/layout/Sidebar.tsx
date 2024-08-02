@@ -42,6 +42,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
 
+  const isProspect = router.pathname.startsWith('/dashboard/prospect');
+
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -92,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
     if (isSuperAdmin && isDashboardHome) {
       fetchProfilesCountWithRoleSuperAdmin().then(count => setProfileCount(count));
     } else if (company) {
-      fetchProfileCountByCompanyId(company.id).then(count => setProfileCount(count));
+      fetchProfileCountByCompanyId(isProspect && company?.company_id ? company.company_id : company?.id).then(count => setProfileCount(count));
     }
   }, [company, isDashboardHome, isSuperAdmin]);
 
@@ -118,7 +120,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
         {(company || isDashboardHome) && (
           <>
             <NavigationLink
-              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/folders/${company?.id}`}
+              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/folders/${isProspect ? company?.company_id : company?.id}`}
               icon={MdFolderOpen}
               text="Mes dossiers"
               onClick={() => setPage("folders")}
@@ -126,7 +128,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
               isCollapsed={isCollapsed}
             />
             <NavigationLink
-              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/users/${company?.id}`}
+              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/users/${isProspect ? company?.company_id : company?.id}`}
               icon={PiUsers}
               text="Utilisateurs"
               onClick={() => setPage("users")}

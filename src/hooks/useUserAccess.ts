@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { Company } from '@/types/models';
 import { fetchCompaniesByCompanyId } from '@/services/companyService';
 
-const useUserAccess = (userId: string) => {
+const useUserAccess = (userId: string, companyId?: string) => {
   const [userAccess, setUserAccess] = useState<Set<string>>(new Set());
   const [initialFolders, setInitialFolders] = useState<Company[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -14,11 +14,15 @@ const useUserAccess = (userId: string) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const userAccessSet = await fetchUserAccess(userId);
-        setUserAccess(userAccessSet);
+        if (userId) {
+          const userAccessSet = await fetchUserAccess(userId);
+          setUserAccess(userAccessSet);
+        }
 
-        const folders = await fetchCompaniesByCompanyId(userId);
-        setInitialFolders(folders);
+        if (companyId) {
+          const folders = await fetchCompaniesByCompanyId(companyId);
+          setInitialFolders(folders);
+        }
       } catch (err) {
         setError('Erreur lors de la récupération des accès de l\'utilisateur.');
       } finally {

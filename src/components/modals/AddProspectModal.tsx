@@ -141,7 +141,6 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   useEffect(() => {
     const loadPrimaryContact = async () => {
       if (defaultValues?.id) {
-        console.log('bbbbbb')
         setValue('name', defaultValues.name);
         setValue('siren', defaultValues.siren || '');
         setValue('ape_code', defaultValues.ape_code || '');

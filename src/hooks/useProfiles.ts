@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Profile } from '@/types/models';
-import { fetchProfilesWithUserDetails, updateUserProfile, createProfile, fetchProfileCountByCompanyId } from '@/services/profileService';
+import { fetchProfilesWithUserDetails, updateUserProfile, createProfile, fetchProfileCountByProfileId } from '@/services/profileService';
 import { createUser, sendPasswordResetEmail } from '@/services/userService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import { toast } from 'react-toastify';
@@ -20,8 +20,8 @@ const useProfiles = (companyId: string, search: string) => {
 
       const folderCounts: { [key: string]: number } = {};
       for (const profile of profileData) {
-        const count = await fetchProfileCountByCompanyId(profile.id);
-        folderCounts[profile.id] = count;
+        const count = await fetchProfileCountByProfileId(profile.id);
+        folderCounts[profile.id] = count - 1;
       }
       setFoldersCount(folderCounts);
     } catch (err) {

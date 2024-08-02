@@ -88,6 +88,20 @@ export const fetchProfileCountByCompanyId = async (companyId: string): Promise<n
   return count ?? 0;
 };
 
+export const fetchProfileCountByProfileId = async (profileId: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from('companies_profiles')
+    .select('company_id', { count: 'exact' })
+    .eq('profile_id', profileId);
+
+  if (error) {
+    console.error('Error fetching profile count:', error);
+    return 0;
+  }
+
+  return count ?? 0;
+};
+
 export const updateUserProfile = async (data: Profile, userUpdatedId: string) => {
   const { error } = await supabase
     .from('profiles')

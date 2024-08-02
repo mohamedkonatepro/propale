@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
 import Header from '@/components/layout/Header';
@@ -30,7 +30,7 @@ const Users: React.FC = () => {
 
   const { company } = useCompanyData(id as string);
   const { profiles, foldersCount, updateProfile, createNewUser, fetchData } = useProfiles(id as string, searchUser);
-  const { userAccess, setUserAccess, initialFolders, saveManageAccess } = useUserAccess(selectedUser?.id || '');
+  const { userAccess, setUserAccess, initialFolders, saveManageAccess: saveManageAccessOriginal } = useUserAccess(selectedUser?.id || '', id as string);
 
   const handleEditUser = (userSelected: Profile) => {
     setSelectedUser(userSelected);
@@ -47,7 +47,7 @@ const Users: React.FC = () => {
       await updateProfile(data, user.id);
     }
     handleCloseEditModal();
-    fetchData();
+    await fetchData();
   };
 
   const handleAddButtonClick = () => setIsModalOpen(true);
@@ -92,6 +92,13 @@ const Users: React.FC = () => {
     const userAccessSet = await fetchUserAccess(user.id);
     setUserAccess(userAccessSet);
     setIsManageAccessModalOpen(true);
+  };
+
+  const saveManageAccess = async (accessData: any) => {
+    if (selectedUser) {
+      await saveManageAccessOriginal(accessData, selectedUser.id);
+      fetchData();
+    }
   };
 
   return (
