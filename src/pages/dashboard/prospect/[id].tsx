@@ -20,14 +20,14 @@ const ProspectList: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [isProspectModalOpen, setIsProspectModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedProspect, setSelectedProspect] = useState<Company | null>(null);
+  const [selectedProspect, setSelectedProspect] = useState<Company | undefined>(undefined);
   const [isModalOpenFolder, setIsModalOpenFolder] = useState(false);
   const [csvData, setCsvData] = useState<any[]>([]);
   const [isCsvLinkVisible, setIsCsvLinkVisible] = useState(false);
   const csvLinkRef = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  const { prospects, addProspect, removeProspect, fetchData } = useProspects(id as string, search);
+  const { prospects, editProspect, addProspect, removeProspect, fetchData } = useProspects(id as string, search);
 
   const getCompanyData = async () => {
     if (!user?.id || !id) return;
@@ -41,8 +41,9 @@ const ProspectList: React.FC = () => {
     setIsMounted(true);
   }, [id, user]);
 
-  const openProspectModal = () => {
+  const openProspectModal = (data?: Company) => {
     setIsProspectModalOpen(true);
+    setSelectedProspect(data || undefined);
   };
 
   const handleOpenModal = () => {
@@ -58,7 +59,11 @@ const ProspectList: React.FC = () => {
   };
 
   const handleCreateProspect = async (data: CompanyModalData) => {
-    await addProspect(data);
+    if (selectedProspect?.id) {
+      await editProspect({...data, heat_level: data.heatLevel, id: selectedProspect.id} as Company)
+    } else {
+      await addProspect(data);
+    }
     closeProspectModal();
     fetchData();
   };
@@ -77,13 +82,13 @@ const ProspectList: React.FC = () => {
   };
 
   const openDeleteModal = (prospectId: string) => {
-    setSelectedProspect(prospects.find(p => p.id === prospectId) || null);
+    setSelectedProspect(prospects.find(p => p.id === prospectId) || undefined);
     setIsDeleteModalOpen(true);
   };
 
   const closeDeleteModal = () => {
     setIsDeleteModalOpen(false);
-    setSelectedProspect(null);
+    setSelectedProspect(undefined);
   };
 
   const handleDeleteProspect = async () => {
@@ -172,6 +177,7 @@ const ProspectList: React.FC = () => {
           onRequestClose={closeProspectModal}
           onSubmit={handleCreateProspect}
           company={company}
+          defaultValues={selectedProspect}
         />
       )}
       {isMounted && (

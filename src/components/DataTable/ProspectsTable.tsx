@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ColumnDef } from "@tanstack/react-table";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
@@ -6,16 +6,18 @@ import { DataTable } from '@/components/DataTable/DataTable';
 import { Button } from '@/components/common/Button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/common/DropdownMenu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-import { Company } from '@/types/models';
+import { Company, Profile } from '@/types/models';
 import { Checkbox } from '@/components/common/Checkbox';
 import PrimaryContact from './Contacts/PrimaryContact';
 import Badge from '../common/Badge';
 import { heatLevels, statuses } from '@/constants';
+import { fetchContactByCompanyId } from '@/services/profileService';
+import ProfileAvatarGroup from '../common/ProfileAvatarGroup';
 
 type ProspectsTableProps = {
   prospects: Company[];
   handleSearch: (search: string) => void;
-  openProspectModal: () => void;
+  openProspectModal: (data?: Company) => void;
   openDeleteModal: (prospectId: string) => void;
   handleMultipleDelete: (selectedRows: Company[]) => void;
   handleExportCsv: (selectedRows: Company[]) => void;
@@ -25,8 +27,29 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
   prospects, handleSearch, openProspectModal, openDeleteModal, handleMultipleDelete, handleExportCsv,
 }) => {
 
+  const [contacts, setContacts] = useState<{ [key: string]: Profile[] }>({});
+
+  useEffect(() => {
+    const fetchContacts = async () => {
+      const contactData: { [key: string]: Profile[] } = {};
+      for (const prospect of prospects) {
+        const contact = await fetchContactByCompanyId(prospect.id);
+        if (contact) {
+          contactData[prospect.id] = contact;
+        }
+      }
+      setContacts(contactData);
+    };
+
+    fetchContacts();
+  }, [prospects]);
+  
   const getStatusOption = (value: string) => statuses.find(status => status.value === value);
   const getHeatLevelOption = (value: string) => heatLevels.find(level => level.value === value);
+
+  const handleAvatarGroupClick = () => {
+    console.log('Avatar group button clicked!');
+  };
 
   const columns: ColumnDef<Company>[] = [
     {
@@ -100,7 +123,13 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{"- - - - - - - - - - - - - - - -"}</div>,
+      cell: ({ row }) => (
+        <div>
+          {contacts[row.original.id] && (
+            <ProfileAvatarGroup profiles={contacts[row.original.id]} maxDisplay={3} onButtonClick={handleAvatarGroupClick} />
+          )}
+        </div>
+      ),
     },
     {
       accessorKey: "status",
@@ -197,6 +226,9 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => openProspectModal(row.original)}>
+              Modifier
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => openDeleteModal(row.original.id)}>
               Supprimer
             </DropdownMenuItem>

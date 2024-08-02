@@ -12,12 +12,14 @@ import { Company } from '@/types/models';
 import { CiFolderOn } from "react-icons/ci";
 import CustomDropdown from '../common/CustomDropdown';
 import { heatLevels, statuses } from '@/constants';
+import { prospectSchema } from '@/schemas/prospect';
 
 type AddProspectModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => Promise<void>;
   company: Company;
+  defaultValues?: Company;
 };
 
 type FormInputs = z.infer<typeof companySchema> & {
@@ -47,9 +49,9 @@ const customStyles = {
   },
 };
 
-const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company }) => {
+const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company, defaultValues }) => {
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = useForm<FormInputs>({
-    resolver: zodResolver(companySchema.extend({
+    resolver: zodResolver(defaultValues?.id ? prospectSchema : companySchema.extend({
       additionalContacts: z.array(z.object({
         firstname: z.string().min(1, "Prénom est requis"),
         lastname: z.string().min(1, "Nom est requis"),
@@ -77,6 +79,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
       additionalContacts: [],
     },
   });
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'additionalContacts',
@@ -88,10 +91,10 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
 
   const onSubmitHandler = async (data: FormInputs) => {
-    const result = await onSubmit({ ...data, status, heatLevel, companyId: company.id });
-    reset();
+    await onSubmit({ ...data, status, heatLevel, companyId: company.id });
     setStatus(statuses[0].value);
     setHeatLevel(heatLevels[0].value);
+    reset();
   };
 
   const sirenValue = watch('siren');
@@ -135,6 +138,37 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
     }
   }, [sirenValue, setValue]);
 
+  useEffect(() => {
+    const loadPrimaryContact = async () => {
+      if (defaultValues?.id) {
+        console.log('bbbbbb')
+        setValue('name', defaultValues.name);
+        setValue('siren', defaultValues.siren || '');
+        setValue('ape_code', defaultValues.ape_code || '');
+        setValue('activity_sector', defaultValues.activity_sector || '');
+        setValue('address', defaultValues.address || '');
+        setValue('city', defaultValues.city || '');
+        setValue('postalcode', defaultValues.postalcode || '');
+        setValue('country', defaultValues.country || '');
+        setStatus(defaultValues.status || '');
+        setHeatLevel(defaultValues.heat_level || '');
+      } else {
+        setValue('name', '');
+        setValue('siren', '');
+        setValue('ape_code', '');
+        setValue('activity_sector', '');
+        setValue('address', '');
+        setValue('city', '');
+        setValue('postalcode', '');
+        setValue('country', '');
+        setStatus('');
+        setHeatLevel('');
+      }
+    };
+
+    loadPrimaryContact();
+  }, [defaultValues, setValue]);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -147,7 +181,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
         <button onClick={onRequestClose}><FaTimes /></button>
       </div>
       <div className="flex flex-col justify-center items-center border-b pb-2 mb-4">
-        <h2 className="text-xl font-semibold">Ajouter un prospect</h2>
+        <h2 className="text-xl font-semibold">{defaultValues?.id ? 'Modifier' : 'Ajouter'} un prospect</h2>
         <div className='flex items-center justify-center text-labelGray mt-3'><CiFolderOn /> <p className='ml-2'>{company.name}</p></div>
       </div>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
@@ -205,7 +239,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
           </div>
         </div>
 
-        <div className='mt-10'>
+        {!defaultValues?.id && <div className='mt-10'>
           <h3 className="text-lg font-medium">Contact principal</h3>
           <div className="grid grid-cols-12 gap-4 mt-2">
             <div className="col-span-3">
@@ -255,7 +289,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
               {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
             </div>
           </div>
-        </div>
+        </div>}
 
         <div className='mt-10'>
           {fields.map((field, index) => (
@@ -343,18 +377,18 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
           ))}
         </div>
 
-        <div className="flex justify-between mt-4">
+       {!defaultValues?.id && <div className="flex justify-between mt-4">
           <button 
             onClick={() => append({ firstname: '', lastname: '', position: '', email: '', phone: '', role: ROLES.PROSPECT })}
             type="button"
             className="text-blue-500">
             + Ajouter un contact
           </button>
-        </div> 
+        </div> }
 
         <div className='flex justify-center'>
           <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
-            Créer le prospect
+            {defaultValues?.id ? 'Modifier' : 'Créer'} le prospect
           </button>
         </div>
       </form>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Company, CompanyModalData } from '@/types/models';
-import { createProspect, deleteProspect, fetchProspects } from '@/services/companyService';
+import { createProspect, deleteProspect, fetchProspects, updateCompany } from '@/services/companyService';
 
 const useProspects = (companyId: string, search: string) => {
   const [prospects, setProspects] = useState<Company[]>([]);
@@ -34,6 +34,15 @@ const useProspects = (companyId: string, search: string) => {
     }
   };
 
+  const editProspect = async (prospect: Company) => {
+    try {
+      await updateCompany(prospect);
+    } catch (err) {
+      setError('Erreur lors de la modification du prospect.');
+    }
+  };
+  
+
   const removeProspect = async (prospectId: string) => {
     try {
       await deleteProspect(prospectId);
@@ -43,7 +52,7 @@ const useProspects = (companyId: string, search: string) => {
     }
   };
 
-  return { prospects, loading, error, addProspect, removeProspect, fetchData };
+  return { prospects, loading, error, addProspect, removeProspect, fetchData, editProspect };
 };
 
 export default useProspects;

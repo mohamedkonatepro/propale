@@ -135,3 +135,36 @@ export const fetchPrimaryContactByCompanyId = async (companyId: string): Promise
 
   return data;
 };
+
+export const fetchContactByCompanyId = async (companyId: string): Promise<Profile[] | null> => {
+  try {
+    const { data: companyProfileData, error: companyProfileError } = await supabase
+      .from('companies_profiles')
+      .select('profile_id')
+      .eq('company_id', companyId);
+
+    if (companyProfileError || !companyProfileData) {
+      console.error('Error fetching company profiles:', companyProfileError);
+      return null;
+    }
+
+    const profileIds = companyProfileData.map(cp => cp.profile_id);
+
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('*')
+      .in('id', profileIds)
+      .eq('is_primary_contact', false);
+
+    if (profilesError || !profilesData) {
+      console.error('Error fetching profiles:', profilesError);
+      return null;
+    }
+
+    return profilesData;
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return null;
+  }
+};
+

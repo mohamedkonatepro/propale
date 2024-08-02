@@ -200,6 +200,9 @@ export const updateCompany = async (data: Company) => {
       city: data.city,
       postalcode: data.postalcode,
       country: data.country,
+      heat_level: data.heat_level,
+      status: data.status,
+      type: data.type,
     })
     .eq('id', data.id);
 
