@@ -12,7 +12,7 @@ interface ManageAccessModalProps {
   user: Profile;
   initialFolders: Company[];
   userAccess: Set<string>;
-  onSave: (updatedAccess: Set<string>) => void;
+  onSave: (updatedAccess: Set<string>, selectedUserId: string) => void;
 }
 
 const customStyles = {
@@ -50,7 +50,7 @@ const ManageAccessModal: React.FC<ManageAccessModalProps> = ({ isOpen, onClose, 
   };
 
   const handleSave = () => {
-    onSave(access);
+    onSave(access, user.id);
     onClose();
   };
 

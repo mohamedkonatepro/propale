@@ -221,13 +221,13 @@ export const deleteCompany = async (companyId: string): Promise<boolean> => {
 };
 
 
-export const createProspect = async (dataModal: any): Promise<Company | string | null> => {
+export const createProspect = async (dataModal: any): Promise<Company | null> => {
   const data = await createCompany({...dataModal, type: 'prospect'});
 
   if (data) {
     const user = await createUser(dataModal.email);
     if (typeof user === 'string' || !user) {
-      return user;
+      return null;
     }
 
     await sendPasswordResetEmail(dataModal.email);
@@ -248,7 +248,7 @@ export const createProspect = async (dataModal: any): Promise<Company | string |
     for (const contact of dataModal.additionalContacts) {
       const user = await createUser(contact.email);
       if (typeof user === 'string' || !user) {
-        return user;
+        return null;
       }
 
       await sendPasswordResetEmail(contact.email);
@@ -270,7 +270,7 @@ export const createProspect = async (dataModal: any): Promise<Company | string |
 
     return data;
   }
-  return null
+  return data
 };
 
 export const fetchProspects = async (companyId: string, search?: string): Promise<Company[]> => {

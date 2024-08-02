@@ -3,7 +3,7 @@ import { fetchProfilesWithRoleSuperAdmin } from '@/services/userService';
 import { Company, Profile } from '@/types/models';
 import { useEffect, useState } from 'react';
 
-export const useFetchData = (page: string, userId?: string, searchCompany?: string, searchUser?: string) => {
+export const useFetchEntities = (page: string, userId?: string, searchCompany?: string, searchUser?: string) => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
 

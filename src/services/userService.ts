@@ -74,3 +74,12 @@ export const sendPasswordResetEmail = async (email: string) => {
 
   return result;
 };
+
+export const deleteUserAuth = async (userId: string): Promise<void> => {
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+  if (error) {
+    console.error('Error deleting user from auth:', error);
+    throw error;
+  }
+};

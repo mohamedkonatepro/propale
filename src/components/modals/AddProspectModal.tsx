@@ -16,7 +16,7 @@ import { heatLevels, statuses } from '@/constants';
 type AddProspectModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
-  onSubmit: (data: any) => Promise<string | null | undefined>;
+  onSubmit: (data: any) => Promise<void>;
   company: Company;
 };
 
@@ -89,10 +89,6 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
 
   const onSubmitHandler = async (data: FormInputs) => {
     const result = await onSubmit({ ...data, status, heatLevel, companyId: company.id });
-    if (result === 'email_already_exists') {
-      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
-      return;
-    }
     reset();
     setStatus(statuses[0].value);
     setHeatLevel(heatLevels[0].value);

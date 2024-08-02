@@ -1,0 +1,49 @@
+import { useState, useEffect } from 'react';
+import { Company } from '@/types/models';
+import { createProspect, deleteProspect, fetchProspects } from '@/services/companyService';
+
+const useProspects = (companyId: string, search: string) => {
+  const [prospects, setProspects] = useState<Company[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchProspects(companyId, search);
+      setProspects(data);
+    } catch (err) {
+      setError('Erreur lors de la récupération des prospects.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [companyId, search]);
+
+  const addProspect = async (prospect: Company) => {
+    try {
+      const newProspect = await createProspect(prospect);
+      if (newProspect) {
+        setProspects([...prospects, newProspect]);
+      }
+    } catch (err) {
+      setError('Erreur lors de la création du prospect.');
+    }
+  };
+
+  const removeProspect = async (prospectId: string) => {
+    try {
+      await deleteProspect(prospectId);
+      setProspects(prospects.filter(p => p.id !== prospectId));
+    } catch (err) {
+      setError('Erreur lors de la suppression du prospect.');
+    }
+  };
+
+  return { prospects, loading, error, addProspect, removeProspect, fetchData };
+};
+
+export default useProspects;

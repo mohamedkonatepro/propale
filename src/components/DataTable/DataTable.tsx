@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/common/Table"
-import { InputSearch } from "./common/InputSearch"
+import { InputSearch } from "../common/InputSearch"
 import { FaPlus } from "react-icons/fa"
 import { useUser } from "@/context/userContext"
 import { ROLES } from "@/constants/roles"

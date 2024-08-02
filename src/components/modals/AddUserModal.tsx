@@ -11,7 +11,7 @@ import CustomAlert from '../common/Alert';
 type AddUserModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
-  onSubmit: (data: any) => Promise<string | null | undefined>;
+  onSubmit: (data: any) => void;
   page?: string;
 };
 
@@ -47,11 +47,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
   }, [page, setValue]);
   
   const onSubmitHandler = async (data: FormInputs) => {
-    const result = await onSubmit(data);
-    if (result === 'email_already_exists') {
-      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
-      return
-    }
+    onSubmit(data);
     reset();
   };
   const emailValue = watch('email')
