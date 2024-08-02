@@ -105,3 +105,33 @@ export const updateUserProfile = async (data: Profile, userUpdatedId: string) =>
 
   return error;
 };
+
+export const fetchPrimaryContactByCompanyId = async (companyId: string): Promise<Profile | null> => {
+  const { data, error } = await supabase
+    .from('companies_profiles')
+    .select('profile_id')
+    .eq('company_id', companyId)
+    .then(async (companyProfileData) => {
+      if (companyProfileData.error || !companyProfileData.data) {
+        return { data: null, error: companyProfileData.error };
+      }
+      
+      const profileIds = companyProfileData.data.map(cp => cp.profile_id);
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', profileIds)
+        .eq('is_primary_contact', true)
+        .single();
+
+      return { data, error };
+    });
+
+  if (error) {
+    console.error('Error fetching primary contact:', error);
+    return null;
+  }
+
+  return data;
+};

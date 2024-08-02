@@ -8,6 +8,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/component
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company } from '@/types/models';
 import { Checkbox } from '@/components/common/Checkbox';
+import PrimaryContact from './Contacts/PrimaryContact';
+import Badge from '../common/Badge';
+import { heatLevels, statuses } from '@/constants';
 
 type ProspectsTableProps = {
   prospects: Company[];
@@ -21,6 +24,9 @@ type ProspectsTableProps = {
 const ProspectsTable: React.FC<ProspectsTableProps> = ({
   prospects, handleSearch, openProspectModal, openDeleteModal, handleMultipleDelete, handleExportCsv,
 }) => {
+
+  const getStatusOption = (value: string) => statuses.find(status => status.value === value);
+  const getHeatLevelOption = (value: string) => heatLevels.find(level => level.value === value);
 
   const columns: ColumnDef<Company>[] = [
     {
@@ -59,36 +65,42 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        <div className="flex flex-col text-xs">
+          <div className='text-sm'>{row.original.name}</div>
+          <div className='text-stone-400'>{row.original.activity_sector}</div>
+          <div className='text-stone-400'>SIREN: {row.original.siren}</div>
+        </div>
       ),
     },
     {
-      accessorKey: "siret",
-      id: "siret",
+      accessorKey: "contact",
+      id: "contact",
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="flex items-center justify-start w-full p-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Siret
+          Contact principal
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{row.getValue("siret")}</div>,
+      cell: ({ row }) => <PrimaryContact companyId={row.original.id} />,
     },
     {
-      accessorKey: "activity_sector",
-      id: "activity_sector",
+      accessorKey: "contacts_others",
+      id: "contacts_others",
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="flex items-center justify-start w-full p-0"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Secteur d’activité
+          Contacts
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{row.getValue("activity_sector")}</div>,
+      cell: ({ row }) => <div className="lowercase">{"- - - - - - - - - - - - - - - -"}</div>,
     },
     {
       accessorKey: "status",
@@ -102,7 +114,15 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{row.getValue("status")}</div>,
+      cell: ({ row }) => {
+        const statusOption = getStatusOption(row.getValue("status"));
+        return statusOption ? (
+          <Badge
+            label={statusOption.label}
+            color={statusOption.color}
+          />
+        ) : null;
+      },
     },
     {
       accessorKey: "heat_level",
@@ -116,7 +136,55 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="lowercase">{row.getValue("heat_level")}</div>,
+      cell: ({ row }) => {
+        const heatLevelOption = getHeatLevelOption(row.getValue("heat_level"));
+        return heatLevelOption ? (
+          <Badge
+            label={heatLevelOption.label}
+            color={heatLevelOption.color}
+            icon={heatLevelOption.icon ? <heatLevelOption.icon /> : null}
+          />
+        ) : null;
+      },
+    },
+    {
+      accessorKey: "score",
+      id: "score",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Score
+          <LiaSortSolid className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className='text-xs px-5 py-1 rounded-full flex items-center justify-center bg-gray-100 text-gray-600 border border-gray-600'>
+          <span>-</span>
+        </div>
+      ),
+    },
+    {
+      id: "workflow",
+      enableHiding: false,
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Workflow
+          <LiaSortSolid className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <button 
+          className="text-sm flex items-center justify-center text-white bg-blue-600 py-2 px-2 rounded-lg"
+          onClick={() => console.log(row.original)}
+        >
+          {"Démarrer l'audit"}
+        </button>
+      ),
     },
     {
       id: "menuProspect",

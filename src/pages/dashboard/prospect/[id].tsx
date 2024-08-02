@@ -25,6 +25,7 @@ const ProspectList: React.FC = () => {
   const [csvData, setCsvData] = useState<any[]>([]);
   const [isCsvLinkVisible, setIsCsvLinkVisible] = useState(false);
   const csvLinkRef = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const { prospects, addProspect, removeProspect, fetchData } = useProspects(id as string, search);
 
@@ -37,6 +38,7 @@ const ProspectList: React.FC = () => {
 
   useEffect(() => {
     getCompanyData();
+    setIsMounted(true);
   }, [id, user]);
 
   const openProspectModal = () => {
@@ -172,15 +174,17 @@ const ProspectList: React.FC = () => {
           company={company}
         />
       )}
-      <CSVLink
-        data={csvData}
-        filename={"prospects.csv"}
-        className="hidden"
-        ref={csvLinkRef}
-        target="_blank"
-      >
-        Télécharger CSV
-      </CSVLink>
+      {isMounted && (
+        <CSVLink
+          data={csvData}
+          filename={"prospects.csv"}
+          className="hidden"
+          ref={csvLinkRef}
+          target="_blank"
+        >
+          Télécharger CSV
+        </CSVLink>
+      )}
     </div>
   );
 };
