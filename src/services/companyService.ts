@@ -225,59 +225,65 @@ export const deleteCompany = async (companyId: string): Promise<boolean> => {
 
 
 export const createProspect = async (dataModal: CompanyModalData): Promise<Company | null> => {
-  const data = await createCompany({...dataModal, type: 'prospect'});
+  try {
+    const data = await createCompany({ ...dataModal, type: 'prospect' });
 
-  if (data) {
-    const user = await createUser(dataModal.email);
-    if (typeof user === 'string' || !user) {
-      return null;
-    }
+    if (data) {
+      try {
+        const user = await createUser(dataModal.email);
+        if (!user) throw new Error('Failed to create primary contact user');
+        
+        await sendPasswordResetEmail(dataModal.email);
 
-    await sendPasswordResetEmail(dataModal.email);
-
-    const profileData = {
-      userId: user.id,
-      firstname: dataModal.firstname,
-      lastname: dataModal.lastname,
-      position: dataModal.position,
-      phone: dataModal.phone,
-      email: dataModal.email,
-      role: dataModal.role || 'prospect',
-      is_primary_contact: true,
-    };
-    await createProfile(profileData);
-
-    await associateProfileWithCompany(user.id, data.id)
-
-    if (dataModal.additionalContacts) {
-      for (const contact of dataModal.additionalContacts) {
-        const user = await createUser(contact.email);
-        if (typeof user === 'string' || !user) {
-          return null;
-        }
-  
-        await sendPasswordResetEmail(contact.email);
-  
         const profileData = {
           userId: user.id,
-          firstname: contact.firstname,
-          lastname: contact.lastname,
-          position: contact.position,
-          phone: contact.phone,
-          email: contact.email,
-          role: contact.role || 'prospect',
-          is_primary_contact: false,
+          firstname: dataModal.firstname,
+          lastname: dataModal.lastname,
+          position: dataModal.position,
+          phone: dataModal.phone,
+          email: dataModal.email,
+          role: dataModal.role || 'prospect',
+          is_primary_contact: true,
         };
+
         await createProfile(profileData);
-  
-        await associateProfileWithCompany(user.id, data.id)
+        await associateProfileWithCompany(user.id, data.id);
+
+        if (dataModal.additionalContacts) {
+          for (const contact of dataModal.additionalContacts) {
+            const additionalUser = await createUser(contact.email);
+            if (!additionalUser) throw new Error('Failed to create additional contact user');
+
+            await sendPasswordResetEmail(contact.email);
+
+            const additionalProfileData = {
+              userId: additionalUser.id,
+              firstname: contact.firstname,
+              lastname: contact.lastname,
+              position: contact.position,
+              phone: contact.phone,
+              email: contact.email,
+              role: contact.role || 'prospect',
+              is_primary_contact: false,
+            };
+
+            await createProfile(additionalProfileData);
+            await associateProfileWithCompany(additionalUser.id, data.id);
+          }
+        }
+        return data;
+      } catch (error) {
+        console.error('Error creating user, profile, or associating profile with company:', error);
+        return null;
       }
     }
-
-    return data;
+    return null;
+  } catch (error) {
+    console.error('Error creating prospect company:', error);
+    return null;
   }
-  return data
 };
+
 
 export const fetchProspects = async (companyId: string, search?: string): Promise<Company[]> => {
   let query = supabase

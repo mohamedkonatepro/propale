@@ -15,6 +15,7 @@ import useProfiles from '@/hooks/useProfiles';
 import useUserAccess from '@/hooks/useUserAccess';
 import { fetchUserAccess } from '@/services/companyProfileService';
 import { supabase } from '@/lib/supabaseClient';
+import { deleteUserAuth } from '@/services/userService';
 
 const Users: React.FC = () => {
   const router = useRouter();
@@ -75,7 +76,7 @@ const Users: React.FC = () => {
   const handleDeleteUser = async () => {
     if (!userIdToDelete) return;
 
-    const { error } = await supabase.auth.admin.deleteUser(userIdToDelete);
+    const { error } = await deleteUserAuth(userIdToDelete);
 
     if (error) {
       toast.error("Erreur lors de la suppression de l'utilisateur");

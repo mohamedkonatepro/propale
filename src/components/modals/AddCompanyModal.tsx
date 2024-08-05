@@ -8,11 +8,12 @@ import { z } from 'zod';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
 import { ROLES } from '@/constants/roles';
+import { supabase } from '@/lib/supabaseClient';
 
 type AddCompanyModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
-  onSubmit: (data: any) => Promise<string | null | undefined>;
+  onSubmit: (data: any) => Promise<void>;
 };
 
 type FormInputs = z.infer<typeof companySchema>;
@@ -35,19 +36,47 @@ const customStyles = {
 const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClose, onSubmit }) => {
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<FormInputs>({
     resolver: zodResolver(companySchema),
+    defaultValues: {
+      role: ROLES.ADMIN,
+    }
   });
   const [messageAlertSiren, setMessageAlertSiren] = useState('');
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
-  setValue('role', ROLES.ADMIN);
 
   const onSubmitHandler = async (data: FormInputs) => {
-    const result = await onSubmit(data);
-    if (result === 'email_already_exists') {
-      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
-      return
+    const { data: companyData } = await supabase
+      .from('company')
+      .select('siren')
+      .eq('siren', watch('siren'));
+
+    if (companyData && companyData.length > 0) {
+      setMessageAlertSiren('SIREN existe déjà');
+      return;
     }
+
+    const { data: profileFata } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', watch('email'));
+
+    if (profileFata && profileFata.length > 0) {
+      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+      return;
+    }
+    await onSubmit(data);
     reset();
+    setMessageAlertSiren('');
+    setMessageAlertEmail('');
+    onRequestClose();
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      reset();
+      setMessageAlertSiren('');
+      setMessageAlertEmail('');
+    }
+  }, [isOpen, reset]);
 
   const sirenValue = watch('siren');
 
@@ -73,6 +102,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
         setValue('city', company.libelle_commune);
         setValue('postalcode', company.code_postal);
         setValue('country', 'France');
+        setMessageAlertSiren('');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
       }
@@ -121,7 +151,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
               <label className="block text-sm font-medium text-labelGray">Numéro SIREN</label>
               <input
                 {...register('siren')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.siren || messageAlertSiren ? 'border border-red-500' : ''}`}
                 placeholder="123456789"
               />
               {errors.siren && <p className="text-red-500 text-xs">{errors.siren.message}</p>}

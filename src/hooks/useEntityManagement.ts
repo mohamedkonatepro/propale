@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Company, Profile } from '@/types/models';
 import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
-import { createCompany, updateCompany } from '@/services/companyService';
-import { createUser, sendPasswordResetEmail } from '@/services/userService';
-import { createProfile, updateUserProfile } from '@/services/profileService';
+import { createCompany, fetchCompaniesByCompanyId, updateCompany } from '@/services/companyService';
+import { createUser, deleteUserAuth, sendPasswordResetEmail } from '@/services/userService';
+import { createProfile, fetchProfilesWithUserDetails, updateUserProfile } from '@/services/profileService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import { CompanyFormInputs } from '@/schemas/company';
 import { UserFormInputs } from '@/schemas/user';
@@ -15,6 +15,7 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<Profile | Company | null>(null);
   const [entityToDeleteId, setEntityToDeleteId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAddButtonClick = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
@@ -32,9 +33,7 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
 
     try {
       const userCreated = await createUser(formInputs.email);
-      if (!userCreated || typeof userCreated === 'string') {
-        return userCreated;
-      }
+      if (!userCreated) throw new Error('Failed to create user');
 
       const companyCreated = await createCompany(companyData);
       if (!companyCreated) return;
@@ -55,12 +54,10 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
 
   const handleCreateUser = async (formInputs: UserFormInputs) => {
     try {
-      const result = await createUser(formInputs.email);
-      if (!result || typeof result === 'string') {
-        return result;
-      }
+      const user = await createUser(formInputs.email);
+      if (!user) throw new Error('Failed to create user');
 
-      const profileData = { ...formInputs, userId: result.id };
+      const profileData = { ...formInputs, userId: user.id };
       await createProfile(profileData);
       await sendPasswordResetEmail(formInputs.email);
 
@@ -107,6 +104,16 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
   const handleDeleteEntity = async () => {
     if (page === 'folders' && entityToDeleteId) {
       await supabase.from('company').delete().eq('id', entityToDeleteId);
+
+      const companies = await fetchCompaniesByCompanyId(entityToDeleteId);
+      for (const company of companies) {
+        await supabase.from('company').delete().eq('id', company.id);
+      }
+
+      const profiles = await fetchProfilesWithUserDetails(entityToDeleteId);
+      for (const profile of profiles) {
+        await deleteUserAuth(profile.id);
+      }
       toast.success("L'entreprise a bien été supprimée !");
     } else if (entityToDeleteId) {
       const { error } = await supabaseAdmin.auth.admin.deleteUser(entityToDeleteId);
@@ -135,6 +142,7 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
     closeModalDelete,
     handleDeleteEntity,
     setIsEditModalOpen,
+    error,
   };
 };
 

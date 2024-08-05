@@ -3,7 +3,7 @@ import { AuthApiError, AuthUser } from '@supabase/supabase-js';
 import { ROLES } from '@/constants/roles';
 import { Profile } from '@/types/models';
 
-export const createUser = async (email: string, password?: string): Promise<AuthUser | string | null> => {
+export const createUser = async (email: string, password?: string): Promise<AuthUser | null> => {
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
@@ -12,11 +12,9 @@ export const createUser = async (email: string, password?: string): Promise<Auth
   });
 
   if (error) {
-    if (error instanceof AuthApiError && error.status >= 400 && error.message.includes('already been registered')) {
-      return 'email_already_exists';
-    }
-    return null;
+    return null
   }
+
   return data?.user;
 };
 
@@ -75,11 +73,8 @@ export const sendPasswordResetEmail = async (email: string) => {
   return result;
 };
 
-export const deleteUserAuth = async (userId: string): Promise<void> => {
-  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+export const deleteUserAuth = async (userId: string): Promise<any> => {
+  const result = await supabaseAdmin.auth.admin.deleteUser(userId);
 
-  if (error) {
-    console.error('Error deleting user from auth:', error);
-    throw error;
-  }
+  return result;
 };

@@ -13,6 +13,7 @@ import { CiFolderOn } from "react-icons/ci";
 import CustomDropdown from '../common/CustomDropdown';
 import { heatLevels, statuses } from '@/constants';
 import { prospectSchema } from '@/schemas/prospect';
+import { supabase } from '@/lib/supabaseClient';
 
 type AddProspectModalProps = {
   isOpen: boolean;
@@ -89,43 +90,88 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   const [heatLevel, setHeatLevel] = useState(heatLevels[0].value);
   const [messageAlertSiren, setMessageAlertSiren] = useState('');
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
+  const [messageAlertAdditionalEmails, setMessageAlertAdditionalEmails] = useState('');
+  const sirenValue = watch('siren');
+  const emailValue = watch('email');
+  const additionalContacts = watch('additionalContacts');
+
+  const fetchCompanyDetails = async (siren: string) => {
+    try {
+      const response = await axios.get(`https://api.insee.fr/entreprises/sirene/V3.11/siren/${siren}`, {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SIRENE_API_KEY}`,
+        },
+      });
+      const companyData = response.data.uniteLegale;
+      const ape_code = companyData.periodesUniteLegale[0].activitePrincipaleUniteLegale;
+      setValue('ape_code', ape_code);
+      const naf = dataApeCode.find(code => code.id === ape_code);
+      if (naf) {
+        setValue('activity_sector', naf?.label);
+      }
+
+      const responseSearch = await axios.get(`https://recherche-entreprises.api.gouv.fr/search?q=${siren}`);
+      const companySearch = responseSearch.data.results[0].siege;
+      setValue('address', `${companySearch.numero_voie} ${companySearch.type_voie} ${companySearch.libelle_voie}`);
+      setValue('city', companySearch.libelle_commune);
+      setValue('postalcode', companySearch.code_postal);
+      setValue('country', 'France');
+      setMessageAlertSiren('');
+    } catch (error) {
+      console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
+    }
+  };
 
   const onSubmitHandler = async (data: FormInputs) => {
+    const { data: companyData } = await supabase
+      .from('company')
+      .select('siren')
+      .eq('siren', sirenValue);
+
+    if (companyData && companyData.length > 0) {
+      setMessageAlertSiren('SIREN existe déjà');
+      return;
+    }
+
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', emailValue);
+
+    if (profileData && profileData.length > 0) {
+      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+      return;
+    }
+
+    // Vérification des emails des contacts supplémentaires
+    const additionalContactEmails = additionalContacts.map(contact => contact.email);
+    const uniqueAdditionalContactEmails = new Set(additionalContactEmails);
+
+    if (uniqueAdditionalContactEmails.size !== additionalContactEmails.length) {
+      setMessageAlertAdditionalEmails('Des emails en double existent parmi les contacts supplémentaires.');
+      return;
+    }
+
+    const { data: additionalProfileData } = await supabase
+      .from('profiles')
+      .select('email')
+      .in('email', additionalContactEmails);
+
+    if (additionalProfileData && additionalProfileData.length > 0) {
+      setMessageAlertAdditionalEmails('Certains contacts supplémentaires ont déjà des comptes utilisateurs.');
+      return;
+    }
+    
     await onSubmit({ ...data, status, heatLevel, companyId: company.id });
     setStatus(statuses[0].value);
     setHeatLevel(heatLevels[0].value);
     reset();
+    setMessageAlertAdditionalEmails('');
+    setMessageAlertEmail('');
+    setMessageAlertSiren('');
   };
 
-  const sirenValue = watch('siren');
-
   useEffect(() => {
-    const fetchCompanyDetails = async (siren: string) => {
-      try {
-        const response = await axios.get(`https://api.insee.fr/entreprises/sirene/V3.11/siren/${siren}`, {
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_SIRENE_API_KEY}`,
-          },
-        });
-        const companyData = response.data.uniteLegale;
-        const ape_code = companyData.periodesUniteLegale[0].activitePrincipaleUniteLegale;
-        setValue('ape_code', ape_code);
-        const naf = dataApeCode.find(code => code.id === ape_code);
-        if (naf) {
-          setValue('activity_sector', naf?.label);
-        }
-
-        const responseSearch = await axios.get(`https://recherche-entreprises.api.gouv.fr/search?q=${siren}`);
-        const companySearch = responseSearch.data.results[0].siege;
-        setValue('address', `${companySearch.numero_voie} ${companySearch.type_voie} ${companySearch.libelle_voie}`);
-        setValue('city', companySearch.libelle_commune);
-        setValue('postalcode', companySearch.code_postal);
-        setValue('country', 'France');
-      } catch (error) {
-        console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
-      }
-    };
-
     if (sirenValue && sirenValue.length === 9) {
       fetchCompanyDetails(sirenValue);
     } else {
@@ -139,33 +185,33 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   }, [sirenValue, setValue]);
 
   useEffect(() => {
-    const loadPrimaryContact = async () => {
-      if (defaultValues?.id) {
-        setValue('name', defaultValues.name);
-        setValue('siren', defaultValues.siren || '');
-        setValue('ape_code', defaultValues.ape_code || '');
-        setValue('activity_sector', defaultValues.activity_sector || '');
-        setValue('address', defaultValues.address || '');
-        setValue('city', defaultValues.city || '');
-        setValue('postalcode', defaultValues.postalcode || '');
-        setValue('country', defaultValues.country || '');
-        setStatus(defaultValues.status || '');
-        setHeatLevel(defaultValues.heat_level || '');
-      } else {
-        setValue('name', '');
-        setValue('siren', '');
-        setValue('ape_code', '');
-        setValue('activity_sector', '');
-        setValue('address', '');
-        setValue('city', '');
-        setValue('postalcode', '');
-        setValue('country', '');
-        setStatus('');
-        setHeatLevel('');
-      }
-    };
+    setMessageAlertEmail('');
+  }, [emailValue]);
 
-    loadPrimaryContact();
+  useEffect(() => {
+    if (defaultValues?.id) {
+      setValue('name', defaultValues.name);
+      setValue('siren', defaultValues.siren || '');
+      setValue('ape_code', defaultValues.ape_code || '');
+      setValue('activity_sector', defaultValues.activity_sector || '');
+      setValue('address', defaultValues.address || '');
+      setValue('city', defaultValues.city || '');
+      setValue('postalcode', defaultValues.postalcode || '');
+      setValue('country', defaultValues.country || '');
+      setStatus(defaultValues.status || '');
+      setHeatLevel(defaultValues.heat_level || '');
+    } else {
+      setValue('name', '');
+      setValue('siren', '');
+      setValue('ape_code', '');
+      setValue('activity_sector', '');
+      setValue('address', '');
+      setValue('city', '');
+      setValue('postalcode', '');
+      setValue('country', '');
+      setStatus(statuses[0].value);
+      setHeatLevel(heatLevels[0].value);
+    }
   }, [defaultValues, setValue]);
 
   return (
@@ -206,7 +252,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
               <label className="block text-sm font-medium text-labelGray">Numéro SIREN</label>
               <input
                 {...register('siren')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.siren || messageAlertSiren ? 'border border-red-500' : ''}`}
                 placeholder="123456789"
               />
               {errors.siren && <p className="text-red-500 text-xs">{errors.siren.message}</p>}
@@ -350,7 +396,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
                   <input
                     {...register(`additionalContacts.${index}.email` as const, { required: 'Email est requis', pattern: { value: /^\S+@\S+$/i, message: 'Email invalide' } })}
                     className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${
-                      errors.additionalContacts?.[index]?.email ? 'border border-red-500' : ''
+                      errors.additionalContacts?.[index]?.email || messageAlertAdditionalEmails ? 'border border-red-500' : ''
                     }`}
                     placeholder="paul.dupond@mail.com"
                     defaultValue={field.email}
@@ -390,6 +436,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
             {defaultValues?.id ? 'Modifier' : 'Créer'} le prospect
           </button>
         </div>
+        {messageAlertAdditionalEmails && <p className="text-red-500 text-xs">{messageAlertAdditionalEmails}</p>}
       </form>
     </Modal>
   );

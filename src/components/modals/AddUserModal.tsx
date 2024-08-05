@@ -7,11 +7,12 @@ import { FaTimes } from 'react-icons/fa';
 import { z } from 'zod';
 import { ROLES } from '@/constants/roles';
 import CustomAlert from '../common/Alert';
+import { supabase } from '@/lib/supabaseClient';
 
 type AddUserModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: any) => Promise<void>;
   page?: string;
 };
 
@@ -47,9 +48,19 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
   }, [page, setValue]);
   
   const onSubmitHandler = async (data: FormInputs) => {
-    onSubmit(data);
+    const { data: profileFata } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', watch('email'));
+
+    if (profileFata && profileFata.length > 0) {
+      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+      return;
+    }
+    await onSubmit(data);
     reset();
   };
+
   const emailValue = watch('email')
   useEffect(() => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

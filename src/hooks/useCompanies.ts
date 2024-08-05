@@ -4,6 +4,8 @@ import { fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, deleteC
 import { useUser } from '@/context/userContext';
 import { ROLES } from '@/constants/roles';
 import { toast } from 'react-toastify';
+import { fetchProfilesWithUserDetails } from '@/services/profileService';
+import { deleteUserAuth } from '@/services/userService';
 
 const useCompanies = (companyId: string, search: string) => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -32,6 +34,10 @@ const useCompanies = (companyId: string, search: string) => {
   const removeCompany = async (companyId: string) => {
     try {
       await deleteCompany(companyId);
+      const profiles = await fetchProfilesWithUserDetails(companyId);
+      for (const profile of profiles) {
+        await deleteUserAuth(profile.id);
+      }
       setCompanies(companies.filter(company => company.id !== companyId));
       toast.success("Le dossier a bien été supprimé !");
     } catch (err) {

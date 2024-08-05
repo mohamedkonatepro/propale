@@ -46,17 +46,15 @@ const useProfiles = (companyId: string, search: string) => {
 
   const createNewUser = async (formInputs: UserFormInputs, companyId: string) => {
     try {
-      const result = await createUser(formInputs.email, formInputs.password);
-      if (!result || typeof result === 'string') {
-        return result;
-      }
+      const user = await createUser(formInputs.email, formInputs.password);
+      if (!user) throw new Error('Failed to create user');
 
       const profileData = {
         ...formInputs,
-        userId: result.id,
+        userId: user.id,
       };
       await createProfile(profileData);
-      await associateProfileWithCompany(result.id, companyId);
+      await associateProfileWithCompany(user.id, companyId);
 
       await sendPasswordResetEmail(formInputs.email);
       toast.success(`${profileData.firstname} ${profileData.lastname} à bien été ajouté·e à la liste. Un email de confirmation à été envoyé à l'adresse indiquée.`);

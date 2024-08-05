@@ -66,6 +66,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
         setValue('city', adresseEtablissement.libelleCommuneEtablissement);
         setValue('postalcode', adresseEtablissement.codePostalEtablissement);
         setValue('country', 'France');
+        setMessageAlertSiret('');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
       }
@@ -74,7 +75,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
     if (siretValue && siretValue.length === 14) {
       fetchCompanyDetails(siretValue);
     } else {
-      setMessageAlertSiret('')
+      setMessageAlertSiret('');
       setValue('activity_sector', '');
       setValue('address', '');
       setValue('city', '');
@@ -91,6 +92,15 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
   }, [defaultValues, setValue]);
 
   const onSubmitHandler = async (data: FolderFormInputs) => {
+    const { data: companyData, error } = await supabase
+      .from('company')
+      .select('siret')
+      .eq('siret', watch('siret'));
+
+    if (companyData && companyData.length > 0) {
+      setMessageAlertSiret('SIRET existe déjà');
+      return;
+    }
     await onSubmit(data);
     reset();
   };

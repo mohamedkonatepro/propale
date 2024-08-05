@@ -9,6 +9,8 @@ import { ROLES } from '@/constants/roles';
 import { formatDate } from '@/lib/utils';
 import { toast } from 'react-toastify';
 import { sendPasswordResetEmail } from '@/services/userService';
+import { Checkbox } from '../common/Checkbox';
+import { Switch } from '../common/Switch';
 
 type EditUserModalProps = {
   isOpen: boolean;
@@ -40,7 +42,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   defaultValues,
 }) => {
   const [edit, setEdit] = useState(false)
-  const { register, handleSubmit, formState: { errors }, getValues } = useForm({
+  const { register, handleSubmit, formState: { errors }, getValues, setValue, watch } = useForm({
     defaultValues,
   });
 
@@ -88,7 +90,17 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           </div>
           <h3 className="text-lg font-bold mt-4">{defaultValues.firstname} {defaultValues.lastname}</h3>
           <div className='flex'><label className="text-sm font-medium text-black">ID : </label><p className="text-sm text-gray-500 ml-1">ID67304093</p></div>
-          <span className="text-sm bg-green-100 text-green-600 border border-green-600 px-5 py-1 rounded-full mt-5">{defaultValues.blocked ? 'Inactif' : 'Actif'}</span>
+          {!edit && <span className={`text-sm border px-5 py-1 rounded-full mt-5 ${defaultValues.blocked ? 'bg-red-100 text-red-600 border-red-600' : 'bg-green-100 text-green-600 border-green-600'}`}>
+            {defaultValues.blocked ? 'Inactif' : 'Actif'}
+          </span>}
+          {edit && <div className="flex items-center space-x-2 mt-5">
+            <span>{watch('blocked') ? 'Inactif' : 'Actif'}</span>
+            <Switch
+              checked={!watch('blocked')}
+              onCheckedChange={(checked) => setValue('blocked', !checked)}
+              {...register('blocked')}
+            />
+          </div>}
           <div className="mt-16 text-left">
             <label className="block text-sm font-medium text-labelGray">Date de création</label>
             <span>{formatDate(defaultValues?.created_at)}</span>

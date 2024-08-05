@@ -38,10 +38,11 @@ const ProfileAvatarGroup: React.FC<ProfileAvatarGroupProps> = ({ profiles, maxDi
         )}
       </div>
       <button 
-        className="w-7 h-7 rounded-full flex items-center justify-center text-blue-600" 
+        className="h-7 rounded-full flex items-center justify-center text-blue-600 mx-1" 
         onClick={onButtonClick}
       >
-        <MdOutlineArrowForwardIos />
+        {profiles.length === 0 ? 'Ajouter' : ''}
+        <MdOutlineArrowForwardIos className='ml-1' />
       </button>
     </div>
   );
