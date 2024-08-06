@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Modal from 'react-modal';
-import { userSchema } from '@/schemas/user';
-import { FaTimes } from 'react-icons/fa';
-import { z } from 'zod';
+import { UserFormInputs, userSchema } from '@/schemas/user';
 import { ROLES } from '@/constants/roles';
 import CustomAlert from '../common/Alert';
 import { supabase } from '@/lib/supabaseClient';
+import BaseModal from './BaseModal';
 
 type AddUserModalProps = {
   isOpen: boolean;
@@ -16,26 +14,9 @@ type AddUserModalProps = {
   page?: string;
 };
 
-type FormInputs = z.infer<typeof userSchema>;
-
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '50%',
-    padding: '2rem',
-    borderRadius: '10px',
-    maxHeight: '100vh',
-  },
-};
-
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onSubmit, page }) => {
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
-  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormInputs>({
+  const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<UserFormInputs>({
     resolver: zodResolver(userSchema),
   });
   
@@ -47,7 +28,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
     }
   }, [page, setValue]);
   
-  const onSubmitHandler = async (data: FormInputs) => {
+  const onSubmitHandler = async (data: UserFormInputs) => {
     const { data: profileFata } = await supabase
       .from('profiles')
       .select('email')
@@ -71,21 +52,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
   }, [emailValue]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      style={customStyles}
-      overlayClassName="fixed inset-0 bg-black bg-opacity-90"
-      ariaHideApp={false}
-    >
-      <div className="flex justify-end">
-        <button onClick={onRequestClose}>
-          <FaTimes />
-        </button>
-      </div>
-      <div className="flex justify-center items-center pb-2 mb-4">
-        <h2 className="text-xl font-semibold">Ajouter un utilisateur</h2>
-      </div>
+      <BaseModal isOpen={isOpen} onRequestClose={onRequestClose} title={'Ajouter un utilisateur'}>
       {messageAlertEmail && <CustomAlert message={messageAlertEmail} title='Adresse mail déjà utilisée'/>}
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4 px-20">
         <div className="grid grid-cols-12 gap-4 mt-2">
@@ -170,7 +137,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
           <p className="text-center text-labelGray text-base mt-3">Un mail de création de mot de passe sera envoyé à l’adresse mail de l’utilisateur.</p>
         </div>
       </form>
-    </Modal>
+      </BaseModal>
   );
 };
 

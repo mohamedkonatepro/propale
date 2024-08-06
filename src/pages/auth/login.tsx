@@ -2,7 +2,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginSchema } from '@/schemas/auth';
 import { supabase } from '@/lib/supabaseClient';
-import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import SocialLinks from '@/components/auth/SocialLinks';
@@ -35,6 +34,11 @@ const Login = () => {
       setMessage(['']);
       if (user) {
         const userDetails = await getUserDetails();
+        if (userDetails?.blocked) {
+          await supabase.auth.signOut();
+          router.push('/')
+          return
+        }
         if (userDetails?.role === ROLES.SUPER_ADMIN) {
           router.push('/dashboard')
           return

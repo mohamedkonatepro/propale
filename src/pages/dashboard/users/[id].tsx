@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
 import Header from '@/components/layout/Header';
@@ -14,63 +14,62 @@ import useCompanyData from '@/hooks/useCompanyData';
 import useProfiles from '@/hooks/useProfiles';
 import useUserAccess from '@/hooks/useUserAccess';
 import { fetchUserAccess } from '@/services/companyProfileService';
-import { supabase } from '@/lib/supabaseClient';
 import { deleteUserAuth } from '@/services/userService';
+import useModalState from '@/hooks/useModalState';
 
 const Users: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useUser();
   const [searchUser, setSearchUser] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
-  const [isManageAccessModalOpen, setIsManageAccessModalOpen] = useState(false);
 
   const { company } = useCompanyData(id as string);
   const { profiles, foldersCount, updateProfile, createNewUser, fetchData } = useProfiles(id as string, searchUser);
   const { userAccess, setUserAccess, initialFolders, saveManageAccess: saveManageAccessOriginal } = useUserAccess(selectedUser?.id || '', id as string);
 
+  const { 
+    isModalOpen: isAddUserModalOpen, 
+    openModal: openAddUserModal, 
+    closeModal: closeAddUserModal 
+  } = useModalState();
+
+  const { 
+    isModalOpen: isEditUserModalOpen, 
+    openModal: openEditUserModal, 
+    closeModal: closeEditUserModal 
+  } = useModalState();
+
+  const { 
+    isModalOpen: isDeleteUserModalOpen, 
+    openModal: openDeleteUserModal, 
+    closeModal: closeDeleteUserModal 
+  } = useModalState();
+
+  const { 
+    isModalOpen: isManageAccessModalOpen, 
+    openModal: openManageAccessModal, 
+    closeModal: closeManageAccessModal 
+  } = useModalState();
+
   const handleEditUser = (userSelected: Profile) => {
     setSelectedUser(userSelected);
-    setIsEditModalOpen(true);
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setSelectedUser(null);
+    openEditUserModal();
   };
 
   const handleSubmitEdit = async (data: Profile) => {
     if (user?.id) {
       await updateProfile(data, user.id);
     }
-    handleCloseEditModal();
+    closeEditUserModal();
     await fetchData();
   };
 
-  const handleAddButtonClick = () => setIsModalOpen(true);
-
-  const handleCloseModal = () => setIsModalOpen(false);
-
-  const handleSearch = (dataSearch: string) => setSearchUser(dataSearch);
-
   const handleCreateUser = async (formInputs: UserFormInputs) => {
     await createNewUser(formInputs, id as string);
-    setIsModalOpen(false);
+    closeAddUserModal();
     fetchData();
-  };
-
-  const openDeleteModal = (userId: string) => {
-    setUserIdToDelete(userId);
-    setIsDeleteModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setUserIdToDelete(null);
   };
 
   const handleDeleteUser = async () => {
@@ -84,15 +83,15 @@ const Users: React.FC = () => {
     }
 
     toast.success("L'utilisateur a bien été supprimé !");
-    closeDeleteModal();
+    closeDeleteUserModal();
     fetchData();
   };
 
-  const openManageAccessModal = async (user: Profile) => {
+  const openManageAccessModalHandler = async (user: Profile) => {
     setSelectedUser(user);
     const userAccessSet = await fetchUserAccess(user.id);
     setUserAccess(userAccessSet);
-    setIsManageAccessModalOpen(true);
+    openManageAccessModal();
   };
 
   const saveManageAccess = async (accessData: any) => {
@@ -108,35 +107,35 @@ const Users: React.FC = () => {
       <UsersTable
         profiles={profiles}
         foldersCount={foldersCount}
-        handleSearch={handleSearch}
-        handleAddButtonClick={handleAddButtonClick}
+        handleSearch={setSearchUser}
+        handleAddButtonClick={openAddUserModal}
         handleEditUser={handleEditUser}
-        openDeleteModal={openDeleteModal}
-        openManageAccessModal={openManageAccessModal}
+        openDeleteModal={(userId) => { setUserIdToDelete(userId); openDeleteUserModal(); }}
+        openManageAccessModal={openManageAccessModalHandler}
       />
       {selectedUser && (
         <EditUserModal
-          isOpen={isEditModalOpen}
-          onRequestClose={handleCloseEditModal}
+          isOpen={isEditUserModalOpen}
+          onRequestClose={closeEditUserModal}
           onSubmit={handleSubmitEdit}
           defaultValues={selectedUser}
         />
       )}
       <AddUserModal
-        isOpen={isModalOpen}
-        onRequestClose={handleCloseModal}
+        isOpen={isAddUserModalOpen}
+        onRequestClose={closeAddUserModal}
         onSubmit={handleCreateUser}
       />
       <ConfirmDeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
+        isOpen={isDeleteUserModalOpen}
+        onClose={closeDeleteUserModal}
         onConfirm={handleDeleteUser}
         message={"Êtes-vous sûr de vouloir supprimer l'utilisateur ?"}
       />
       {selectedUser && (
         <ManageAccessModal
           isOpen={isManageAccessModalOpen}
-          onClose={() => setIsManageAccessModalOpen(false)}
+          onClose={closeManageAccessModal}
           user={selectedUser}
           initialFolders={initialFolders}
           userAccess={userAccess}

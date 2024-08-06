@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
@@ -11,6 +11,7 @@ import useProspects from '@/hooks/useProspects';
 import { fetchCompanyById, updateCompany } from '@/services/companyService';
 import { CSVLink } from 'react-csv';
 import { GrFormEdit } from "react-icons/gr";
+import useModalState from '@/hooks/useModalState';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -18,49 +19,45 @@ const ProspectList: React.FC = () => {
   const { user } = useUser();
   const [company, setCompany] = useState<Company | null>(null);
   const [search, setSearch] = useState<string>('');
-  const [isProspectModalOpen, setIsProspectModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedProspect, setSelectedProspect] = useState<Company | undefined>(undefined);
-  const [isModalOpenFolder, setIsModalOpenFolder] = useState(false);
   const [csvData, setCsvData] = useState<any[]>([]);
-  const [isCsvLinkVisible, setIsCsvLinkVisible] = useState(false);
   const csvLinkRef = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedProspect, setSelectedProspect] = useState<Company | undefined>(undefined);
+  const [isCsvLinkVisible, setIsCsvLinkVisible] = useState(false);
 
-  const { prospects, editProspect, addProspect, removeProspect, fetchData } = useProspects(id as string, search);
+  const { prospects, fetchData, addProspect, editProspect, removeProspect } = useProspects(id as string, search);
+  const { 
+    isModalOpen: isProspectModalOpen, 
+    openModal: openProspectModal, 
+    closeModal: closeProspectModal 
+  } = useModalState();
 
-  const getCompanyData = async () => {
+  const { 
+    isModalOpen: isDeleteModalOpen, 
+    openModal: openDeleteModal, 
+    closeModal: closeDeleteModal 
+  } = useModalState();
+
+  const { 
+    isModalOpen: isModalOpenFolder, 
+    openModal: openModalFolder, 
+    closeModal: closeModalFolder 
+  } = useModalState();
+
+  const getCompanyData = useCallback(async () => {
     if (!user?.id || !id) return;
-
     const companyData = await fetchCompanyById(id as string);
     setCompany(companyData);
-  };
+  }, [user, id]);
 
   useEffect(() => {
     getCompanyData();
     setIsMounted(true);
-  }, [id, user]);
-
-  const openProspectModal = (data?: Company) => {
-    setIsProspectModalOpen(true);
-    setSelectedProspect(data || undefined);
-  };
-
-  const handleOpenModal = () => {
-    setIsModalOpenFolder(true);
-  };
-
-  const closeProspectModal = () => {
-    setIsProspectModalOpen(false);
-  };
-
-  const handleCloseModalFolder = () => {
-    setIsModalOpenFolder(false);
-  };
+  }, [getCompanyData]);
 
   const handleCreateProspect = async (data: CompanyModalData) => {
     if (selectedProspect?.id) {
-      await editProspect({...data, heat_level: data.heatLevel, id: selectedProspect.id} as Company)
+      await editProspect({ ...data, id: selectedProspect.id } as Company);
     } else {
       await addProspect(data);
     }
@@ -68,32 +65,17 @@ const ProspectList: React.FC = () => {
     fetchData();
   };
 
-  const handleSearch = (searchValue: string) => {
-    setSearch(searchValue);
-  };
-
   const handleCreateFolder = async (data: Company) => {
     if (company) {
       await updateCompany(data);
       toast.success(`${data.name} à bien été modifié.`);
+      await getCompanyData();
     }
-    await getCompanyData();
-    handleCloseModalFolder();
-  };
-
-  const openDeleteModal = (prospectId: string) => {
-    setSelectedProspect(prospects.find(p => p.id === prospectId) || undefined);
-    setIsDeleteModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setSelectedProspect(undefined);
+    closeModalFolder();
   };
 
   const handleDeleteProspect = async () => {
     if (!selectedProspect) return;
-
     await removeProspect(selectedProspect.id);
     toast.success("Le prospect a bien été supprimé !");
     closeDeleteModal();
@@ -102,7 +84,6 @@ const ProspectList: React.FC = () => {
 
   const handleMultipleDelete = async (selectedRows: Company[]) => {
     if (selectedRows.length === 0) return;
-
     for (const prospect of selectedRows) {
       await removeProspect(prospect.id);
     }
@@ -112,7 +93,6 @@ const ProspectList: React.FC = () => {
 
   const handleExportCsv = (selectedRows: Company[]) => {
     if (selectedRows.length === 0) return;
-
     const csvData = selectedRows.map(row => ({
       Name: row.name,
       Siren: row.siren,
@@ -137,11 +117,8 @@ const ProspectList: React.FC = () => {
         <div className="flex items-center mb-6">
           <div className='flex flex-col'>
             <div className='flex items-center'>
-              <h2 className="text-3xl font-bold mb-2 mr-2 ">{company?.name}</h2>
-              {company && <GrFormEdit
-                onClick={() => handleOpenModal()}
-                className="text-2xl cursor-pointer text-stone-400"
-              />}
+              <h2 className="text-3xl font-bold mb-2 mr-2">{company?.name}</h2>
+              {company && <GrFormEdit onClick={openModalFolder} className="text-2xl cursor-pointer text-stone-400" />}
             </div>
             <p className='text-black'>{company?.activity_sector}</p>
             <p className='text-stone-400'>{company?.description}</p>
@@ -150,9 +127,9 @@ const ProspectList: React.FC = () => {
       </div>
       <ProspectsTable
         prospects={prospects}
-        handleSearch={handleSearch}
-        openProspectModal={openProspectModal}
-        openDeleteModal={openDeleteModal}
+        handleSearch={setSearch}
+        openProspectModal={(data) => { openProspectModal(); setSelectedProspect(data); }}
+        openDeleteModal={(id: string) => { setSelectedProspect(prospects.find(p => p.id === id)); openDeleteModal(); }}
         handleMultipleDelete={handleMultipleDelete}
         handleExportCsv={handleExportCsv}
       />
@@ -165,7 +142,7 @@ const ProspectList: React.FC = () => {
       {company && user && (
         <AddFolderModal
           isOpen={isModalOpenFolder}
-          onRequestClose={handleCloseModalFolder}
+          onRequestClose={closeModalFolder}
           onSubmit={handleCreateFolder}
           defaultValues={company}
           role={user?.role}

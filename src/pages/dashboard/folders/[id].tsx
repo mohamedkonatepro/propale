@@ -11,62 +11,51 @@ import { FolderFormInputs } from '@/schemas/folder';
 import useCompanies from '@/hooks/useCompanies';
 import useCompanyData from '@/hooks/useCompanyData';
 import useProspects from '@/hooks/useProspects';
+import useModalState from '@/hooks/useModalState';
 
 const Folders: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useUser();
   const [search, setSearch] = useState<string>('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<FolderFormInputs | null>(null);
-  const [isProspectModalOpen, setIsProspectModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   const { companies, removeCompany, fetchData } = useCompanies(id as string, search);
   const { company, updateCompanyData, createNewCompany } = useCompanyData(id as string);
   const { addProspect } = useProspects(id as string, search);
 
-  const handleOpenModal = (data?: FolderFormInputs) => {
-    setIsModalOpen(true);
-    setSelectedFolder(data || null);
-  };
+  const { 
+    isModalOpen: isFolderModalOpen, 
+    openModal: openFolderModal, 
+    closeModal: closeFolderModal 
+  } = useModalState();
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedFolder(null);
+  const { 
+    isModalOpen: isDeleteModalOpen, 
+    openModal: openDeleteModal, 
+    closeModal: closeDeleteModal 
+  } = useModalState();
+
+  const { 
+    isModalOpen: isProspectModalOpen, 
+    openModal: openProspectModal, 
+    closeModal: closeProspectModal 
+  } = useModalState();
+
+  const handleOpenModal = (data?: FolderFormInputs) => {
+    setSelectedFolder(data || null);
+    openFolderModal();
   };
 
   const handleCreateFolder = async (data: FolderFormInputs) => {
     if (selectedFolder) {
-      const folderData = {
-        ...data,
-        id: selectedFolder.id,
-      };
-      await updateCompanyData(folderData);
+      await updateCompanyData({ ...data, id: selectedFolder.id });
     } else {
-      const folderData = {
-        ...data,
-        companyId: id as string,
-      };
-      await createNewCompany(folderData);
+      await createNewCompany({ ...data, companyId: id as string });
     }
-    handleCloseModal();
-    await fetchData();
-  };
-
-  const handleSearch = (searchValue: string) => {
-    setSearch(searchValue);
-  };
-
-  const openDeleteModal = (folderId: string) => {
-    setIsDeleteModalOpen(true);
-    setSelectedFolder({ id: folderId } as FolderFormInputs);
-  };
-
-  const closeDeleteModal = () => {
-    setIsDeleteModalOpen(false);
-    setSelectedFolder(null);
+    closeFolderModal();
+    fetchData();
   };
 
   const handleDeleteFolder = async () => {
@@ -75,15 +64,6 @@ const Folders: React.FC = () => {
       closeDeleteModal();
       fetchData();
     }
-  };
-
-  const openProspectModal = (company: Company) => {
-    setSelectedCompany(company);
-    setIsProspectModalOpen(true);
-  };
-
-  const closeProspectModal = () => {
-    setIsProspectModalOpen(false);
   };
 
   const handleCreateProspect = async (data: CompanyModalData) => {
@@ -97,13 +77,13 @@ const Folders: React.FC = () => {
       <FoldersTable
         companies={companies}
         handleOpenModal={handleOpenModal}
-        handleSearch={handleSearch}
-        openProspectModal={openProspectModal}
-        openDeleteModal={openDeleteModal}
+        handleSearch={setSearch}
+        openProspectModal={(company) => { setSelectedCompany(company); openProspectModal(); }}
+        openDeleteModal={(folderId) => { setSelectedFolder({ id: folderId } as FolderFormInputs); openDeleteModal(); }}
       />
       <AddFolderModal
-        isOpen={isModalOpen}
-        onRequestClose={handleCloseModal}
+        isOpen={isFolderModalOpen}
+        onRequestClose={closeFolderModal}
         onSubmit={handleCreateFolder}
         defaultValues={selectedFolder}
         role={user?.role}

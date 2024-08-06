@@ -33,8 +33,8 @@ const useCompanies = (companyId: string, search: string) => {
 
   const removeCompany = async (companyId: string) => {
     try {
-      await deleteCompany(companyId);
       const profiles = await fetchProfilesWithUserDetails(companyId);
+      await deleteCompany(companyId);
       for (const profile of profiles) {
         await deleteUserAuth(profile.id);
       }

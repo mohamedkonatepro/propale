@@ -1,33 +1,16 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import Modal from 'react-modal';
 import { CompanyFormInputs } from '@/schemas/company';
-import { FaTimes } from 'react-icons/fa';
 import axios from 'axios';
 import dataApeCode from '../../data/codes-ape.json';
 import { Company } from '@/types/models';
+import BaseModal from './BaseModal';
 
 type AddCompanyModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => Promise<void>;
   defaultValues: Company;
-};
-
-
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '50%',
-    padding: '2rem',
-    borderRadius: '10px',
-    maxHeight: '100vh',
-  },
 };
 
 const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues }) => {
@@ -81,19 +64,7 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
   }, [sirenValue, setValue]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      style={customStyles}
-      overlayClassName="fixed inset-0 bg-black bg-opacity-90"
-      ariaHideApp={false}
-    >
-      <div className="flex justify-end items-center pb-2 mb-4">
-        <button onClick={onRequestClose}><FaTimes /></button>
-      </div>
-      <div className="flex justify-center items-center border-b pb-2 mb-4">
-        <h2 className="text-xl font-semibold">Modifier une entreprise</h2>
-      </div>
+    <BaseModal isOpen={isOpen} onRequestClose={onRequestClose} title={'Modifier une entreprise'}>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
         <div>
           <h3 className="text-lg font-medium">Informations principales</h3>
@@ -144,7 +115,7 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
           </button>
         </div>
       </form>
-    </Modal>
+    </BaseModal>
   );
 };
 

@@ -103,20 +103,19 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
 
   const handleDeleteEntity = async () => {
     if (page === 'folders' && entityToDeleteId) {
+      const profiles = await fetchProfilesWithUserDetails(entityToDeleteId);
       await supabase.from('company').delete().eq('id', entityToDeleteId);
 
       const companies = await fetchCompaniesByCompanyId(entityToDeleteId);
       for (const company of companies) {
         await supabase.from('company').delete().eq('id', company.id);
       }
-
-      const profiles = await fetchProfilesWithUserDetails(entityToDeleteId);
       for (const profile of profiles) {
         await deleteUserAuth(profile.id);
       }
       toast.success("L'entreprise a bien été supprimée !");
     } else if (entityToDeleteId) {
-      const { error } = await supabaseAdmin.auth.admin.deleteUser(entityToDeleteId);
+      const { error } = await deleteUserAuth(entityToDeleteId);
       if (error) {
         toast.error("Erreur lors de la suppression de l'utilisateur");
         return;

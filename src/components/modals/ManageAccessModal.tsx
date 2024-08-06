@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes } from 'react-icons/fa';
 import { Company, Profile } from '@/types/models';
 import Image from 'next/image';
-import Modal from 'react-modal';
 import { PiLineVerticalThin } from "react-icons/pi";
 import { Switch } from '../common/Switch';
+import BaseModal from './BaseModal';
 
 interface ManageAccessModalProps {
   isOpen: boolean;
@@ -14,22 +13,6 @@ interface ManageAccessModalProps {
   userAccess: Set<string>;
   onSave: (updatedAccess: Set<string>, selectedUserId: string) => void;
 }
-
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '50%',
-    padding: '2rem',
-    borderRadius: '10px',
-    maxHeight: '100vh',
-    overflow: 'auto',
-  },
-};
 
 const ManageAccessModal: React.FC<ManageAccessModalProps> = ({ isOpen, onClose, user, initialFolders, userAccess, onSave }) => {
   const [search, setSearch] = useState('');
@@ -59,18 +42,7 @@ const ManageAccessModal: React.FC<ManageAccessModalProps> = ({ isOpen, onClose, 
   );
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onClose}
-      style={customStyles}
-      ariaHideApp={false}
-    >
-      <div className="flex justify-end">
-        <button onClick={onClose} className="text-gray-500">
-          <FaTimes size={20} />
-        </button>
-      </div>
-      <h2 className="text-2xl font-semibold text-center mb-4">Gérer l’accès aux dossiers</h2>
+    <BaseModal isOpen={isOpen} onRequestClose={onClose} title={'Gérer l’accès aux dossiers'}>
       <div className="flex flex-col items-center mb-4">
         <Image src="/avatar.svg" alt="avatar" width={96} height={96} className="w-24 h-24 rounded-full mb-4" />
         <h2 className="text-xl font-semibold">{user.firstname} {user.lastname}</h2>
@@ -114,7 +86,7 @@ const ManageAccessModal: React.FC<ManageAccessModalProps> = ({ isOpen, onClose, 
           Enregistrer
         </button>
       </div>
-    </Modal>
+    </BaseModal>
   );
 };
 

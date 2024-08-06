@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Modal from 'react-modal';
 import { companySchema } from '@/schemas/company';
-import { FaTimes, FaRegTrashAlt } from 'react-icons/fa';
-import { z } from 'zod';
 import axios from 'axios';
 import { ROLES } from '@/constants/roles';
 import dataApeCode from '../../data/codes-ape.json';
 import { Company } from '@/types/models';
 import { CiFolderOn } from "react-icons/ci";
-import CustomDropdown from '../common/CustomDropdown';
 import { heatLevels, statuses } from '@/constants';
 import { prospectSchema } from '@/schemas/prospect';
 import { supabase } from '@/lib/supabaseClient';
+import MainInfoSection from './section/MainInfoSection';
+import PrimaryContactSection from './section/PrimaryContactSection';
+import AdditionalContactsSection from './section/AdditionalContactsSection';
+import BaseModal from './BaseModal';
+import { z } from 'zod';
 
 type AddProspectModalProps = {
   isOpen: boolean;
@@ -23,7 +24,7 @@ type AddProspectModalProps = {
   defaultValues?: Company;
 };
 
-type FormInputs = z.infer<typeof companySchema> & {
+export type FormInputs = z.infer<typeof companySchema> & {
   additionalContacts: {
     firstname: string;
     lastname: string;
@@ -35,19 +36,13 @@ type FormInputs = z.infer<typeof companySchema> & {
 };
 
 const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '60%',
-    padding: '2rem',
-    borderRadius: '10px',
-    maxHeight: '100vh',
-    overflow: 'auto',
-  },
+  top: '50%',
+  left: '50%',
+  right: 'auto',
+  bottom: 'auto',
+  marginRight: '-50%',
+  transform: 'translate(-50%, -50%)',
+  width: '60%',
 };
 
 const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company, defaultValues }) => {
@@ -123,43 +118,45 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   };
 
   const onSubmitHandler = async (data: FormInputs) => {
-    const { data: companyData } = await supabase
-      .from('company')
-      .select('siren')
-      .eq('siren', sirenValue);
+    if (!defaultValues?.id) {
+      const { data: companyData } = await supabase
+        .from('company')
+        .select('siren')
+        .eq('siren', sirenValue);
 
-    if (companyData && companyData.length > 0) {
-      setMessageAlertSiren('SIREN existe déjà');
-      return;
-    }
+      if (companyData && companyData.length > 0) {
+        setMessageAlertSiren('SIREN existe déjà');
+        return;
+      }
 
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('email', emailValue);
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', emailValue);
 
-    if (profileData && profileData.length > 0) {
-      setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
-      return;
-    }
+      if (profileData && profileData.length > 0) {
+        setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+        return;
+      }
 
-    // Vérification des emails des contacts supplémentaires
-    const additionalContactEmails = additionalContacts.map(contact => contact.email);
-    const uniqueAdditionalContactEmails = new Set(additionalContactEmails);
+      // Vérification des emails des contacts supplémentaires
+      const additionalContactEmails = additionalContacts.map(contact => contact.email);
+      const uniqueAdditionalContactEmails = new Set(additionalContactEmails);
 
-    if (uniqueAdditionalContactEmails.size !== additionalContactEmails.length) {
-      setMessageAlertAdditionalEmails('Des emails en double existent parmi les contacts supplémentaires.');
-      return;
-    }
+      if (uniqueAdditionalContactEmails.size !== additionalContactEmails.length) {
+        setMessageAlertAdditionalEmails('Des emails en double existent parmi les contacts supplémentaires.');
+        return;
+      }
 
-    const { data: additionalProfileData } = await supabase
-      .from('profiles')
-      .select('email')
-      .in('email', additionalContactEmails);
+      const { data: additionalProfileData } = await supabase
+        .from('profiles')
+        .select('email')
+        .in('email', additionalContactEmails);
 
-    if (additionalProfileData && additionalProfileData.length > 0) {
-      setMessageAlertAdditionalEmails('Certains contacts supplémentaires ont déjà des comptes utilisateurs.');
-      return;
+      if (additionalProfileData && additionalProfileData.length > 0) {
+        setMessageAlertAdditionalEmails('Certains contacts supplémentaires ont déjà des comptes utilisateurs.');
+        return;
+      }
     }
     
     await onSubmit({ ...data, status, heatLevel, companyId: company.id });
@@ -215,230 +212,43 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   }, [defaultValues, setValue]);
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onRequestClose={onRequestClose}
-      style={customStyles}
-      overlayClassName="fixed inset-0 bg-black bg-opacity-90"
-      ariaHideApp={false}
-    >
-      <div className="flex justify-end items-center pb-2 mb-4">
-        <button onClick={onRequestClose}><FaTimes /></button>
-      </div>
+    <BaseModal isOpen={isOpen} onRequestClose={onRequestClose} title={defaultValues?.id ? 'Modifier un prospect' : 'Ajouter un prospect'} customStyleOverrides={customStyles}>
       <div className="flex flex-col justify-center items-center border-b pb-2 mb-4">
-        <h2 className="text-xl font-semibold">{defaultValues?.id ? 'Modifier' : 'Ajouter'} un prospect</h2>
         <div className='flex items-center justify-center text-labelGray mt-3'><CiFolderOn /> <p className='ml-2'>{company.name}</p></div>
       </div>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
-        <div>
-          <h3 className="text-lg font-medium">Informations principales</h3>
-          <div className="grid grid-cols-12 gap-4 mt-2">
-            <div className="col-span-7">
-              <label className="block text-sm font-medium text-labelGray">Raison sociale</label>
-              <input
-                {...register('name')}
-                className="mt-1 block w-full rounded p-2 bg-backgroundGray"
-                placeholder="Company tech"
-              />
-              {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
-            </div>
-            <div className="col-span-2">
-              <CustomDropdown options={statuses} label="Statut" selected={status} onChange={setStatus} />
-            </div>
-            <div className="col-span-2">
-              <CustomDropdown options={heatLevels} label="Chaleur" selected={heatLevel} onChange={setHeatLevel} />
-            </div>
-            <div className="col-span-3">
-              <label className="block text-sm font-medium text-labelGray">Numéro SIREN</label>
-              <input
-                {...register('siren')}
-                className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.siren || messageAlertSiren ? 'border border-red-500' : ''}`}
-                placeholder="123456789"
-              />
-              {errors.siren && <p className="text-red-500 text-xs">{errors.siren.message}</p>}
-              {messageAlertSiren && <p className="text-red-500 text-xs">{messageAlertSiren}</p>}
-            </div>
-
-            <div className="col-span-3">
-              <label className="block text-sm font-medium text-labelGray">Code APE</label>
-              <input
-                {...register('ape_code')}
-                value={watch('ape_code')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                placeholder=""
-                disabled
-              />
-              {errors.ape_code && <p className="text-red-500 text-xs">{errors.ape_code.message}</p>}
-            </div>
-            <div className="col-span-6">
-              <label className="block text-sm font-medium text-labelGray">Secteur d’activité</label>
-              <input
-                {...register('activity_sector')}
-                value={watch('activity_sector')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                placeholder=""
-                disabled
-              />
-              {errors.activity_sector && <p className="text-red-500 text-xs">{errors.activity_sector.message}</p>}
-            </div>
-          </div>
-        </div>
-
-        {!defaultValues?.id && <div className='mt-10'>
-          <h3 className="text-lg font-medium">Contact principal</h3>
-          <div className="grid grid-cols-12 gap-4 mt-2">
-            <div className="col-span-3">
-              <label className="block text-sm font-medium text-labelGray">Prénom</label>
-              <input
-                {...register('firstname')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                placeholder="Paul"
-              />
-              {errors.firstname && <p className="text-red-500 text-xs">{errors.firstname.message}</p>}
-            </div>
-            <div className="col-span-3">
-              <label className="block text-sm font-medium text-labelGray">Nom</label>
-              <input
-                {...register('lastname')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                placeholder="Dupond"
-              />
-              {errors.lastname && <p className="text-red-500 text-xs">{errors.lastname.message}</p>}
-            </div>
-            <div className="col-span-6">
-              <label className="block text-sm font-medium text-labelGray">Fonction</label>
-              <input
-                {...register('position')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                placeholder="commercial"
-              />
-              {errors.position && <p className="text-red-500 text-xs">{errors.position.message}</p>}
-            </div>
-            <div className="col-span-6">
-              <label className="block text-sm font-medium text-labelGray">Email</label>
-              <input
-                {...register('email')}
-                className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.email || messageAlertEmail ? 'border border-red-500' : ''}`}
-                placeholder="paul.dupond@mail.com"
-              />
-              {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
-              {messageAlertEmail && <p className="text-red-500 text-xs">{messageAlertEmail}</p>}
-            </div>
-            <div className="col-span-6">
-              <label className="block text-sm font-medium text-labelGray">Téléphone</label>
-              <input
-                {...register('phone')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                placeholder="0762347533"
-              />
-              {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
-            </div>
-          </div>
-        </div>}
-
-        <div className='mt-10'>
-          {fields.map((field, index) => (
-            <div key={field.id} className='mt-10'>
-              <div className="flex items-center">
-                <h3 className="text-lg font-medium mr-5">Contacts supplémentaires {index + 1}</h3>
-                <button
-                  type="button"
-                  onClick={() => remove(index)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  <FaRegTrashAlt />
-                </button>
-              </div>
-              <div className="grid grid-cols-12 gap-4 mt-2">
-                <input
-                  {...register(`additionalContacts.${index}.role` as const)}
-                  defaultValue={ROLES.PROSPECT}
-                  type='hidden'
-                />
-                <div className="col-span-3">
-                  <label className="block text-sm font-medium text-labelGray">Prénom</label>
-                  <input
-                    {...register(`additionalContacts.${index}.firstname` as const, { required: 'Prénom est requis' })}
-                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                    placeholder="Paul"
-                    defaultValue={field.firstname}
-                  />
-                  {errors.additionalContacts?.[index]?.firstname && (
-                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.firstname?.message}</p>
-                  )}
-                </div>
-                <div className="col-span-3">
-                  <label className="block text-sm font-medium text-labelGray">Nom</label>
-                  <input
-                    {...register(`additionalContacts.${index}.lastname` as const, { required: 'Nom est requis' })}
-                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                    placeholder="Dupond"
-                    defaultValue={field.lastname}
-                  />
-                  {errors.additionalContacts?.[index]?.lastname && (
-                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.lastname?.message}</p>
-                  )}
-                </div>
-                <div className="col-span-6">
-                  <label className="block text-sm font-medium text-labelGray">Fonction</label>
-                  <input
-                    {...register(`additionalContacts.${index}.position` as const)}
-                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                    placeholder="commercial"
-                    defaultValue={field.position}
-                  />
-                  {errors.additionalContacts?.[index]?.position && (
-                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.position?.message}</p>
-                  )}
-                </div>
-                <div className="col-span-6">
-                  <label className="block text-sm font-medium text-labelGray">Email</label>
-                  <input
-                    {...register(`additionalContacts.${index}.email` as const, { required: 'Email est requis', pattern: { value: /^\S+@\S+$/i, message: 'Email invalide' } })}
-                    className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${
-                      errors.additionalContacts?.[index]?.email || messageAlertAdditionalEmails ? 'border border-red-500' : ''
-                    }`}
-                    placeholder="paul.dupond@mail.com"
-                    defaultValue={field.email}
-                  />
-                  {errors.additionalContacts?.[index]?.email && (
-                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.email?.message}</p>
-                  )}
-                </div>
-                <div className="col-span-6">
-                  <label className="block text-sm font-medium text-labelGray">Téléphone</label>
-                  <input
-                    {...register(`additionalContacts.${index}.phone` as const)}
-                    className="mt-1 block w-full bg-backgroundGray rounded p-2"
-                    placeholder="0762347533"
-                    defaultValue={field.phone}
-                  />
-                  {errors.additionalContacts?.[index]?.phone && (
-                    <p className="text-red-500 text-xs">{errors.additionalContacts[index]?.phone?.message}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-       {!defaultValues?.id && <div className="flex justify-between mt-4">
-          <button 
-            onClick={() => append({ firstname: '', lastname: '', position: '', email: '', phone: '', role: ROLES.PROSPECT })}
-            type="button"
-            className="text-blue-500">
-            + Ajouter un contact
-          </button>
-        </div> }
-
+        <MainInfoSection
+          register={register}
+          errors={errors}
+          watch={watch}
+          status={status}
+          heatLevel={heatLevel}
+          setStatus={setStatus}
+          setHeatLevel={setHeatLevel}
+          messageAlertSiren={messageAlertSiren}
+        />
+        {!defaultValues?.id && (
+          <PrimaryContactSection<FormInputs>
+            register={register}
+            errors={errors}
+            messageAlertEmail={messageAlertEmail}
+          />
+        )}
+        <AdditionalContactsSection
+          fields={fields}
+          register={register}
+          errors={errors}
+          append={append}
+          remove={remove}
+          messageAlertAdditionalEmails={messageAlertAdditionalEmails}
+        />
         <div className='flex justify-center'>
           <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
             {defaultValues?.id ? 'Modifier' : 'Créer'} le prospect
           </button>
         </div>
-        {messageAlertAdditionalEmails && <p className="text-red-500 text-xs">{messageAlertAdditionalEmails}</p>}
       </form>
-    </Modal>
+    </BaseModal>
   );
 };
 
