@@ -182,3 +182,22 @@ export const fetchContactByCompanyId = async (companyId: string): Promise<Profil
   }
 };
 
+export const createContact = async (contact: Profile): Promise<Profile> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert(contact)
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateContact = async (contact: Profile): Promise<void> => {
+  const { error } = await supabase
+    .from('profiles')
+    .update(contact)
+    .eq('id', contact.id);
+
+  if (error) throw error;
+};
+

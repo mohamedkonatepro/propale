@@ -21,10 +21,11 @@ type ProspectsTableProps = {
   openDeleteModal: (prospectId: string) => void;
   handleMultipleDelete: (selectedRows: Company[]) => void;
   handleExportCsv: (selectedRows: Company[]) => void;
+  openContactModal: (data?: Company) => void;
 };
 
 const ProspectsTable: React.FC<ProspectsTableProps> = ({
-  prospects, handleSearch, openProspectModal, openDeleteModal, handleMultipleDelete, handleExportCsv,
+  prospects, handleSearch, openContactModal, openProspectModal, openDeleteModal, handleMultipleDelete, handleExportCsv,
 }) => {
 
   const [contacts, setContacts] = useState<{ [key: string]: Profile[] }>({});
@@ -47,9 +48,6 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
   const getStatusOption = (value: string) => statuses.find(status => status.value === value);
   const getHeatLevelOption = (value: string) => heatLevels.find(level => level.value === value);
 
-  const handleAvatarGroupClick = () => {
-    console.log('Avatar group button clicked!');
-  };
 
   const columns: ColumnDef<Company>[] = [
     {
@@ -126,7 +124,7 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
       cell: ({ row }) => (
         <div>
           {contacts[row.original.id] && (
-            <ProfileAvatarGroup profiles={contacts[row.original.id]} maxDisplay={3} onButtonClick={handleAvatarGroupClick} />
+            <ProfileAvatarGroup profiles={contacts[row.original.id]} maxDisplay={3} onButtonClick={() => openContactModal(row.original)} />
           )}
         </div>
       ),

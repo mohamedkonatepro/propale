@@ -1,53 +1,51 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '@/context/userContext';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
 import AddFolderModal from '@/components/modals/AddFolderModal';
 import AddProspectModal from '@/components/modals/AddProspectModal';
+import ListContactsModal from '@/components/modals/ListContactsModal';
 import ProspectsTable from '@/components/DataTable/ProspectsTable';
-import { Company, CompanyModalData } from '@/types/models';
+import { Company, CompanyModalData, Profile } from '@/types/models';
 import { toast } from 'react-toastify';
 import useProspects from '@/hooks/useProspects';
 import { fetchCompanyById, updateCompany } from '@/services/companyService';
+import { fetchContactByCompanyId, createContact, updateContact, fetchProfilesWithUserDetails } from '@/services/profileService';
 import { CSVLink } from 'react-csv';
 import { GrFormEdit } from "react-icons/gr";
 import useModalState from '@/hooks/useModalState';
+import { deleteUserAuth } from '@/services/userService';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useUser();
   const [company, setCompany] = useState<Company | null>(null);
+  const [contacts, setContacts] = useState<Profile[]>([]);
+  const [contactsByProspect, setContactsByProspect] = useState<Profile[]>([]);
   const [search, setSearch] = useState<string>('');
   const [csvData, setCsvData] = useState<any[]>([]);
   const csvLinkRef = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [selectedProspect, setSelectedProspect] = useState<Company | undefined>(undefined);
+  const [selectedContact, setSelectedContact] = useState<Profile | undefined>(undefined);
   const [isCsvLinkVisible, setIsCsvLinkVisible] = useState(false);
 
   const { prospects, fetchData, addProspect, editProspect, removeProspect } = useProspects(id as string, search);
-  const { 
-    isModalOpen: isProspectModalOpen, 
-    openModal: openProspectModal, 
-    closeModal: closeProspectModal 
-  } = useModalState();
 
-  const { 
-    isModalOpen: isDeleteModalOpen, 
-    openModal: openDeleteModal, 
-    closeModal: closeDeleteModal 
-  } = useModalState();
-
-  const { 
-    isModalOpen: isModalOpenFolder, 
-    openModal: openModalFolder, 
-    closeModal: closeModalFolder 
-  } = useModalState();
+  const prospectModalState = useModalState();
+  const deleteModalState = useModalState();
+  const folderModalState = useModalState();
+  const contactsModalState = useModalState();
 
   const getCompanyData = useCallback(async () => {
     if (!user?.id || !id) return;
     const companyData = await fetchCompanyById(id as string);
     setCompany(companyData);
+    const companyContacts = await fetchContactByCompanyId(id as string);
+    if (companyContacts) {
+      setContacts(companyContacts);
+    }
   }, [user, id]);
 
   useEffect(() => {
@@ -61,7 +59,7 @@ const ProspectList: React.FC = () => {
     } else {
       await addProspect(data);
     }
-    closeProspectModal();
+    prospectModalState.closeModal();
     fetchData();
   };
 
@@ -71,14 +69,14 @@ const ProspectList: React.FC = () => {
       toast.success(`${data.name} à bien été modifié.`);
       await getCompanyData();
     }
-    closeModalFolder();
+    folderModalState.closeModal();
   };
 
   const handleDeleteProspect = async () => {
     if (!selectedProspect) return;
     await removeProspect(selectedProspect.id);
     toast.success("Le prospect a bien été supprimé !");
-    closeDeleteModal();
+    deleteModalState.closeModal();
     fetchData();
   };
 
@@ -111,6 +109,44 @@ const ProspectList: React.FC = () => {
     }
   }, [isCsvLinkVisible, csvData]);
 
+  const getContacts = async (data?: Company) => {
+    setContacts([]);
+    if (data) {
+      const companyContacts = await fetchProfilesWithUserDetails(data.id as string);
+      setContactsByProspect(companyContacts ?? []);
+    }
+  };
+
+  const handleAddContact = () => {
+    setSelectedContact(undefined);
+    contactsModalState.openModal();
+  };
+
+  const handleEditContact = (contactId: string) => {
+    const contact = contacts.find(contact => contact.id === contactId);
+    setSelectedContact(contact);
+    contactsModalState.openModal();
+  };
+
+  const handleDeleteContact = async (contactId: string) => {
+    await deleteUserAuth(contactId);
+    const updatedContacts = contactsByProspect.filter(contact => contact.id !== contactId);
+    setContactsByProspect(updatedContacts);
+    await getCompanyData();
+    await fetchData();
+    toast.success("Le contact a bien été supprimé !");
+  };
+
+  const handleSaveContact = async (data: Profile) => {
+    if (selectedContact?.id) {
+      await updateContact({ ...data, id: selectedContact.id });
+    } else {
+      await createContact(data);
+    }
+    contactsModalState.closeModal();
+    getCompanyData();
+  };
+
   return (
     <div className="flex-1 p-6">
       <div className='flex flex-col'>
@@ -118,7 +154,7 @@ const ProspectList: React.FC = () => {
           <div className='flex flex-col'>
             <div className='flex items-center'>
               <h2 className="text-3xl font-bold mb-2 mr-2">{company?.name}</h2>
-              {company && <GrFormEdit onClick={openModalFolder} className="text-2xl cursor-pointer text-stone-400" />}
+              {company && <GrFormEdit onClick={folderModalState.openModal} className="text-2xl cursor-pointer text-stone-400" />}
             </div>
             <p className='text-black'>{company?.activity_sector}</p>
             <p className='text-stone-400'>{company?.description}</p>
@@ -128,21 +164,22 @@ const ProspectList: React.FC = () => {
       <ProspectsTable
         prospects={prospects}
         handleSearch={setSearch}
-        openProspectModal={(data) => { openProspectModal(); setSelectedProspect(data); }}
-        openDeleteModal={(id: string) => { setSelectedProspect(prospects.find(p => p.id === id)); openDeleteModal(); }}
+        openProspectModal={(data) => { prospectModalState.openModal(); setSelectedProspect(data); }}
+        openContactModal={(data) => { contactsModalState.openModal(); getContacts(data); }}
+        openDeleteModal={(id: string) => { setSelectedProspect(prospects.find(p => p.id === id)); deleteModalState.openModal(); }}
         handleMultipleDelete={handleMultipleDelete}
         handleExportCsv={handleExportCsv}
       />
       <ConfirmDeleteModal
-        isOpen={isDeleteModalOpen}
-        onClose={closeDeleteModal}
+        isOpen={deleteModalState.isModalOpen}
+        onClose={deleteModalState.closeModal}
         onConfirm={handleDeleteProspect}
         message="Êtes-vous sûr de vouloir supprimer ce prospect ?"
       />
       {company && user && (
         <AddFolderModal
-          isOpen={isModalOpenFolder}
-          onRequestClose={closeModalFolder}
+          isOpen={folderModalState.isModalOpen}
+          onRequestClose={folderModalState.closeModal}
           onSubmit={handleCreateFolder}
           defaultValues={company}
           role={user?.role}
@@ -150,13 +187,22 @@ const ProspectList: React.FC = () => {
       )}
       {company && (
         <AddProspectModal
-          isOpen={isProspectModalOpen}
-          onRequestClose={closeProspectModal}
+          isOpen={prospectModalState.isModalOpen}
+          onRequestClose={prospectModalState.closeModal}
           onSubmit={handleCreateProspect}
           company={company}
           defaultValues={selectedProspect}
         />
       )}
+      <ListContactsModal
+        isOpen={contactsModalState.isModalOpen}
+        onClose={contactsModalState.closeModal}
+        contacts={contactsByProspect}
+        onAddContact={handleAddContact}
+        onEditContact={handleEditContact}
+        onDeleteContact={handleDeleteContact}
+        onSaveContact={handleSaveContact}
+      />
       {isMounted && (
         <CSVLink
           data={csvData}

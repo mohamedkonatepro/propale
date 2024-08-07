@@ -2,6 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { Profile } from '@/types/models';
 import { MdOutlineArrowForwardIos } from "react-icons/md";
+import { getInitials } from '@/lib/utils';
 
 interface ProfileAvatarGroupProps {
   profiles: Profile[];
@@ -12,10 +13,6 @@ interface ProfileAvatarGroupProps {
 const ProfileAvatarGroup: React.FC<ProfileAvatarGroupProps> = ({ profiles, maxDisplay, onButtonClick }) => {
   const displayedProfiles = profiles.slice(0, maxDisplay);
   const overflowCount = profiles.length - maxDisplay;
-
-  const getInitials = (firstname: string, lastname: string) => {
-    return `${firstname[0]}${lastname[0]}`.toUpperCase();
-  };
 
   return (
     <div className="flex items-center w-fit border border-gray-200 bg-gray-200 p-1 rounded-full relative">
