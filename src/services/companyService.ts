@@ -40,8 +40,7 @@ export const fetchCompanyWithoutParentByProfileId = async (profileId: string): P
   const { data: companies, error: companiesError } = await supabase
     .from('companies_profiles')
     .select('company_id')
-    .eq('profile_id', profileId)
-    .is('type', null);
+    .eq('profile_id', profileId);
 
   if (companiesError) {
     console.error('Error fetching companies for profile:', companiesError);
@@ -72,8 +71,7 @@ export const fetchCompaniesWithParentByProfileId = async (profileId: string, sea
   const { data: companyProfileData, error: companyProfileError } = await supabase
     .from('companies_profiles')
     .select('company_id')
-    .eq('profile_id', profileId)
-    .is('type', null);
+    .eq('profile_id', profileId);
 
   if (companyProfileError) {
     console.error('Error fetching companies for profile:', companyProfileError);
