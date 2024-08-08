@@ -15,6 +15,7 @@ import { CSVLink } from 'react-csv';
 import { GrFormEdit } from "react-icons/gr";
 import useModalState from '@/hooks/useModalState';
 import { deleteUserAuth } from '@/services/userService';
+import ContactModal from '@/components/modals/ContactModal';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -37,6 +38,7 @@ const ProspectList: React.FC = () => {
   const deleteModalState = useModalState();
   const folderModalState = useModalState();
   const contactsModalState = useModalState();
+  const addContactModalState = useModalState();
 
   const getCompanyData = useCallback(async () => {
     if (!user?.id || !id) return;
@@ -119,13 +121,21 @@ const ProspectList: React.FC = () => {
 
   const handleAddContact = () => {
     setSelectedContact(undefined);
+    contactsModalState.closeModal();
+    addContactModalState.openModal();
+  };
+  
+  const handleRequestBack = () => {
+    setSelectedContact(undefined);
     contactsModalState.openModal();
+    addContactModalState.closeModal();
   };
 
   const handleEditContact = (contactId: string) => {
-    const contact = contacts.find(contact => contact.id === contactId);
+    const contact = contactsByProspect.find(contact => contact.id === contactId);
     setSelectedContact(contact);
-    contactsModalState.openModal();
+    contactsModalState.closeModal();
+    addContactModalState.openModal();
   };
 
   const handleDeleteContact = async (contactId: string) => {
@@ -194,6 +204,13 @@ const ProspectList: React.FC = () => {
           defaultValues={selectedProspect}
         />
       )}
+      <ContactModal 
+        isOpen={addContactModalState.isModalOpen}
+        onRequestClose={addContactModalState.closeModal}
+        onSubmit={() => console.log('test')}
+        onRequestBack={handleRequestBack}
+        defaultValues={selectedContact}
+      />
       <ListContactsModal
         isOpen={contactsModalState.isModalOpen}
         onClose={contactsModalState.closeModal}

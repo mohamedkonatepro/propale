@@ -42,7 +42,7 @@ const ListContactsModal: React.FC<ListContactsModalProps> = ({ isOpen, onClose, 
       <div className="flex justify-between mb-4">
         <input
           type="text"
-          placeholder="Rechercher / Inviter un contact"
+          placeholder="Rechercher"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full p-2 border rounded-lg"
