@@ -6,6 +6,7 @@ import { Profile } from '@/types/models';
 import { GrFormEdit } from 'react-icons/gr';
 import Image from 'next/image';
 import { Switch } from '../common/Switch';
+import { ROLES } from '@/constants/roles';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface ContactModalProps {
 
 const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onSubmit, onRequestBack, defaultValues }) => {
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch} = useForm<Profile>();
+  setValue('role', ROLES.PROSPECT);
 
   useEffect(() => {
     if (defaultValues) {
@@ -28,6 +30,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onS
         position: '',
         email: '',
         phone: '',
+        role: ROLES.PROSPECT,
         is_primary_contact: false,
       });
     }
@@ -105,7 +108,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onS
             />
         </div>
         <div className="flex justify-center">
-          <button type="submit" disabled className="bg-gray-200 text-white rounded-xl px-4 py-2 mt-4">
+          <button type="submit" className="bg-blue-500 text-white rounded-xl px-4 py-2 mt-4">
             {defaultValues ? 'Modifier le contact' : 'Créer le contact'}
           </button>
         </div>

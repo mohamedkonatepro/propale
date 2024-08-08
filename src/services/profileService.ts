@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { Profile } from '@/types/models';
+import { createUser, sendPasswordResetEmail } from './userService';
 
 export const getUserDetails = async (): Promise<Profile | null> => {
   const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -102,7 +103,7 @@ export const fetchProfileCountByProfileId = async (profileId: string): Promise<n
   return count ?? 0;
 };
 
-export const updateUserProfile = async (data: Profile, userUpdatedId: string) => {
+export const updateUserProfile = async (data: Profile, userUpdatedId?: string) => {
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -112,6 +113,7 @@ export const updateUserProfile = async (data: Profile, userUpdatedId: string) =>
       phone: data.phone,
       role: data.role,
       blocked: data.blocked,
+      is_primary_contact: data.is_primary_contact || false,
       updated_by: userUpdatedId,
       updated_at: new Date().toISOString(),
     })
@@ -182,22 +184,59 @@ export const fetchContactByCompanyId = async (companyId: string): Promise<Profil
   }
 };
 
-export const createContact = async (contact: Profile): Promise<Profile> => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .insert(contact)
+export const createContact = async (contact: Profile, companyId: string): Promise<void> => {
+  if (contact.is_primary_contact) {
+    await ensureSinglePrimaryContact(companyId);
+  }
+
+  const user = await createUser(contact.email);
+  if (!user) throw new Error('Failed to create primary contact user');
+  
+  await sendPasswordResetEmail(contact.email);
+  // Créer le profil
+  await createProfile({...contact, userId: user.id });
+
+  // Associer le profil à l'entreprise
+  const { error: associationError } = await supabase
+    .from('companies_profiles')
+    .insert([{ company_id: companyId, profile_id: user.id }])
     .single();
 
-  if (error) throw error;
-  return data;
+  if (associationError) {
+    throw associationError;
+  }
 };
 
-export const updateContact = async (contact: Profile): Promise<void> => {
-  const { error } = await supabase
+export const updateContact = async (contact: Profile, companyId: string): Promise<void> => {
+  console.log(contact)
+  if (contact.is_primary_contact) {
+    await ensureSinglePrimaryContact(companyId);
+  }
+
+  await updateUserProfile(contact)
+};
+
+const ensureSinglePrimaryContact = async (companyId: string) => {
+  const { data, error } = await supabase
+    .from('companies_profiles')
+    .select('profile_id')
+    .eq('company_id', companyId);
+
+  if (error) {
+    console.error('Error fetching profiles for company:', error);
+    throw error;
+  }
+
+  const profileIds = data.map(cp => cp.profile_id);
+  
+  const { error: updateError } = await supabase
     .from('profiles')
-    .update(contact)
-    .eq('id', contact.id);
+    .update({ is_primary_contact: false })
+    .in('id', profileIds)
+    .eq('is_primary_contact', true);
 
-  if (error) throw error;
+  if (updateError) {
+    console.error('Error updating profiles:', updateError);
+    throw updateError;
+  }
 };
-
