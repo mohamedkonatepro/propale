@@ -65,14 +65,14 @@ const ListContactsModal: React.FC<ListContactsModalProps> = ({ isOpen, onClose, 
                   <p className="text-gray-500 text-sm">{contact.position}</p>
                 </div>
                 <div className="ml-4">
-                  <div className='flex items-center text-blue-600'>
+                  {contact.phone && <div className='flex items-center text-blue-600'>
                     <FiPhone />
                     <div className='ml-1'>{contact.phone}</div>
-                  </div>
-                  <div className='flex items-center text-blue-600'>
+                  </div>}
+                  {contact.email && <div className='flex items-center text-blue-600'>
                     <MdOutlineEmail />
                     <div className='ml-1'>{contact.email}</div>
-                  </div>
+                  </div>}
                 </div>
               </div>
             </div>

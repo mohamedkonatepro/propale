@@ -34,7 +34,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onS
         is_primary_contact: false,
       });
     }
-  }, [defaultValues, reset]);
+  }, [defaultValues, reset, isOpen]);
 
   return (
     <BaseModal isOpen={isOpen} onRequestClose={onRequestClose} title="Contact">

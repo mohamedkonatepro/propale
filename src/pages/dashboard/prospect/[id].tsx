@@ -63,7 +63,7 @@ const ProspectList: React.FC = () => {
       await addProspect(data);
     }
     prospectModalState.closeModal();
-    fetchData();
+    await fetchData();
   };
 
   const handleCreateFolder = async (data: Company) => {
@@ -80,7 +80,7 @@ const ProspectList: React.FC = () => {
     await removeProspect(selectedProspect.id);
     toast.success("Le prospect a bien été supprimé !");
     deleteModalState.closeModal();
-    fetchData();
+    await fetchData();
   };
 
   const handleMultipleDelete = async (selectedRows: Company[]) => {
@@ -89,7 +89,7 @@ const ProspectList: React.FC = () => {
       await removeProspect(prospect.id);
     }
     toast.success("Les prospects ont été supprimés !");
-    fetchData();
+    await fetchData();
   };
 
   const handleExportCsv = (selectedRows: Company[]) => {
@@ -114,9 +114,11 @@ const ProspectList: React.FC = () => {
  
   const saveContact = async (contact: Profile) => {
     if (selectedProspect) {
-      await addOrUpdateContact(contact, selectedProspect.id);
+      await addOrUpdateContact(contact, selectedProspect);
+      await getContacts(selectedProspect);
       addContactModalState.closeModal();
       contactsModalState.openModal();
+      await fetchData();
     }
   };
 

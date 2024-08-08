@@ -26,16 +26,16 @@ const useContacts = (companyId: string) => {
     }
   };
   
-  const addOrUpdateContact = async (contact: Profile, selectedCompanyId: string) => {
+  const addOrUpdateContact = async (contact: Profile, selectedCompany: Company) => {
     if (contact.id) {
-      await updateContact(contact, selectedCompanyId);
+      await updateContact(contact, selectedCompany.id);
       toast.success('Le contact à bien été modifié')
     } else {
-      await createContact(contact, selectedCompanyId);
+      await createContact(contact, selectedCompany.id);
       toast.success('Le contact à bien été ajouté')
 
     }
-    fetchContacts();
+    await fetchContacts();
   };
 
   const deleteContact = async (contactId: string) => {
