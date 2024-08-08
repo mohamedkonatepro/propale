@@ -19,7 +19,6 @@ const useContacts = (companyId: string) => {
   }, [fetchContacts]);
 
   const getContacts = async (data?: Company) => {
-    setContacts([]);
     if (data) {
       const companyContacts = await fetchProfilesWithUserDetails(data.id as string);
       setContactsByProspect(companyContacts ?? []);
@@ -40,7 +39,7 @@ const useContacts = (companyId: string) => {
 
   const deleteContact = async (contactId: string) => {
     await deleteUserAuth(contactId);
-    setContacts(contacts => contacts.filter(contact => contact.id !== contactId));
+    setContactsByProspect(contactsByProspect => contactsByProspect.filter(contact => contact.id !== contactId));
   };
 
   return {

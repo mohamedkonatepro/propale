@@ -8,9 +8,10 @@ interface ProfileAvatarGroupProps {
   profiles: Profile[];
   maxDisplay: number;
   onButtonClick: () => void;
+  text?: string;
 }
 
-const ProfileAvatarGroup: React.FC<ProfileAvatarGroupProps> = ({ profiles, maxDisplay, onButtonClick }) => {
+const ProfileAvatarGroup: React.FC<ProfileAvatarGroupProps> = ({ profiles, maxDisplay, onButtonClick, text}) => {
   const displayedProfiles = profiles.slice(0, maxDisplay);
   const overflowCount = profiles.length - maxDisplay;
 
@@ -38,7 +39,7 @@ const ProfileAvatarGroup: React.FC<ProfileAvatarGroupProps> = ({ profiles, maxDi
         className="h-7 rounded-full flex items-center justify-center text-blue-600 mx-1" 
         onClick={onButtonClick}
       >
-        {profiles.length === 0 ? 'Ajouter' : ''}
+        {profiles.length === 0 ? 'Ajouter' : text ? text : ''}
         <MdOutlineArrowForwardIos className='ml-1' />
       </button>
     </div>

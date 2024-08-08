@@ -15,6 +15,7 @@ import useModalState from '@/hooks/useModalState';
 import useContacts from '@/hooks/useContacts';
 import { CSVLink } from 'react-csv';
 import { GrFormEdit } from "react-icons/gr";
+import ProfileAvatarGroup from '@/components/common/ProfileAvatarGroup';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -144,7 +145,7 @@ const ProspectList: React.FC = () => {
   return (
     <div className="flex-1 p-6">
       <div className='flex flex-col'>
-        <div className="flex items-center mb-6">
+        <div className="flex justify-between items-center mb-6">
           <div className='flex flex-col'>
             <div className='flex items-center'>
               <h2 className="text-3xl font-bold mb-2 mr-2">{company?.name}</h2>
@@ -152,6 +153,10 @@ const ProspectList: React.FC = () => {
             </div>
             <p className='text-black'>{company?.activity_sector}</p>
             <p className='text-stone-400'>{company?.description}</p>
+          </div>
+
+          <div>
+            <ProfileAvatarGroup profiles={contacts} maxDisplay={3} onButtonClick={() => console.log('working in progress')} text="Partager" />
           </div>
         </div>
       </div>
