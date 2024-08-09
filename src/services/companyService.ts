@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
-import { Company, CompanyModalData } from '@/types/models';
+import { Company, CompanyModalData, Profile } from '@/types/models';
 import { createUser, sendPasswordResetEmail } from './userService';
-import { createProfile } from './profileService';
+import { createProfile, fetchProfilesWithUserDetails } from './profileService';
 import { associateProfileWithCompany } from './companyProfileService';
 import { ROLES } from '@/constants/roles';
 
@@ -316,4 +316,52 @@ export const deleteProspect = async (companyId: string): Promise<boolean> => {
   }
 
   return true;
+};
+
+
+export const fetchAndCategorizeProfiles = async (
+  childCompanyId: string
+): Promise<{ attachedProfiles: Profile[]; unattachedProfiles: Profile[] }> => {
+  try {
+    // Fetch the company and its top-most parent company
+    const company = await fetchCompanyById(childCompanyId);
+    if (!company) {
+      throw new Error(`Company with ID ${childCompanyId} not found.`);
+    }
+
+    let parentCompany;
+
+    if (company.company_id) {
+      parentCompany = await fetchCompanyById(company.company_id);
+    }
+    if (!parentCompany) {
+      throw new Error(`Parent company for company ID ${childCompanyId} not found.`);
+    }
+
+    // Fetch profiles for both parent and child companies
+    const [parentCompanyProfiles, childCompanyProfiles] = await Promise.all([
+      fetchProfilesWithUserDetails(parentCompany.id),
+      fetchProfilesWithUserDetails(childCompanyId)
+    ]);
+
+    // Create a set of profile IDs associated with the child company for fast look-up
+    const childCompanyProfileIds = new Set(childCompanyProfiles.map(profile => profile.id));
+
+    // Categorize profiles into attached and unattached
+    const attachedProfiles: Profile[] = [];
+    const unattachedProfiles: Profile[] = [];
+
+    parentCompanyProfiles.forEach(profile => {
+      if (childCompanyProfileIds.has(profile.id)) {
+        attachedProfiles.push(profile);
+      } else {
+        unattachedProfiles.push(profile);
+      }
+    });
+
+    return { attachedProfiles, unattachedProfiles };
+  } catch (error) {
+    console.error('Error in fetchAndCategorizeProfiles:', error);
+    throw error;
+  }
 };
