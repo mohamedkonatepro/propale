@@ -40,7 +40,9 @@ const MainInfoSection: React.FC<MainInfoSectionProps> = ({
         <div className="col-span-3">
           <label className="block text-sm font-medium text-labelGray">Numéro SIREN</label>
           <input
-            {...register('siren')}
+            {...register('siren', { 
+              setValueAs: (v: string) => v.replace(/\s/g, '')
+            })}
             className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.siren || messageAlertSiren ? 'border border-red-500' : ''}`}
             placeholder="123456789"
           />
@@ -52,7 +54,7 @@ const MainInfoSection: React.FC<MainInfoSectionProps> = ({
           <input
             {...register('ape_code')}
             value={watch('ape_code')}
-            className="mt-1 block w-full bg-backgroundGray rounded p-2"
+            className="mt-1 block w-full bg-gray-200 cursor-not-allowed rounded p-2"
             placeholder=""
             disabled
           />
@@ -63,7 +65,7 @@ const MainInfoSection: React.FC<MainInfoSectionProps> = ({
           <input
             {...register('activity_sector')}
             value={watch('activity_sector')}
-            className="mt-1 block w-full bg-backgroundGray rounded p-2"
+            className="mt-1 block w-full bg-gray-200 cursor-not-allowed rounded p-2"
             placeholder=""
             disabled
           />

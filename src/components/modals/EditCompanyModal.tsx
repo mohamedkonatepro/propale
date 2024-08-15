@@ -81,7 +81,10 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
             <div>
               <label className="block text-sm font-medium text-labelGray">Numéro SIREN</label>
               <input
-                {...register('siren', { value: defaultValues.siren })}
+                {...register('siren', { 
+                  value: defaultValues.siren,
+                  setValueAs: (v: string) => v.replace(/\s/g, '')
+                })}
                 className="mt-1 block w-full bg-backgroundGray rounded p-2"
                 placeholder="123456789"
               />
@@ -91,7 +94,7 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
               <label className="block text-sm font-medium text-labelGray">Code APE</label>
               <input
                 {...register('ape_code')}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                className="mt-1 block w-full bg-gray-200 cursor-not-allowed rounded p-2"
                 placeholder="9234A"
                 disabled
               />
@@ -101,7 +104,7 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
               <label className="block text-sm font-medium text-labelGray">Secteur d’activité</label>
               <input
                 {...register('activity_sector', { value: defaultValues.activity_sector })}
-                className="mt-1 block w-full bg-backgroundGray rounded p-2"
+                className="mt-1 block w-full bg-gray-200 cursor-not-allowed rounded p-2"
                 placeholder=""
                 disabled
               />

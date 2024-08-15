@@ -16,6 +16,8 @@ import useContacts from '@/hooks/useContacts';
 import { CSVLink } from 'react-csv';
 import { GrFormEdit } from "react-icons/gr";
 import ProfileAvatarGroup from '@/components/common/ProfileAvatarGroup';
+import ShareFolderModal from '@/components/modals/ShareFolderModal';
+import useProfileManagement from '@/hooks/useProfileManagement';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -38,13 +40,22 @@ const ProspectList: React.FC = () => {
     deleteContact,
     contactsByProspect,
     getContacts,
+    fetchContacts,
   } = useContacts(id as string);
+
+  const { 
+    availableUsers,
+    folderUsers,
+    deleteAssociateProfileAndCompany,
+    associateProfileAndCompany
+  } = useProfileManagement(id as string);
 
   const prospectModalState = useModalState();
   const deleteModalState = useModalState();
   const folderModalState = useModalState();
   const contactsModalState = useModalState();
   const addContactModalState = useModalState();
+  const shareFolderModalState = useModalState();
 
   const getCompanyData = useCallback(async () => {
     if (!user?.id || !id) return;
@@ -156,7 +167,7 @@ const ProspectList: React.FC = () => {
           </div>
 
           <div>
-            <ProfileAvatarGroup profiles={contacts} maxDisplay={3} onButtonClick={() => console.log('working in progress')} text="Partager" />
+            <ProfileAvatarGroup profiles={contacts} maxDisplay={3} onButtonClick={() => shareFolderModalState.openModal()} text="Partager" />
           </div>
         </div>
       </div>
@@ -182,6 +193,7 @@ const ProspectList: React.FC = () => {
           onSubmit={handleCreateFolder}
           defaultValues={company}
           role={user?.role}
+          companyId={id as string}
         />
       )}
       {company && (
@@ -207,6 +219,14 @@ const ProspectList: React.FC = () => {
         onAddContact={handleAddContact}
         onEditContact={handleEditContact}
         onDeleteContact={deleteContact}
+      />
+      <ShareFolderModal
+        isOpen={shareFolderModalState.isModalOpen}
+        onClose={() => { shareFolderModalState.closeModal(); fetchContacts(); }}
+        availableUsers={availableUsers}
+        folderUsers={folderUsers}
+        onAddUser={associateProfileAndCompany}
+        onRemoveUser={deleteAssociateProfileAndCompany}
       />
       {isMounted && (
         <CSVLink

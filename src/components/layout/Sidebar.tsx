@@ -103,7 +103,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
       <button onClick={toggleSidebar} className="self-end mb-4">
         {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
       </button>
-      <Link href="/" className="flex mb-6">
+      <Link href={isSuperAdmin ? '/dashboard' : `/dashboard/folders/${isProspect ? company?.company_id : company?.id}`} className="flex mb-6">
         <Image src="/logo.svg" alt="Propale" width={isCollapsed ? 30 : 40} height={isCollapsed ? 30 : 40} className="mr-2" />
         {!isCollapsed && <span className="text-2xl font-bold">Propale</span>}
       </Link>
@@ -119,14 +119,22 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
       <nav className="mt-6 w-full">
         {(company || isDashboardHome) && (
           <>
-            <NavigationLink
-              href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/folders/${isProspect ? company?.company_id : company?.id}`}
+            {isSuperAdmin && <NavigationLink
+              href={'/dashboard'}
+              icon={MdFolderOpen}
+              text="Clients"
+              onClick={() => setPage("folders")}
+              active={currentPage === "folders" && isDashboardHome}
+              isCollapsed={isCollapsed}
+            />}
+            {!isDashboardHome && <NavigationLink
+              href={`/dashboard/folders/${isProspect ? company?.company_id : company?.id}`}
               icon={MdFolderOpen}
               text="Mes dossiers"
               onClick={() => setPage("folders")}
-              active={currentPage === "folders"}
+              active={currentPage === "folders" && !isDashboardHome}
               isCollapsed={isCollapsed}
-            />
+            />}
             <NavigationLink
               href={isSuperAdmin && isDashboardHome ? '/dashboard' : `/dashboard/users/${isProspect ? company?.company_id : company?.id}`}
               icon={PiUsers}

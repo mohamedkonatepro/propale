@@ -15,6 +15,7 @@ import PrimaryContactSection from './section/PrimaryContactSection';
 import AdditionalContactsSection from './section/AdditionalContactsSection';
 import BaseModal from './BaseModal';
 import { z } from 'zod';
+import { checkSirenAndCompanyId } from '@/services/companyService';
 
 type AddProspectModalProps = {
   isOpen: boolean;
@@ -119,12 +120,9 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
 
   const onSubmitHandler = async (data: FormInputs) => {
     if (!defaultValues?.id) {
-      const { data: companyData } = await supabase
-        .from('company')
-        .select('siren')
-        .eq('siren', sirenValue);
+      const isValid = await checkSirenAndCompanyId(company.id, watch('siren'));
 
-      if (companyData && companyData.length > 0) {
+      if (!isValid) {
         setMessageAlertSiren('SIREN existe déjà');
         return;
       }
@@ -159,7 +157,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
       }
     }
     
-    await onSubmit({ ...data, status, heatLevel, companyId: company.id });
+    await onSubmit({ ...data, status, heat_level: heatLevel, companyId: company.id });
     setStatus(statuses[0].value);
     setHeatLevel(heatLevels[0].value);
     reset();

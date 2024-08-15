@@ -87,6 +87,7 @@ const Folders: React.FC = () => {
         onSubmit={handleCreateFolder}
         defaultValues={selectedFolder}
         role={user?.role}
+        companyId={id as string}
       />
       <ConfirmDeleteModal
         isOpen={isDeleteModalOpen}

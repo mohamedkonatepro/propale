@@ -21,7 +21,7 @@ const PrimaryContact: React.FC<PrimaryContactProps> = ({ companyId }) => {
   }, [companyId]);
 
   if (!profile) {
-    return <div>Loading...</div>;
+    return <div>Aucun</div>;
   }
 
   return (

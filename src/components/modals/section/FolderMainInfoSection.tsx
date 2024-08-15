@@ -24,7 +24,9 @@ const FolderMainInfoSection: React.FC<FolderMainInfoSectionProps> = ({ register,
       <div>
         <label className="block text-sm font-medium text-labelGray">SIRET</label>
         <input
-          {...register('siret')}
+          {...register('siret', {
+            setValueAs: (v: string) => v.replace(/\s/g, '')
+          })}
           className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.siret || messageAlertSiret ? 'border border-red-500' : ''}`}
           placeholder="983 067 737 00034"
         />

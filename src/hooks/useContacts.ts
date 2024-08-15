@@ -50,6 +50,7 @@ const useContacts = (companyId: string) => {
     deleteContact,
     contactsByProspect,
     getContacts,
+    fetchContacts,
   };
 };
 

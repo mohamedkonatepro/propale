@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { ROLES } from '../../constants/roles';
 import FolderMainInfoSection from './section/FolderMainInfoSection';
 import BaseModal from './BaseModal';
+import { checkSiretAndCompanyId, fetchCompanyById } from '@/services/companyService';
 
 type AddFolderModalProps = {
   isOpen: boolean;
@@ -16,9 +17,10 @@ type AddFolderModalProps = {
   onSubmit: (data: any) => Promise<void>;
   defaultValues?: FolderFormInputs | null;
   role?: string;
+  companyId: string;
 };
 
-const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues, role }) => {
+const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues, role, companyId }) => {
   const [messageAlertSiret, setMessageAlertSiret] = useState('');
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FolderFormInputs>({
     resolver: zodResolver(folderSchema),
@@ -76,13 +78,10 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
   }, [defaultValues, setValue]);
 
   const onSubmitHandler = async (data: FolderFormInputs) => {
-    const { data: companyData, error } = await supabase
-      .from('company')
-      .select('siret')
-      .eq('siret', watch('siret'));
+    const isValid = await checkSiretAndCompanyId(companyId, watch('siret'));
 
-    if (companyData && companyData.length > 0) {
-      setMessageAlertSiret('SIRET existe déjà');
+    if (!isValid) {
+      setMessageAlertSiret('Le SIRET existe déjà');
       return;
     }
     await onSubmit(data);
