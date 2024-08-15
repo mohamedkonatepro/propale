@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabaseClient';
 import PrimaryContactSection from './section/PrimaryContactSection';
 import CompanyMainInfoSection from './section/CompanyMainInfoSection';
 import BaseModal from './BaseModal';
+import { Button } from '../common/Button';
 
 type AddCompanyModalProps = {
   isOpen: boolean;
@@ -17,6 +18,7 @@ type AddCompanyModalProps = {
 };
 
 const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClose, onSubmit }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<CompanyFormInputs>({
     resolver: zodResolver(companySchema),
     defaultValues: {
@@ -27,6 +29,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
 
   const onSubmitHandler = async (data: CompanyFormInputs) => {
+    setIsLoading(true);
     const { data: companyData } = await supabase
       .from('company')
       .select('siren')
@@ -34,6 +37,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
 
     if (companyData && companyData.length > 0) {
       setMessageAlertSiren('SIREN existe déjà');
+      setIsLoading(false);
       return;
     }
 
@@ -44,12 +48,14 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
 
     if (profileFata && profileFata.length > 0) {
       setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+      setIsLoading(false);
       return;
     }
     await onSubmit(data);
     reset();
     setMessageAlertSiren('');
     setMessageAlertEmail('');
+    setIsLoading(false);
     onRequestClose();
   };
 
@@ -118,9 +124,9 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
           messageAlertEmail={messageAlertEmail}
         />
         <div className='flex justify-center'>
-          <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
+          <Button isLoading={isLoading} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
             Créer cette entreprise
-          </button>
+          </Button>
         </div>
       </form>
     </BaseModal>

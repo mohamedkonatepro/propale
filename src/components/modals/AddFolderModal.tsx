@@ -10,6 +10,7 @@ import { ROLES } from '../../constants/roles';
 import FolderMainInfoSection from './section/FolderMainInfoSection';
 import BaseModal from './BaseModal';
 import { checkSiretAndCompanyId, fetchCompanyById } from '@/services/companyService';
+import { Button } from '../common/Button';
 
 type AddFolderModalProps = {
   isOpen: boolean;
@@ -22,6 +23,7 @@ type AddFolderModalProps = {
 
 const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose, onSubmit, defaultValues, role, companyId }) => {
   const [messageAlertSiret, setMessageAlertSiret] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FolderFormInputs>({
     resolver: zodResolver(folderSchema),
     defaultValues: defaultValues || {}
@@ -78,14 +80,17 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
   }, [defaultValues, setValue]);
 
   const onSubmitHandler = async (data: FolderFormInputs) => {
+    setIsLoading(true);
     const isValid = await checkSiretAndCompanyId(companyId, watch('siret'));
 
     if (!isValid) {
       setMessageAlertSiret('Le SIRET existe déjà');
+      setIsLoading(false);
       return;
     }
     await onSubmit(data);
     reset();
+    setIsLoading(false);
   };
 
   const deleteFolder = async () => {
@@ -107,9 +112,9 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
           </button>
         )}
         <div className="flex justify-center">
-          <button type="submit" className="bg-blue-600 text-white rounded-xl px-4 py-2 mt-4">
+          <Button isLoading={isLoading} type="submit" className="bg-blue-600 text-white rounded-xl px-4 py-2 mt-4">
             {defaultValues ? 'Modifier le dossier' : 'Créer le dossier'}
-          </button>
+          </Button>
         </div>
       </form>
     </BaseModal>

@@ -16,6 +16,7 @@ import AdditionalContactsSection from './section/AdditionalContactsSection';
 import BaseModal from './BaseModal';
 import { z } from 'zod';
 import { checkSirenAndCompanyId } from '@/services/companyService';
+import { Button } from '../common/Button';
 
 type AddProspectModalProps = {
   isOpen: boolean;
@@ -47,6 +48,7 @@ const customStyles = {
 };
 
 const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company, defaultValues }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = useForm<FormInputs>({
     resolver: zodResolver(defaultValues?.id ? prospectSchema : companySchema.extend({
       additionalContacts: z.array(z.object({
@@ -119,11 +121,13 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   };
 
   const onSubmitHandler = async (data: FormInputs) => {
+    setIsLoading(true);
     if (!defaultValues?.id) {
       const isValid = await checkSirenAndCompanyId(company.id, watch('siren'));
 
       if (!isValid) {
         setMessageAlertSiren('SIREN existe déjà');
+        setIsLoading(false);
         return;
       }
 
@@ -134,6 +138,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
 
       if (profileData && profileData.length > 0) {
         setMessageAlertEmail('Un compte utilisateur existe déjà pour cette adresse mail.');
+        setIsLoading(false);
         return;
       }
 
@@ -143,6 +148,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
 
       if (uniqueAdditionalContactEmails.size !== additionalContactEmails.length) {
         setMessageAlertAdditionalEmails('Des emails en double existent parmi les contacts supplémentaires.');
+        setIsLoading(false);
         return;
       }
 
@@ -153,6 +159,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
 
       if (additionalProfileData && additionalProfileData.length > 0) {
         setMessageAlertAdditionalEmails('Certains contacts supplémentaires ont déjà des comptes utilisateurs.');
+        setIsLoading(false);
         return;
       }
     }
@@ -164,6 +171,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
     setMessageAlertAdditionalEmails('');
     setMessageAlertEmail('');
     setMessageAlertSiren('');
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -241,9 +249,9 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
           messageAlertAdditionalEmails={messageAlertAdditionalEmails}
         />
         <div className='flex justify-center'>
-          <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
+          <Button isLoading={isLoading} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
             {defaultValues?.id ? 'Modifier' : 'Créer'} le prospect
-          </button>
+          </Button>
         </div>
       </form>
     </BaseModal>

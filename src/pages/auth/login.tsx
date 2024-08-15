@@ -11,6 +11,7 @@ import { FcGoogle } from "react-icons/fc";
 import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
 import { ROLES } from '@/constants/roles';
 import { getUserDetails } from '@/services/profileService';
+import { Button } from '@/components/common/Button';
 
 type LoginFormInputs = {
   email: string;
@@ -20,34 +21,42 @@ type LoginFormInputs = {
 const Login = () => {
   const [message, setMessage] = useState(['']);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>({
     resolver: zodResolver(LoginSchema),
   });
 
   const handleLogin = async (data: LoginFormInputs) => {
+    setIsLoading(true);
     const { email, password } = data;
-    const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setMessage(['error', 'Adresse email ou mot de passe incorrects. Veuillez réessayer.']);
-    } else {
-      setMessage(['']);
-      if (user) {
-        const userDetails = await getUserDetails();
-        if (userDetails?.blocked) {
-          await supabase.auth.signOut();
-          router.push('/')
-          return
-        }
-        if (userDetails?.role === ROLES.SUPER_ADMIN) {
-          router.push('/dashboard')
-          return
-        }
-        const company = await fetchCompanyWithoutParentByProfileId(user?.id);
-        if (company) {
-          router.push(`/dashboard/folders/${company.id}`);
+    try {
+      const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setMessage(['error', 'Adresse email ou mot de passe incorrects. Veuillez réessayer.']);
+      } else {
+        setMessage(['']);
+        if (user) {
+          const userDetails = await getUserDetails();
+          if (userDetails?.blocked) {
+            await supabase.auth.signOut();
+            router.push('/');
+            return;
+          }
+          if (userDetails?.role === ROLES.SUPER_ADMIN) {
+            router.push('/dashboard');
+            return;
+          }
+          const company = await fetchCompanyWithoutParentByProfileId(user?.id);
+          if (company) {
+            router.push(`/dashboard/folders/${company.id}`);
+          }
         }
       }
+    } catch (error) {
+      setMessage(['error', 'Une erreur est survenue. Veuillez réessayer.']);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -98,12 +107,13 @@ const Login = () => {
               {errors.password && <p className="text-red-500 text-xs italic">{errors.password.message}</p>}
             </div>
             <div className="flex items-center justify-center">
-              <button
+              <Button
                 className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline w-64 rounded-lg"
                 type="submit"
+                isLoading={isLoading}
               >
                 Se connecter
-              </button>
+              </Button>
             </div>
           </form>
           <div className="my-4 w-full flex items-center">
@@ -111,13 +121,13 @@ const Login = () => {
             <span className="mx-2 text-gray-500">ou</span>
             <hr className="w-full border-gray-300" />
           </div>
-          <button
+          <Button
             className="bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-100 rounded shadow w-full flex items-center justify-center"
             type="button"
             onClick={handleGoogleLogin}
           >
             <FcGoogle size={24} className="mr-2" /> Se connecter avec Google
-          </button>
+          </Button>
 
           <div className="mt-auto">
             <SocialLinks />
