@@ -20,8 +20,8 @@ interface CustomDropdownProps {
 const colorClasses = {
   blue: {
     bg: 'bg-blue-100',
-    text: 'text-blue-600',
-    border: 'border-blue-600',
+    text: 'text-blueCustom',
+    border: 'border-blueCustom',
   },
   orange: {
     bg: 'bg-orange-100',
@@ -85,7 +85,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, label, selecte
         {selectedOption.icon && <selectedOption.icon className="ml-2" />}
       </div>
       {isOpen && (
-        <ul className="absolute z-10 bg-white border border-blue-600 rounded-lg mt-2 w-full">
+        <ul className="absolute z-10 bg-white border border-blueCustom rounded-lg mt-2 w-full">
           {options.map((option) => (
             <li key={option.value} onClick={() => handleOptionClick(option)} className="px-5 py-1 cursor-pointer hover:bg-blue-100 w-full">
               <div className="text-sm flex items-center justify-between">

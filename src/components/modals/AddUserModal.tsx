@@ -130,7 +130,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
         </div>
         <div className="flex flex-col justify-center">
           <div className="flex justify-center">
-            <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4 w-1/4">
+            <button type="submit" className="bg-blueCustom text-white rounded px-4 py-2 mt-4 w-1/4">
               Créer
             </button>
           </div>

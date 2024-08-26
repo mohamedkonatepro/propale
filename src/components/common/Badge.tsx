@@ -10,8 +10,8 @@ type BadgeProps = {
 const colorClasses = {
   blue: {
     bg: 'bg-blue-100',
-    text: 'text-blue-600',
-    border: 'border-blue-600',
+    text: 'text-blueCustom',
+    border: 'border-blueCustom',
   },
   orange: {
     bg: 'bg-orange-100',

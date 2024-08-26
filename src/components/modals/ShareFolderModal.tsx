@@ -47,7 +47,7 @@ const ShareFolderModal: React.FC<ShareFolderModalProps> = ({ isOpen, onClose, av
             {filteredUsers.map((user) => (
               <div key={user.id} className="flex items-center justify-between p-3 border-b bg-white border rounded-lg mt-1">
                 <div className='flex items-center'>
-                <div className="shadow-2xl w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 text-blue-600 text-xs shadow-custom-left mr-3">
+                <div className="shadow-2xl w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 text-blueCustom text-xs shadow-custom-left mr-3">
                   {getInitials(user.firstname, user.lastname)}
                 </div>
                   <p className="font-bold">{user.firstname} {user.lastname}</p>
@@ -56,7 +56,7 @@ const ShareFolderModal: React.FC<ShareFolderModalProps> = ({ isOpen, onClose, av
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
-                    className="text-blue-600"
+                    className="text-blueCustom"
                     onClick={() => onAddUser(user.id)}
                   >
                     Ajouter
@@ -73,11 +73,11 @@ const ShareFolderModal: React.FC<ShareFolderModalProps> = ({ isOpen, onClose, av
               <div key={user.id} className="flex items-center justify-between p-3 border-b bg-white border rounded-lg mt-1">
                 <div className='flex items-center'>
                   {/* <Image src={user.avatarUrl} alt="avatar" width={40} height={40} className="w-10 h-10 rounded-full" /> */}
-                  <div className="shadow-2xl w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 text-blue-600 text-xs shadow-custom-left">
+                  <div className="shadow-2xl w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 text-blueCustom text-xs shadow-custom-left">
                     {getInitials(user.firstname, user.lastname)}
                   </div>
                   <div>
-                  {user.is_primary_contact && <div className="ml-4 w-fit px-2 py-1 text-xs bg-blue-100 text-black border border-blue-600 rounded-full">Contact principal</div>}
+                  {user.is_primary_contact && <div className="ml-4 w-fit px-2 py-1 text-xs bg-blue-100 text-black border border-blueCustom rounded-full">Contact principal</div>}
 
                     <div className="ml-4 flex items-center ">
                       <p className="font-bold">{user.firstname} {user.lastname}</p>
@@ -85,11 +85,11 @@ const ShareFolderModal: React.FC<ShareFolderModalProps> = ({ isOpen, onClose, av
                       <p className="text-gray-500 text-sm">{user.position}</p>
                     </div>
                     <div className="ml-4">
-                      {user.phone && <div className='flex items-center text-blue-600'>
+                      {user.phone && <div className='flex items-center text-blueCustom'>
                         <FiPhone />
                         <div className='ml-1'>{user.phone}</div>
                       </div>}
-                      {user.email && <div className='flex items-center text-blue-600'>
+                      {user.email && <div className='flex items-center text-blueCustom'>
                         <MdOutlineEmail />
                         <div className='ml-1'>{user.email}</div>
                       </div>}

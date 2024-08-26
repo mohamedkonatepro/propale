@@ -249,7 +249,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
           messageAlertAdditionalEmails={messageAlertAdditionalEmails}
         />
         <div className='flex justify-center'>
-          <Button isLoading={isLoading} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
+          <Button isLoading={isLoading} type="submit" className="bg-blueCustom text-white rounded px-4 py-2 mt-4">
             {defaultValues?.id ? 'Modifier' : 'Créer'} le prospect
           </Button>
         </div>

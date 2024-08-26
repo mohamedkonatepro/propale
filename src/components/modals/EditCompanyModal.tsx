@@ -113,7 +113,7 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
           </div>
         </div>
         <div className='flex justify-center'>
-          <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 mt-4">
+          <button type="submit" className="bg-blueCustom text-white rounded px-4 py-2 mt-4">
             Modifier cette entreprise
           </button>
         </div>

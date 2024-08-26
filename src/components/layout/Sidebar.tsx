@@ -163,10 +163,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
 
 const NavigationLink: React.FC<NavigationLinkProps> = ({ href, icon: Icon, text, active = false, count, isCollapsed, onClick }) => {
   return (
-    <Link href={href} className={`flex items-center ${isCollapsed ? 'p-2' : 'p-3'} rounded-md w-full ${active ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:bg-gray-100'}`} onClick={onClick}>
+    <Link href={href} className={`flex items-center ${isCollapsed ? 'p-2' : 'p-3'} rounded-md w-full ${active ? 'bg-blue-100 text-blueCustom' : 'text-gray-400 hover:bg-gray-100'}`} onClick={onClick}>
       <div><Icon className="mr-3" size="30" /></div>
       {!isCollapsed && <span className="flex-1">{text}</span>}
-      {!isCollapsed && count && <span className={`text-sm ${active ? 'bg-blue-600' : 'bg-gray-400'} rounded-md px-2 py-0.5 text-white`}>{count}</span>}
+      {!isCollapsed && count && <span className={`text-sm ${active ? 'bg-blueCustom' : 'bg-gray-400'} rounded-md px-2 py-0.5 text-white`}>{count}</span>}
     </Link>
   );
 };

@@ -52,7 +52,7 @@ const ListContactsModal: React.FC<ListContactsModalProps> = ({ isOpen, onClose, 
     <BaseModal isOpen={isOpen} onRequestClose={onClose} title="Contact">
       <div className="flex justify-end mb-4">
         <button
-          className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-md ml-4"
+          className="flex items-center bg-blueCustom text-white px-4 py-2 rounded-md ml-4"
           onClick={onAddContact}
         >
           Nouveau contact
@@ -72,22 +72,22 @@ const ListContactsModal: React.FC<ListContactsModalProps> = ({ isOpen, onClose, 
         {filteredContacts.map(contact => (
           <div key={contact.id} className="flex items-center justify-between p-3 border-b bg-white border rounded-lg mt-1">
             <div className='flex items-center'>
-              <div className="shadow-2xl w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 text-blue-600 text-xs shadow-custom-left">
+              <div className="shadow-2xl w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 text-blueCustom text-xs shadow-custom-left">
                 {getInitials(contact.firstname, contact.lastname)}
               </div>
               <div>
-                {contact.is_primary_contact && <div className="ml-4 w-fit px-2 py-1 text-xs bg-blue-100 text-black border border-blue-600 rounded-full">Contact principal</div>}
+                {contact.is_primary_contact && <div className="ml-4 w-fit px-2 py-1 text-xs bg-blue-100 text-black border border-blueCustom rounded-full">Contact principal</div>}
                 <div className="ml-4 flex items-center ">
                   <p className="font-bold">{contact.firstname} {contact.lastname}</p>
                   <RxDividerVertical className="h-full" />
                   <p className="text-gray-500 text-sm">{contact.position}</p>
                 </div>
                 <div className="ml-4">
-                  {contact.phone && <div className='flex items-center text-blue-600'>
+                  {contact.phone && <div className='flex items-center text-blueCustom'>
                     <FiPhone />
                     <div className='ml-1'>{contact.phone}</div>
                   </div>}
-                  {contact.email && <div className='flex items-center text-blue-600'>
+                  {contact.email && <div className='flex items-center text-blueCustom'>
                     <MdOutlineEmail />
                     <div className='ml-1'>{contact.email}</div>
                   </div>}
@@ -95,7 +95,7 @@ const ListContactsModal: React.FC<ListContactsModalProps> = ({ isOpen, onClose, 
               </div>
             </div>
             <div className="flex items-center">
-              <FaPen className="text-blue-500 cursor-pointer mr-2" onClick={() => onEditContact(contact.id)} />
+              <FaPen className="text-blueCustom cursor-pointer mr-2" onClick={() => onEditContact(contact.id)} />
               <FaRegTrashAlt className="text-red-500 cursor-pointer ml-2" onClick={() => handleDeleteClick(contact)} />
             </div>
           </div>

@@ -28,11 +28,11 @@ const PrimaryContact: React.FC<PrimaryContactProps> = ({ companyId }) => {
     <div className='flex flex-col text-xs'>
       <div className='text-sm'>{profile.firstname} {profile.lastname}</div>
       <div className='text-stone-400'>{profile.position}</div>
-      {profile.phone && <div className='flex items-center text-blue-600'>
+      {profile.phone && <div className='flex items-center text-blueCustom'>
         <FiPhone />
         <div className='ml-1'>{profile.phone}</div>
       </div>}
-      {profile.email && <div className='flex items-center text-blue-600'>
+      {profile.email && <div className='flex items-center text-blueCustom'>
         <MdOutlineEmail />
         <div className='ml-1'>{profile.email}</div>
       </div>}

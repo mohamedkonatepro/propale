@@ -206,7 +206,7 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
       ),
       cell: ({ row }) => (
         <button 
-          className="text-sm flex items-center justify-center text-white bg-blue-600 py-2 px-2 rounded-lg"
+          className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg"
           onClick={() => console.log(row.original)}
         >
           {"Démarrer l'audit"}

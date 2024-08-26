@@ -104,7 +104,7 @@ const AdditionalContactsSection: React.FC<AdditionalContactsSectionProps> = ({
       <button
         onClick={() => append({ firstname: '', lastname: '', position: '', email: '', phone: '', role: ROLES.PROSPECT })}
         type="button"
-        className="text-blue-500 mt-4"
+        className="text-blueCustom mt-4"
       >
         + Ajouter un contact
       </button>

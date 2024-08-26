@@ -95,7 +95,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
             id: "manage_folders",
             enableHiding: false,
             cell: ({ row }: any) => (
-              <button onClick={() => openManageAccessModal(row.original)} className="flex items-center text-blue-500 border border-2 border-blue-500 p-2 rounded-lg shadow-md hover:bg-blue-100">
+              <button onClick={() => openManageAccessModal(row.original)} className="flex items-center text-blueCustom border border-2 border-blueCustom p-2 rounded-lg shadow-md hover:bg-blue-100">
                 Gérer les dossiers
                 <MdFolderOpen className="ml-2" size="25" />
               </button>

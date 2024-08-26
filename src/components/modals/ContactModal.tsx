@@ -39,7 +39,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onS
   return (
     <BaseModal isOpen={isOpen} onRequestClose={onRequestClose} title="Contact">
       <div className='flex items-center fixed top-6 left-3 cursor-pointer' onClick={onRequestBack}>
-        <FaArrowLeft className='text-blue-600' /> <div className='ml-2 text-blue-600'>Retour</div>
+        <FaArrowLeft className='text-blueCustom' /> <div className='ml-2 text-blueCustom'>Retour</div>
       </div>
       <div className="flex flex-col items-center mb-4 mt-5">
         <div className="relative">
@@ -47,7 +47,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onS
             <Image src="/image-to-upload.svg" alt="User" width={20} height={20} className="mr-5 bg-blue-100 w-full" />
           </div>
           <button className="absolute top-0 right-0 bg-white rounded-lg">
-            <GrFormEdit className="text-blue-500" size={30} />
+            <GrFormEdit className="text-blueCustom" size={30} />
           </button>
         </div>
       </div>
@@ -108,7 +108,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onS
             />
         </div>
         <div className="flex justify-center">
-          <button type="submit" className="bg-blue-500 text-white rounded-xl px-4 py-2 mt-4">
+          <button type="submit" className="bg-blueCustom text-white rounded-xl px-4 py-2 mt-4">
             {defaultValues ? 'Modifier le contact' : 'Créer le contact'}
           </button>
         </div>

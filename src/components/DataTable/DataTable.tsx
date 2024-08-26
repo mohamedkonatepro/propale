@@ -94,7 +94,7 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
           />}
           {onAddButtonClick && user?.role !== ROLES.SALES && (
             <button
-              className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+              className="flex items-center bg-blueCustom text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
               onClick={onAddButtonClick}
             >
               {addButtonLabel}
@@ -129,11 +129,11 @@ export function DataTable<T>({ data, columns, placeholder = "Recherche", addButt
             {table.getFilteredSelectedRowModel().rows.length} sélectionnées
           </div>
           <RxDividerVertical className="h-full" />
-          <div className="text-blue-600 flex p-1 items-center cursor-pointer" onClick={handleMultipleDeleteClick}>
+          <div className="text-blueCustom flex p-1 items-center cursor-pointer" onClick={handleMultipleDeleteClick}>
             Supprimer <FaRegTrashAlt className="ml-1" />
           </div>
           <RxDividerVertical className="h-full" />
-          <div className="text-blue-600 flex p-1 items-center cursor-pointer" onClick={handleMultipleDownloadClick}>
+          <div className="text-blueCustom flex p-1 items-center cursor-pointer" onClick={handleMultipleDownloadClick}>
             Télécharger <MdOutlineFileDownload className="ml-1" />
           </div>
         </div>

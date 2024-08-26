@@ -75,7 +75,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       </div>
       <div className="flex justify-center items-center pb-2 mb-4">
         <h2 className="text-xl font-semibold">Informations utilisateur</h2> 
-        {!edit && <button type="button" className="text-sm text-blue-600 flex ml-2" onClick={() => setEdit(true)}><GrFormEdit className="text-blue-600" size={25} /> <div className='mt-1'>Modifier</div></button> }
+        {!edit && <button type="button" className="text-sm text-blueCustom flex ml-2" onClick={() => setEdit(true)}><GrFormEdit className="text-blueCustom" size={25} /> <div className='mt-1'>Modifier</div></button> }
       </div>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
       <div className='flex'>
@@ -85,7 +85,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               <Image src="/image-to-upload.svg" alt="User" width={30} height={30} className="mr-5 bg-blue-100 w-full" />
             </div>
             {edit && <button className="absolute top-0 right-0 bg-white rounded-lg">
-              <GrFormEdit className="text-blue-500" size={30} />
+              <GrFormEdit className="text-blueCustom" size={30} />
             </button>}
           </div>
           <h3 className="text-lg font-bold mt-4">{defaultValues.firstname} {defaultValues.lastname}</h3>
@@ -197,10 +197,10 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             />
           </div>
           <div className="mt-4 text-center">
-            <button type="button" className="text-sm text-blue-600" onClick={handleResetPassword}>Envoyer un lien de réinitialisation de mot de passe</button>
+            <button type="button" className="text-sm text-blueCustom" onClick={handleResetPassword}>Envoyer un lien de réinitialisation de mot de passe</button>
           </div>
           {edit && <div className="flex mt-4">
-            <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2">
+            <button type="submit" className="bg-blueCustom text-white rounded px-4 py-2">
               Enregistrer
             </button>
           </div>}

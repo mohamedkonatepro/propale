@@ -23,20 +23,20 @@ const ProfileAvatarGroup: React.FC<ProfileAvatarGroupProps> = ({ profiles, maxDi
             {profile.blocked ? (
               <Image src="/avatar.svg" alt={`${profile.firstname} ${profile.lastname}`} layout="fill" objectFit="cover" />
             ) : (
-              <div className="shadow-2xl w-full h-full flex items-center justify-center bg-blue-200 text-blue-600 text-xs shadow-custom-left">
+              <div className="shadow-2xl w-full h-full flex items-center justify-center bg-blue-200 text-blueCustom text-xs shadow-custom-left">
                 {getInitials(profile.firstname, profile.lastname)}
               </div>
             )}
           </div>
         ))}
         {overflowCount > 0 && (
-          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-white text-blue-600 text-xs shadow-custom-left">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center bg-white text-blueCustom text-xs shadow-custom-left">
             +{overflowCount}
           </div>
         )}
       </div>
       <button 
-        className="h-7 rounded-full flex items-center justify-center text-blue-600 mx-1" 
+        className="h-7 rounded-full flex items-center justify-center text-blueCustom mx-1" 
         onClick={onButtonClick}
       >
         {profiles.length === 0 ? 'Ajouter' : text ? text : ''}

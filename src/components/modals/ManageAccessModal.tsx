@@ -80,7 +80,7 @@ const ManageAccessModal: React.FC<ManageAccessModalProps> = ({ isOpen, onClose, 
       </div>
       <div className="mt-4 flex justify-center">
         <button
-          className="bg-blue-600 text-white px-4 py-2 rounded-md"
+          className="bg-blueCustom text-white px-4 py-2 rounded-md"
           onClick={handleSave}
         >
           Enregistrer

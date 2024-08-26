@@ -86,7 +86,7 @@ const FoldersTable: React.FC<FoldersTableProps> = ({
       enableHiding: false,
       cell: ({ row }) => (
         <button 
-          className="flex items-center text-blue-500 border border-2 border-blue-500 py-2 px-4 rounded-lg shadow-md hover:bg-blue-100"
+          className="flex items-center text-blueCustom border border-2 border-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blue-100"
           onClick={() => openProspectModal(row.original)}
         >
           Nouveau prospect

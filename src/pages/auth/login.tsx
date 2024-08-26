@@ -96,7 +96,7 @@ const Login = () => {
             <div className="mb-6">
               <div className='flex justify-between'>
                 <label className="block text-gray-700 text-sm font-bold mb-2">Mot de passe</label>
-                <a href="#" className="text-sm text-blue-500" onClick={navigateToForgotPassword}>Mot de passe oublié ?</a>
+                <a href="#" className="text-sm text-blueCustom" onClick={navigateToForgotPassword}>Mot de passe oublié ?</a>
               </div>
               <input
                 type="password"
@@ -108,7 +108,7 @@ const Login = () => {
             </div>
             <div className="flex items-center justify-center">
               <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline w-64 rounded-lg"
+                className="bg-blueCustom hover:bg-blue-700 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline w-64 rounded-lg"
                 type="submit"
                 isLoading={isLoading}
               >
