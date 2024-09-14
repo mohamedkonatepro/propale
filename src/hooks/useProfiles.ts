@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Profile } from '@/types/models';
-import { fetchProfilesWithUserDetails, updateUserProfile, createProfile, fetchProfileCountByProfileId } from '@/services/profileService';
+import { fetchProfilesWithUserDetails, updateUserProfile, createProfile, fetchProfileCountByProfileId, countProfilesByCompanyId } from '@/services/profileService';
 import { createUser, sendPasswordResetEmail } from '@/services/userService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
 import { toast } from 'react-toastify';
 import { UserFormInputs } from '@/schemas/user';
+import { fetchCompanySettings } from '@/services/companySettingsService';
 
 const useProfiles = (companyId: string, search: string) => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -46,6 +47,17 @@ const useProfiles = (companyId: string, search: string) => {
 
   const createNewUser = async (formInputs: UserFormInputs, companyId: string) => {
     try {
+      const currentUserCount = await countProfilesByCompanyId(companyId);
+      const settings = await fetchCompanySettings(companyId);
+
+      if (!settings) {
+        throw new Error("Impossible de récupérer les paramètres de l'entreprise");
+      }
+    
+      if (currentUserCount >= settings.users_allowed) {
+        throw new Error("Le nombre maximum d'utilisateurs autorisés a été atteint");
+      }
+      
       const user = await createUser(formInputs.email, formInputs.password);
       if (!user) throw new Error('Failed to create user');
 
@@ -58,7 +70,12 @@ const useProfiles = (companyId: string, search: string) => {
 
       await sendPasswordResetEmail(formInputs.email);
       toast.success(`${profileData.firstname} ${profileData.lastname} à bien été ajouté·e à la liste. Un email de confirmation à été envoyé à l'adresse indiquée.`);
-    } catch (err) {
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Une erreur est survenue lors de la création de l'utilisateur");
+      }
       setError('Erreur lors de la création de l\'utilisateur.');
     }
   };

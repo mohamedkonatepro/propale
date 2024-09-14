@@ -69,3 +69,49 @@ export type CompanyModalData = {
   role?: string;
   additionalContacts?: Contact[];
 };
+
+export type QuestionType = 'YesNo' | 'Dropdown' | 'DateRange' | 'FreeText';
+
+export interface Product {
+  id?: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
+
+export interface Workflow {
+  id?: string;
+  name: string;
+  products: Product[];
+  questions: Question[];
+}
+
+export interface CompanySettings {
+  company_id: string;
+  workflows_allowed: number;
+  users_allowed: number;
+  contacts_per_prospect: number;
+  folders_allowed: number;
+  vision_canevas: boolean;
+  vision_audit: boolean;
+  composition_workflow: boolean;
+  license_type: 'individual' | 'enterprise';
+  is_account_disabled: boolean;
+  workflow?: Workflow;
+}
+
+export interface DropdownValue {
+  id?: string;
+  question_id: string;
+  value: string;
+}
+
+export interface Question {
+  id?: string;
+  text: string;
+  type: 'YesNo' | 'Dropdown' | 'DateRange' | 'FreeText';
+  dropdownValues?: DropdownValue[];
+  mapping?: {
+    [key: string]: string;
+  };
+}

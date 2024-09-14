@@ -14,6 +14,9 @@ import { useUser } from '@/context/userContext';
 import { fetchProfileCountByCompanyId, updateUserProfile } from '@/services/profileService';
 import { useRouter } from 'next/router';
 import EditUserModal from '../modals/EditUserModal';
+import { HiOutlineBuildingOffice } from "react-icons/hi2";
+import { supabase } from '@/lib/supabaseClient';
+import { HiMiniArrowLeftStartOnRectangle } from "react-icons/hi2";
 
 interface SidebarProps {
   currentPage: string;
@@ -44,6 +47,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
 
   const isProspect = router.pathname.startsWith('/dashboard/prospect');
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+  
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -121,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
           <>
             {isSuperAdmin && <NavigationLink
               href={'/dashboard'}
-              icon={MdFolderOpen}
+              icon={HiOutlineBuildingOffice}
               text="Clients"
               onClick={() => setPage("folders")}
               active={currentPage === "folders" && isDashboardHome}
@@ -147,16 +155,28 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
           </>
         )}
       </nav>
-      {isSuperAdmin && !isDashboardHome && <div className="mt-auto w-full">
-        <NavigationLink
-          href="/parametres"
+      <div className="mt-auto w-full">
+      {isSuperAdmin && !isDashboardHome && <NavigationLink
+          href={`/dashboard/settings/${isProspect ? company?.company_id : company?.id}`}
           icon={SlSettings}
           text="Paramètres"
           onClick={() => setPage("settings")}
           active={currentPage === "settings"}
           isCollapsed={isCollapsed}
-        />
-      </div>}
+        />}
+
+        <div className='flex ml-3 cursor-pointer' onClick={handleLogout}>
+          <div className='flex pt-5 mr-2'> 
+            <HiMiniArrowLeftStartOnRectangle className='text-red-500' size={25}/>
+          </div>
+          <div className='flex'>
+            <label className="mt-5 block text-base text-red-500 cursor-pointer">
+              Se déconnecter
+            </label>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

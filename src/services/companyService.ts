@@ -421,3 +421,47 @@ export const checkSirenAndCompanyId = async (companyId: string, siren: string) =
 
   return true;
 };
+
+export const countCompaniesByParentId = async (parentId: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from('company')
+    .select('id', { count: 'exact' })
+    .eq('company_id', parentId);
+
+  if (error) {
+    console.error('Error counting companies:', error);
+    return 0;
+  }
+
+  return count ?? 0;
+};
+
+export const countAllProspectsByCompanyId = async (companyId: string): Promise<number> => {
+  // First, get all child companies
+  const { data: childCompanies, error: childError } = await supabase
+    .from('company')
+    .select('id')
+    .eq('company_id', companyId);
+
+  if (childError) {
+    console.error('Error fetching child companies:', childError);
+    return 0;
+  }
+
+  // Include the parent company ID in the list
+  const allCompanyIds = [companyId, ...childCompanies.map(c => c.id)];
+
+  // Now count all prospects for these companies
+  const { count, error } = await supabase
+    .from('company')
+    .select('id', { count: 'exact' })
+    .in('company_id', allCompanyIds)
+    .eq('type', 'prospect');
+
+  if (error) {
+    console.error('Error counting prospects:', error);
+    return 0;
+  }
+
+  return count ?? 0;
+};

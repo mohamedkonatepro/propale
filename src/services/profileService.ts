@@ -240,3 +240,17 @@ const ensureSinglePrimaryContact = async (companyId: string) => {
     throw updateError;
   }
 };
+
+export const countProfilesByCompanyId = async (companyId: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from('companies_profiles')
+    .select('profile_id', { count: 'exact' })
+    .eq('company_id', companyId);
+
+  if (error) {
+    console.error('Error counting profiles:', error);
+    return 0;
+  }
+
+  return count ?? 0;
+};

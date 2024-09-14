@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Company } from '@/types/models';
-import { fetchCompanyById, updateCompany, createCompany, createProspect } from '@/services/companyService';
+import { fetchCompanyById, updateCompany, createCompany, createProspect, countCompaniesByParentId } from '@/services/companyService';
 import { toast } from 'react-toastify';
+import { fetchCompanySettings } from '@/services/companySettingsService';
 
 const useCompanyData = (companyId: string) => {
   const [company, setCompany] = useState<Company | null>(null);
@@ -35,9 +36,24 @@ const useCompanyData = (companyId: string) => {
 
   const createNewCompany = async (data: any) => {
     try {
+      const currentFolderCount = await countCompaniesByParentId(data.companyId);
+      const settings = await fetchCompanySettings(data.companyId);
+    
+      if (!settings) {
+        throw new Error("Impossible de récupérer les paramètres de l'entreprise parente");
+      }
+    
+      if (currentFolderCount >= settings.folders_allowed) {
+        throw new Error("Le nombre maximum de dossiers autorisés a été atteint");
+      }
       await createCompany(data);
       toast.success(`${data.name} à bien été ajouté à la liste.`);
-    } catch (err) {
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Une erreur est survenue lors de la création du dossier");
+      }
       setError('Erreur lors de la création de l\'entreprise.');
     }
   };
