@@ -163,7 +163,7 @@ async function updateWorkflowProducts(workflowId: string, newProducts: Product[]
 
   // Deal with each new product
   for (const product of newProducts) {
-    const productId = product.id ?? uuidv4();
+    const productId = product.id;
     const { error: productError } = await supabase
       .from('products')
       .upsert({

@@ -19,6 +19,7 @@ interface RenderQuestionContentProps {
   storeAnswer: (question: Question, answer: string | string[], products: DbProduct[]) => void;
   currentAnswer: string | string[] | undefined;
   finish: boolean;
+  companyId: string;
 }
 
 const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({ 
@@ -28,7 +29,8 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
   responses,
   storeAnswer,
   currentAnswer,
-  finish
+  finish,
+  companyId
 }) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
@@ -143,7 +145,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
           <div className='flex flex-col justify-center items-center'>
             <h4 className="text-xl font-semibold mb-4">{'Félicitations, vous avez terminé l’audit !'}</h4>
             <div className='pl-10'>
-              <Link href={`/dashboard`}>
+              <Link href={`/client-portal/audit/${companyId}`}>
                 <Button className="flex items-center text-white border border-2 bg-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blue-600">
                   Consulter le résultat
                   <FaArrowRight className="ml-2" />

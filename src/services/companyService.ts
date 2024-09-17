@@ -21,6 +21,15 @@ export const fetchCompanyById = async (companyId: string): Promise<Company | nul
   return data;
 };
 
+export const fetchTopMostParentCompanyCompanyById = async (companyId: string): Promise<Company | null> => {
+  const company = await fetchCompanyById(companyId);
+  if (company) {
+    const topMostParentCompany = await findTopMostParentCompany(company);
+    return topMostParentCompany;
+  }
+  return company;
+};
+
 // Recursively find the top-most parent company without a company_id
 const findTopMostParentCompany = async (company: Company): Promise<Company> => {
   if (!company.company_id) {
@@ -464,4 +473,49 @@ export const countAllProspectsByCompanyId = async (companyId: string): Promise<n
   }
 
   return count ?? 0;
+};
+
+export const fetchProspectByUserId = async (userId: string): Promise<Company | null> => {
+  try {
+    // Step 1: Find the company associated with the profile
+    const { data: companyProfile, error: companyProfileError } = await supabase
+      .from('companies_profiles')
+      .select('company_id')
+      .eq('profile_id', userId)
+      .single();
+
+    if (companyProfileError) {
+      console.error('Erreur lors de la récupération de la relation company-profile:', companyProfileError);
+      return null;
+    }
+
+    if (!companyProfile) {
+      console.log('Aucune société associée à ce profil');
+      return null;
+    }
+
+    // Step 2: Retrieve Company Details
+    const { data: company, error: companyError } = await supabase
+      .from('company')
+      .select('*')
+      .eq('id', companyProfile.company_id)
+      .eq('type', ROLES.PROSPECT)
+      .single();
+
+    if (companyError) {
+      console.error('Erreur lors de la récupération de la société:', companyError);
+      return null;
+    }
+
+    if (!company) {
+      console.log('Aucune société prospect trouvée pour cet utilisateur');
+      return null;
+    }
+
+    return company;
+
+  } catch (error) {
+    console.error('Erreur inattendue lors de la récupération du prospect:', error);
+    return null;
+  }
 };

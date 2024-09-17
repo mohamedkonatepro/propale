@@ -38,7 +38,6 @@ const useContacts = (companyId: string) => {
         toast.success('Le contact a bien été modifié');
       } else {
         const currentContactCount = await countProfilesByCompanyId(selectedCompany.id);
-        console.log(currentContactCount, company?.company_id)
         if (company?.company_id) {
           const settings = await fetchCompanySettings(company.company_id);
           

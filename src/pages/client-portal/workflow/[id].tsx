@@ -8,10 +8,9 @@ import { useRouter } from 'next/router';
 import { Company, Question } from '@/types/models';
 import { GetServerSideProps } from 'next';
 import { getStepperSession, saveStepperSession } from '@/services/stepperService';
-import { fetchCompanyById } from '@/services/companyService';
+import { fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
 import { IoIosArrowBack } from "react-icons/io";
 import { useUser } from '@/context/userContext';
-import { Profile } from '@/types/models';
 
 interface StepperPageProps {
   companySettings: DbCompanySettings | null;
@@ -47,13 +46,12 @@ const StepperPage: React.FC = () => {
 
     setLoading(true);
     try {
-      const [company, settings, savedSession] = await Promise.all([
-        fetchCompanyById(id),
-        companySettings || fetchCompanySettings(id),
-        getStepperSession(id, user.id)
-      ]);
 
+      const company = await fetchTopMostParentCompanyCompanyById(id);
       setCompany(company);
+      if (!company) return;
+      const settings = companySettings || await fetchCompanySettings(company.id);
+      const savedSession = await getStepperSession(company.id, user.id);
       setCompanySettings(settings);
 
       if (savedSession) {
@@ -230,7 +228,7 @@ const StepperPage: React.FC = () => {
           'saved',
           storedAnswers,
         );
-        router.push('/'); // Redirection vers la page d'accueil
+        router.push(`/client-portal/audit/${id}`); // Redirection vers la page d'accueil
       } catch (error) {
         console.error('Error saving session:', error);
         alert('Une erreur est survenue lors de la sauvegarde de la session.');
@@ -293,6 +291,7 @@ const StepperPage: React.FC = () => {
                   storeAnswer={storeAnswer}
                   currentAnswer={storedAnswers.find(a => a.question.id === currentQuestion.id)?.answer}
                   finish={finish}
+                  companyId={id as string}
                 />
               )}
             </div>

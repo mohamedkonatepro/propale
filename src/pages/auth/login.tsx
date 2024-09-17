@@ -8,7 +8,7 @@ import SocialLinks from '@/components/auth/SocialLinks';
 import CustomAlert from '@/components/common/Alert';
 import LoginHeader from '@/components/auth/LoginHeader';
 import { FcGoogle } from "react-icons/fc";
-import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
+import { fetchCompanyWithoutParentByProfileId, fetchProspectByUserId } from '@/services/companyService';
 import { ROLES } from '@/constants/roles';
 import { getUserDetails } from '@/services/profileService';
 import { Button } from '@/components/common/Button';
@@ -45,6 +45,11 @@ const Login = () => {
           }
           if (userDetails?.role === ROLES.SUPER_ADMIN) {
             router.push('/dashboard');
+            return;
+          }
+          if (userDetails?.role === ROLES.SALES) {
+            const prospect = await fetchProspectByUserId(userDetails.id)
+            router.push(`/client-portal/audit/${prospect?.id}`);
             return;
           }
           const company = await fetchCompanyWithoutParentByProfileId(user?.id);

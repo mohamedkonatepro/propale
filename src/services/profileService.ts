@@ -208,7 +208,6 @@ export const createContact = async (contact: Profile, companyId: string): Promis
 };
 
 export const updateContact = async (contact: Profile, companyId: string): Promise<void> => {
-  console.log(contact)
   if (contact.is_primary_contact) {
     await ensureSinglePrimaryContact(companyId);
   }

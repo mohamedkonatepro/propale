@@ -13,6 +13,7 @@ import Badge from '../common/Badge';
 import { heatLevels, statuses } from '@/constants';
 import { fetchContactByCompanyId } from '@/services/profileService';
 import ProfileAvatarGroup from '../common/ProfileAvatarGroup';
+import Link from 'next/link';
 
 type ProspectsTableProps = {
   prospects: Company[];
@@ -205,12 +206,14 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
         </Button>
       ),
       cell: ({ row }) => (
-        <button 
-          className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg"
-          onClick={() => console.log(row.original)}
+        <Link 
+          href={`/client-portal/audit/${row.original.id}`}
+          className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {"Démarrer l'audit"}
-        </button>
+        </Link>
       ),
     },
     {

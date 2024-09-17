@@ -1,6 +1,7 @@
 import { Product } from '@/types/models';
 import React from 'react';
 import { FaRegTrashAlt, FaPlus } from 'react-icons/fa';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ProductListProps {
   products: Product[];
@@ -9,7 +10,7 @@ interface ProductListProps {
 
 const ProductList: React.FC<ProductListProps> = ({ products, updateProducts }) => {
   const addProduct = () => {
-    updateProducts([...products, { name: '', price: 0, quantity: 0 }]);
+    updateProducts([...products, { id: uuidv4(), name: '', price: 0, quantity: 0 }]);
   };
 
   const updateProduct = (index: number, field: keyof Product, value: string | number) => {
