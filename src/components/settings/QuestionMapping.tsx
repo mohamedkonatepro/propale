@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Select from 'react-select';
 import { FaRegTrashAlt, FaPlus } from 'react-icons/fa';
 import { DropdownValue, Product, Question } from '@/types/models';
@@ -12,12 +12,33 @@ interface QuestionMappingProps {
 const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products, updateQuestion }) => {
   const productOptions = products.map(product => ({ value: product.id, label: product.name }));
 
-  const handleMappingChange = (key: string, value: string) => {
-    updateQuestion({
-      ...question,
-      mapping: { ...(question.mapping || {}), [key]: value }
-    });
-  };
+  // useEffect(() => {
+  //   // Reset mapping and dropdownValues ​​when type changes
+  //   let newMapping: { [key: string]: string } = {};
+  //   let newDropdownValues: DropdownValue[] = [];
+
+  //   switch (question.type) {
+  //     case 'YesNo':
+  //       newMapping = { Yes: '', No: '' };
+  //       break;
+  //     case 'Dropdown':
+  //       newDropdownValues = question.dropdownValues && question.dropdownValues.length > 0 
+  //         ? question.dropdownValues 
+  //         : [{ question_id: question.id || '', value: '' }];
+  //       newMapping = {};
+  //       break;
+  //     case 'DateRange':
+  //     case 'FreeText':
+  //       newMapping = { default: '' };
+  //       break;
+  //   }
+
+  //   updateQuestion({
+  //     ...question,
+  //     mapping: newMapping,
+  //     dropdownValues: newDropdownValues
+  //   });
+  // }, [question.type]);
 
   const addDropdownValue = () => {
     const newDropdownValue: DropdownValue = { question_id: question.id || '', value: '' };
@@ -27,12 +48,34 @@ const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products, u
     });
   };
 
-  const updateDropdownValue = (index: number, value: string) => {
+  const updateDropdownValue = (index: number, newValue: string) => {
+    const updatedDropdownValues = question.dropdownValues?.map((dv, i) => 
+      i === index ? { ...dv, value: newValue } : dv
+    ) || [];
+
+    const oldValue = question.dropdownValues?.[index].value;
+    const newMapping = { ...question.mapping };
+    
+    if (oldValue && newMapping[oldValue]) {
+      // Transférer la valeur mappée de l'ancienne clé à la nouvelle
+      newMapping[newValue] = newMapping[oldValue];
+      delete newMapping[oldValue];
+    } else {
+      // Si pas de mapping existant, initialiser avec une chaîne vide
+      newMapping[newValue] = '';
+    }
+
     updateQuestion({
       ...question,
-      dropdownValues: question.dropdownValues?.map((dv, i) => 
-        i === index ? { ...dv, value: value } : dv
-      ) || []
+      dropdownValues: updatedDropdownValues,
+      mapping: newMapping
+    });
+  };
+
+  const handleMappingChange = (key: string, value: string) => {
+    updateQuestion({
+      ...question,
+      mapping: { ...(question.mapping || {}), [key]: value }
     });
   };
 
@@ -51,11 +94,8 @@ const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products, u
             <span className="mr-2">Oui:</span>
             <Select
               options={productOptions}
-              value={productOptions.find(option => option.value === question.mapping?.['Yes'])}
-              onChange={(selectedOption: any) => {
-                console.log(selectedOption)
-                handleMappingChange('Yes', selectedOption?.value)
-              }}
+              value={question.mapping?.['Yes'] ? productOptions.find(option => option.value === question.mapping?.['Yes']) : null}
+              onChange={(selectedOption: any) => handleMappingChange('Yes', selectedOption?.value)}
               className="w-64"
             />
           </div>
@@ -63,41 +103,41 @@ const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products, u
             <span className="mr-2">Non:</span>
             <Select
               options={productOptions}
-              value={productOptions.find(option => option.value === question.mapping?.['No'])}
+              value={question.mapping?.['No'] ? productOptions.find(option => option.value === question.mapping?.['No']) : null}
               onChange={(selectedOption: any) => handleMappingChange('No', selectedOption?.value)}
               className="w-64"
             />
           </div>
         </>
       );
-    case 'Dropdown':
-      return (
-        <div className="mt-2">
-          <p className="text-sm font-medium mb-2">Valeurs de la liste déroulante :</p>
-          {question.dropdownValues?.map((dropdownValue: any, valueIndex) => (
-            <div key={valueIndex} className="flex items-center mb-2">
-              <input
-                type="text"
-                value={dropdownValue.value}
-                onChange={(e) => updateDropdownValue(valueIndex, e.target.value)}
-                className="mr-2 rounded p-2 bg-backgroundGray flex-grow"
-                placeholder={`Valeur ${valueIndex + 1}`}
-              />
-              <Select
-                options={productOptions}
-                value={productOptions.find(option => option.value === question.mapping?.[dropdownValue.value])}
-                onChange={(selectedOption: any) => handleMappingChange(dropdownValue.value, selectedOption?.value)}
-                className="w-64"
-              />
-              <button
-                type="button"
-                onClick={() => deleteDropdownValue(valueIndex)}
-                className="rounded px-2 py-1"
-              >
-                <FaRegTrashAlt className="text-red-500" size={20} />
-              </button>
-            </div>
-          ))}
+      case 'Dropdown':
+        return (
+          <div className="mt-2">
+            <p className="text-sm font-medium mb-2">Valeurs de la liste déroulante :</p>
+            {question.dropdownValues?.map((dropdownValue, valueIndex) => (
+              <div key={valueIndex} className="flex items-center mb-2">
+                <input
+                  type="text"
+                  value={dropdownValue.value}
+                  onChange={(e) => updateDropdownValue(valueIndex, e.target.value)}
+                  className="mr-2 rounded p-2 bg-backgroundGray flex-grow"
+                  placeholder={`Valeur ${valueIndex + 1}`}
+                />
+                <Select
+                  options={productOptions}
+                  value={question.mapping?.[dropdownValue.value] ? productOptions.find(option => option.value === question.mapping?.[dropdownValue.value]) : null}
+                  onChange={(selectedOption: any) => handleMappingChange(dropdownValue.value, selectedOption?.value)}
+                  className="w-64"
+                />
+                <button
+                  type="button"
+                  onClick={() => deleteDropdownValue(valueIndex)}
+                  className="rounded px-2 py-1"
+                >
+                  <FaRegTrashAlt className="text-red-500" size={20} />
+                </button>
+              </div>
+            ))}
           {(question.dropdownValues?.length || 0) < 10 && (
             <button
               type="button"
@@ -116,7 +156,7 @@ const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products, u
           <span className="mr-2">Produit associé:</span>
           <Select
             options={productOptions}
-            value={productOptions.find(option => option.value === question.mapping?.default)}
+            value={question.mapping?.default ? productOptions.find(option => option.value === question.mapping?.default) : null}
             onChange={(selectedOption: any) => handleMappingChange('default', selectedOption?.value)}
             className="w-64"
           />

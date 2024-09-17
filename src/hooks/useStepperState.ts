@@ -1,11 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { DbQuestion } from '@/types/dbTypes';
 
-interface Answer {
-  questionId: string;
-  value: string | string[];
-}
-
 interface Step {
   id: string;
   name: string;
@@ -14,17 +9,53 @@ interface Step {
 
 export const useStepperState = (
   initialQuestions: any[], 
+  initialState?: {
+    currentStepId?: string;
+    currentQuestionId?: string;
+    answers?: Record<string, string | string[]>;
+  }
 ) => {
   const [steps, setSteps] = useState<Step[]>([]);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Answer[]>([]);
+
+  const [currentStepIndex, setCurrentStepIndex] = useState(() => {
+    if (initialState?.currentStepId) {
+      return steps.findIndex(step => step.id === initialState.currentStepId);
+    }
+    return 0;
+  });
+
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
+    if (initialState?.currentQuestionId) {
+      return steps[currentStepIndex]?.questions.findIndex(q => q.id === initialState.currentQuestionId) || 0;
+    }
+    return 0;
+  });
+
+  const [answers, setAnswers] = useState<Record<string, string | string[]>>(initialState?.answers || {});
 
   useEffect(() => {
     if (initialQuestions.length > 0) {
       setSteps([{ id: 'default-step', name: 'Questionnaire', questions: initialQuestions }]);
     }
   }, [initialQuestions]);
+
+  useEffect(() => {
+    if (initialState?.currentStepId) {
+      const index = steps.findIndex(step => step.id === initialState.currentStepId);
+      if (index !== -1) {
+        setCurrentStepIndex(index);
+      }
+    }
+  }, [steps, initialState]);
+
+  useEffect(() => {
+    if (initialState?.currentQuestionId && steps[currentStepIndex]) {
+      const index = steps[currentStepIndex].questions.findIndex(q => q.id === initialState.currentQuestionId);
+      if (index !== -1) {
+        setCurrentQuestionIndex(index);
+      }
+    }
+  }, [steps, currentStepIndex, initialState]);
 
   const currentStep = steps[currentStepIndex];
   const currentQuestion = currentStep?.questions[currentQuestionIndex];
@@ -71,26 +102,18 @@ export const useStepperState = (
     handleNextClick();
   }, [handleNextClick]);
 
-
-  const setAnswer = (questionId: string, value: string | string[] | undefined) => {
+  const setAnswer = useCallback((questionId: string, value: string | string[] | undefined) => {
     setAnswers(prevAnswers => {
       if (value === undefined) {
-        // If the value is undefined, delete the response
-        return prevAnswers.filter(a => a.questionId !== questionId);
-      }
-      const existingAnswerIndex = prevAnswers.findIndex(a => a.questionId === questionId);
-      if (existingAnswerIndex !== -1) {
-        // Update an existing answer
-        const updatedAnswers = [...prevAnswers];
-        updatedAnswers[existingAnswerIndex] = { questionId, value };
-        return updatedAnswers;
+        // If the value is undefined, delete the answer
+        const { [questionId]: _, ...rest } = prevAnswers;
+        return rest;
       } else {
-        // Add a new answer
-        return [...prevAnswers, { questionId, value }];
+        // Add or update the answer
+        return { ...prevAnswers, [questionId]: value };
       }
     });
-  };
-
+  }, []);
 
   const getQuestionResponses = useCallback((questionId: string) => {
     const question = initialQuestions.find(q => q.id === questionId);

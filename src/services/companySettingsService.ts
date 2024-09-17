@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { DbCompanySettings } from '@/types/dbTypes';
-import { CompanySettings, Workflow, Question } from '@/types/models';
+import { CompanySettings, Workflow, Question, Product } from '@/types/models';
+import { v4 as uuidv4 } from 'uuid';
 
 export const deleteCompanySettings = async (companyId: string): Promise<boolean> => {
   const { error } = await supabase
@@ -122,10 +123,11 @@ export const createOrUpdateCompanySettings = async (settings: CompanySettings): 
 
     // Update or create the workflow
     if (settings.workflow) {
+      const workflowId = settings.workflow.id ?? uuidv4();
       const { data: updatedWorkflow, error: workflowError } = await supabase
         .from('workflows')
         .upsert([{
-          id: settings.workflow.id,
+          id: workflowId,
           company_id: settings.company_id,
           name: settings.workflow.name
         }], { onConflict: 'id' })
@@ -135,6 +137,7 @@ export const createOrUpdateCompanySettings = async (settings: CompanySettings): 
       if (workflowError) throw workflowError;
 
       if (updatedWorkflow) {
+        await updateWorkflowProducts(updatedWorkflow.id, settings.workflow.products);
         await updateWorkflowQuestions(updatedWorkflow.id, settings.workflow.questions);
       }
     }
@@ -146,6 +149,46 @@ export const createOrUpdateCompanySettings = async (settings: CompanySettings): 
     return null;
   }
 };
+
+async function updateWorkflowProducts(workflowId: string, newProducts: Product[]) {
+  // Retrieve all existing products for this workflow
+  const { data: existingProducts, error: existingProductsError } = await supabase
+    .from('products')
+    .select('id')
+    .eq('workflow_id', workflowId);
+
+  if (existingProductsError) throw existingProductsError;
+
+  let existingProductIds = existingProducts.map(p => p.id);
+
+  // Deal with each new product
+  for (const product of newProducts) {
+    const productId = product.id ?? uuidv4();
+    const { error: productError } = await supabase
+      .from('products')
+      .upsert({
+        id: productId,
+        workflow_id: workflowId,
+        name: product.name,
+        price: product.price,
+        quantity: product.quantity
+      });
+
+    if (productError) throw productError;
+
+    existingProductIds = existingProductIds.filter(id => id !== productId);
+  }
+
+  // Delete products that no longer exist
+  if (existingProductIds.length > 0) {
+    const { error: deleteError } = await supabase
+      .from('products')
+      .delete()
+      .in('id', existingProductIds);
+
+    if (deleteError) throw deleteError;
+  }
+}
 
 async function updateWorkflowQuestions(workflowId: string, newQuestions: Question[]) {
   // Retrieve all existing questions for this workflow

@@ -10,7 +10,9 @@ interface Step {
 type StepperProps = {
   steps: Step[];
   activeQuestionId: string | null;
-  answeredQuestions: string[]; // New prop for answered questions
+  answeredQuestions: string[];
+  validatedQuestions: string[]; // New prop for validated questions
+  completedSteps: string[];
   onStepClick: (stepId: string) => void;
   onQuestionClick: (questionId: string) => void;
 };
@@ -19,6 +21,8 @@ const Stepper: React.FC<StepperProps> = ({
   steps, 
   activeQuestionId,
   answeredQuestions,
+  validatedQuestions, // New prop
+  completedSteps,
   onStepClick,
   onQuestionClick
 }) => {
@@ -28,7 +32,7 @@ const Stepper: React.FC<StepperProps> = ({
     <div className="space-y-4">
       {steps.map((step, stepIndex) => {
         const isActiveStep = step.questions.some(q => q.id === activeQuestionId);
-        const isCompletedStep = step.questions.every(q => answeredQuestions.includes(q.id));
+        const isCompletedStep = completedSteps.includes(step.name);
 
         return (
           <div key={step.id} className="relative">
@@ -75,7 +79,6 @@ const Stepper: React.FC<StepperProps> = ({
               </div>
               <div className="flex-grow pl-4">
                 <h3 className={`text-sm font-semibold ${
-                  isActiveStep ? 'text-blueCustom' : 
                   isCompletedStep ? 'text-black' : 'text-gray-500'
                 }`}>
                   {step.name}
@@ -84,16 +87,18 @@ const Stepper: React.FC<StepperProps> = ({
             </div>
             {isActiveStep && (
               <div className="mt-2 space-y-2 ml-[20px]">
-                {step.questions.map((question, questionIndex) => {
+                {step.questions.map((question) => {
                   const isActiveQuestion = question.id === activeQuestionId;
-                  const isCompletedQuestion = answeredQuestions.includes(question.id);
+                  const isAnsweredQuestion = answeredQuestions.includes(question.id);
+                  const isValidatedQuestion = validatedQuestions.includes(question.id);
 
                   return (
                     <div
                       key={question.id}
                       className={`flex items-center cursor-pointer ${
-                        isCompletedQuestion ? 'text-green-500' : 
+                        isValidatedQuestion && isAnsweredQuestion ? 'text-green-500' : 
                         isActiveQuestion ? 'text-blueCustom' : 
+                        isAnsweredQuestion ? 'text-yellow-500' :
                         'text-gray-500'
                       }`}
                       onClick={() => onQuestionClick(question.id)}
@@ -101,8 +106,9 @@ const Stepper: React.FC<StepperProps> = ({
                       onMouseLeave={() => setHoveredItem(null)}
                     >
                       <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                        isCompletedQuestion ? 'bg-green-500' : 
+                        isValidatedQuestion && isAnsweredQuestion ? 'bg-green-500' : 
                         isActiveQuestion ? 'bg-blueCustom' : 
+                        isAnsweredQuestion ? 'bg-yellow-500' :
                         'bg-gray-300'
                       }`} />
                       <span className="text-sm ml-10">{question.text}</span>

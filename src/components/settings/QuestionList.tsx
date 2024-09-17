@@ -2,7 +2,7 @@ import React from 'react';
 import { FaRegTrashAlt, FaPlus } from 'react-icons/fa';
 import Select from 'react-select';
 import QuestionMapping from './QuestionMapping';
-import { Product, Question } from '@/types/models';
+import { Product, Question, DropdownValue } from '@/types/models';
 
 interface QuestionListProps {
   questions: Question[];
@@ -19,59 +19,153 @@ const responseTypeOptions = [
 
 const QuestionList: React.FC<QuestionListProps> = ({ questions, products, updateQuestions }) => {
   const addQuestion = () => {
-    updateQuestions([...questions, { text: '', type: 'YesNo' }]);
+    const newQuestion: Question = { 
+      text: '', 
+      type: 'YesNo', 
+      mapping: { Yes: '', No: '' },
+      dropdownValues: []
+    };
+    updateQuestions([...questions, newQuestion]);
   };
 
   const updateQuestion = (index: number, updatedQuestion: Question) => {
     const updatedQuestions = questions.map((question, i) => 
-      i === index ? updatedQuestion : question
+      i === index ? processQuestionUpdate(updatedQuestion) : question
     );
     updateQuestions(updatedQuestions);
+  };
+
+  const processQuestionUpdate = (question: Question): Question => {
+    let newMapping = { ...question.mapping };
+    let newDropdownValues = question.dropdownValues;
+
+    if (question.type === 'Dropdown') {
+      newMapping = processDropdownMapping(newMapping, newDropdownValues);
+    } else {
+      newMapping = cleanMapping(question);
+      newDropdownValues = [];
+    }
+
+    return {
+      ...question,
+      mapping: newMapping,
+      dropdownValues: newDropdownValues
+    };
+  };
+
+  const processDropdownMapping = (mapping: { [key: string]: string }, dropdownValues: DropdownValue[] | undefined) => {
+    const newMapping = dropdownValues?.reduce((acc, dv) => {
+      if (mapping[dv.value]) {
+        acc[dv.value] = mapping[dv.value];
+      }
+      return acc;
+    }, {} as { [key: string]: string }) || {};
+
+    dropdownValues?.forEach(dv => {
+      if (!newMapping[dv.value]) {
+        newMapping[dv.value] = '';
+      }
+    });
+
+    return newMapping;
+  };
+
+  const cleanMapping = (question: Question): { [key: string]: string } => {
+    switch (question.type) {
+      case 'YesNo':
+        return {
+          Yes: question.mapping?.Yes || '',
+          No: question.mapping?.No || ''
+        };
+      case 'Dropdown':
+        return processDropdownMapping(question.mapping || {}, question.dropdownValues);
+      case 'DateRange':
+      case 'FreeText':
+        return {
+          default: question.mapping?.default || ''
+        };
+      default:
+        return {};
+    }
   };
 
   const deleteQuestion = (index: number) => {
     updateQuestions(questions.filter((_, i) => i !== index));
   };
 
+  const handleTypeChange = (index: number, newType: Question['type']) => {
+    const updatedQuestions = questions.map((question, i) => 
+      i === index ? initializeQuestionType(question, newType) : question
+    );
+    updateQuestions(updatedQuestions);
+  };
+
+  const initializeQuestionType = (question: Question, newType: Question['type']): Question => {
+    let newMapping: { [key: string]: string } = {};
+    let newDropdownValues: DropdownValue[] = [];
+
+    switch (newType) {
+      case 'YesNo':
+        newMapping = { Yes: '', No: '' };
+        break;
+      case 'Dropdown':
+        newDropdownValues = [{ question_id: question.id || '', value: '' }];
+        break;
+      case 'DateRange':
+      case 'FreeText':
+        newMapping = { default: '' };
+        break;
+    }
+
+    return {
+      ...question,
+      type: newType,
+      mapping: newMapping,
+      dropdownValues: newDropdownValues
+    };
+  };
+
+  const renderQuestion = (question: Question, index: number) => (
+    <div key={index} className="mb-4">
+      <div className="flex items-center mb-2">
+        <input
+          value={question.text}
+          onChange={(e) => updateQuestion(index, { ...question, text: e.target.value })}
+          placeholder="Question"
+          className="mr-2 rounded p-2 bg-backgroundGray flex-grow"
+          type="text"
+        />
+        <Select
+          options={responseTypeOptions}
+          value={responseTypeOptions.find(option => option.value === question.type)}
+          onChange={(selectedOption: any) => {
+            if (selectedOption) {
+              handleTypeChange(index, selectedOption.value);
+            }
+          }}
+          className="w-48 mr-2"
+          classNamePrefix="select"
+        />
+        <button
+          type="button"
+          onClick={() => deleteQuestion(index)}
+          className="rounded px-2 py-1 ml-2"
+        >
+          <FaRegTrashAlt className="text-red-500" size={20} />
+        </button>
+      </div>
+      <QuestionMapping 
+        question={question} 
+        products={products}
+        updateQuestion={(updatedQuestion) => updateQuestion(index, updatedQuestion)}
+      />
+    </div>
+  );
+
   return (
     <div className="mb-4">
       <h4 className="text-sm font-medium text-labelGray mb-2">Questions</h4>
-      {questions.map((question, index) => (
-        <div key={index} className="mb-4">
-          <div className="flex items-center mb-2">
-            <input
-              value={question.text}
-              onChange={(e) => updateQuestion(index, { ...question, text: e.target.value })}
-              placeholder="Question"
-              className="mr-2 rounded p-2 bg-backgroundGray flex-grow"
-              type="text"
-            />
-            <Select
-              options={responseTypeOptions}
-              value={responseTypeOptions.find(option => option.value === question.type)}
-              onChange={(selectedOption: any) => {
-                if (selectedOption) {
-                  updateQuestion(index, { ...question, type: selectedOption.value });
-                }
-              }}
-              className="w-48 mr-2"
-              classNamePrefix="select"
-            />
-            <button
-              type="button"
-              onClick={() => deleteQuestion(index)}
-              className="rounded px-2 py-1 ml-2"
-            >
-              <FaRegTrashAlt className="text-red-500" size={20} />
-            </button>
-          </div>
-          <QuestionMapping 
-            question={question} 
-            products={products}
-            updateQuestion={(updatedQuestion) => updateQuestion(index, updatedQuestion)}
-          />
-        </div>
-      ))}
+      {questions.map(renderQuestion)}
       <button
         type="button"
         onClick={addQuestion}

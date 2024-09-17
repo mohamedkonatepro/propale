@@ -16,6 +16,7 @@ import Workflow from '@/components/settings/Workflow';
 import { createOrUpdateCompanySettings, fetchCompanySettings } from '@/services/companySettingsService';
 import dynamic from 'next/dynamic';
 import { countProfilesByCompanyId } from '@/services/profileService';
+import { Button } from '@/components/common/Button';
 
 const Select = dynamic(() => import('react-select'), { ssr: false });
 
@@ -28,6 +29,7 @@ const Settings: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const [company, setCompany] = useState<Company | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [settings, setSettings] = useState<CompanySettings | null>(null);
   const [workflow, setWorkflow] = useState<WorkflowType>({
     name: '',
@@ -74,8 +76,10 @@ const Settings: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     if (settings) {
       const updatedSettings = await createOrUpdateCompanySettings({ ...settings, workflow });
+      setIsLoading(false);
       if (updatedSettings) {
         toast.success("Paramètres enregistrés avec succès !");
       } else {
@@ -216,9 +220,9 @@ const Settings: React.FC = () => {
         />
 
         <div className='flex justify-center mt-5'>
-          <button type="submit" className="bg-blueCustom text-white rounded px-4 py-2">
+          <Button type="submit" disabled={isLoading} isLoading={isLoading} className="bg-blueCustom text-white rounded px-4 py-2">
             Enregistrer
-          </button>
+          </Button>
         </div>
       </form>
     </div>
