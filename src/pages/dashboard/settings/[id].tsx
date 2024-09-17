@@ -204,7 +204,7 @@ const Settings: React.FC = () => {
             <div className='flex w-full mt-5'>
               <div className='w-5/12'>
                 <div className="flex items-center justify-between">
-                  <label className="ml-2 mr-5 block text-sm font-medium text-red-500 cursor-pointer" onClick={() => console.log('test')}>
+                  <label className="ml-2 mr-5 block text-sm font-medium text-red-500 cursor-pointer" onClick={() => console.log('delete WIP')}>
                     Supprimer le compte client
                   </label>
                 </div>

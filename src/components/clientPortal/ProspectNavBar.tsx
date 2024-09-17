@@ -10,8 +10,8 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({ href, isActive, children }) => (
   <Link 
     href={href}
-    className={`text-sm flex items-center justify-center py-2 px-2 rounded-full text-center ${
-      isActive ? 'text-white bg-black px-16 rounded-full' : 'text-black'
+    className={`text-sm flex items-center justify-center py-2 px-16 rounded-full text-center ${
+      isActive ? 'text-white bg-black' : 'text-black'
     }`}
     target="_blank"
     rel="noopener noreferrer"
