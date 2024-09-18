@@ -2,20 +2,22 @@ import { useState, useEffect } from 'react';
 import { Company, CompanyModalData } from '@/types/models';
 import { createProspect, deleteProspect, fetchProspects, updateCompany } from '@/services/companyService';
 
-const useProspects = (companyId: string, search: string) => {
+const useProspects = (companyId?: string, search?: string) => {
   const [prospects, setProspects] = useState<Company[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchProspects(companyId, search);
-      setProspects(data);
-    } catch (err) {
-      setError('Erreur lors de la récupération des prospects.');
-    } finally {
-      setLoading(false);
+    if (companyId) {
+      setLoading(true);
+      try {
+        const data = await fetchProspects(companyId, search);
+        setProspects(data);
+      } catch (err) {
+        setError('Erreur lors de la récupération des prospects.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

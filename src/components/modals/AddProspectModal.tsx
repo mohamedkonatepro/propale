@@ -22,7 +22,8 @@ type AddProspectModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => Promise<void>;
-  company: Company;
+  company?: Company;
+  companyId?: string;
   defaultValues?: Company;
 };
 
@@ -47,7 +48,7 @@ const customStyles = {
   width: '60%',
 };
 
-const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company, defaultValues }) => {
+const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company, companyId, defaultValues }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = useForm<FormInputs>({
     resolver: zodResolver(defaultValues?.id ? prospectSchema : companySchema.extend({
@@ -122,8 +123,9 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
 
   const onSubmitHandler = async (data: FormInputs) => {
     setIsLoading(true);
-    if (!defaultValues?.id) {
-      const isValid = await checkSirenAndCompanyId(company.id, watch('siren'));
+    const currentCompanyId = company?.id ? company.id : companyId
+    if (!defaultValues?.id && currentCompanyId) {
+      const isValid = await checkSirenAndCompanyId(currentCompanyId, watch('siren'));
 
       if (!isValid) {
         setMessageAlertSiren('SIREN existe déjà');
@@ -164,7 +166,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
       }
     }
     
-    await onSubmit({ ...data, status, heat_level: heatLevel, companyId: company.id });
+    await onSubmit({ ...data, status, heat_level: heatLevel, companyId: currentCompanyId });
     setStatus(statuses[0].value);
     setHeatLevel(heatLevels[0].value);
     reset();
@@ -220,7 +222,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
   return (
     <BaseModal isOpen={isOpen} onRequestClose={onRequestClose} title={defaultValues?.id ? 'Modifier un prospect' : 'Ajouter un prospect'} customStyleOverrides={customStyles}>
       <div className="flex flex-col justify-center items-center border-b pb-2 mb-4">
-        <div className='flex items-center justify-center text-labelGray mt-3'><CiFolderOn /> <p className='ml-2'>{company.name}</p></div>
+        {company && <div className='flex items-center justify-center text-labelGray mt-3'><CiFolderOn /> <p className='ml-2'>{company.name}</p></div>}
       </div>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
         <MainInfoSection

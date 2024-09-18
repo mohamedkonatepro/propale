@@ -11,7 +11,7 @@ import { ROLES } from '@/constants/roles';
 interface ContactModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
-  onRequestBack: () => void;
+  onRequestBack?: () => void;
   onSubmit: (data: Profile) => void;
   defaultValues?: Profile;
 }
@@ -38,9 +38,9 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, onS
 
   return (
     <BaseModal isOpen={isOpen} onRequestClose={onRequestClose} title="Contact">
-      <div className='flex items-center fixed top-6 left-3 cursor-pointer' onClick={onRequestBack}>
+      {onRequestBack && <div className='flex items-center fixed top-6 left-3 cursor-pointer' onClick={onRequestBack}>
         <FaArrowLeft className='text-blueCustom' /> <div className='ml-2 text-blueCustom'>Retour</div>
-      </div>
+      </div>}
       <div className="flex flex-col items-center mb-4 mt-5">
         <div className="relative">
           <div className="mr-3 rounded-full bg-blue-100 w-full p-6">

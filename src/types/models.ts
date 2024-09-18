@@ -11,8 +11,8 @@ export interface Company {
   city?: string;
   postalcode?: string;
   country?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
   blocked?: boolean;
   description?: string;
   heat_level?: string;

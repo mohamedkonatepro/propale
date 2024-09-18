@@ -10,6 +10,8 @@ import Header from '@/components/layout/Header';
 import { getStepperSession } from '@/services/stepperService';
 import { fetchCompanySettings } from '@/services/companySettingsService';
 import ProspectNavBar from '@/components/clientPortal/ProspectNavBar';
+import { ROLES } from '@/constants/roles';
+import { supabase } from '@/lib/supabaseClient';
 
 const getStatusOption = (value: string) => statuses.find(status => status.value === value);
 
@@ -89,12 +91,22 @@ const Audit: React.FC = () => {
         return "Démarrer l'audit";
     }
   };
-
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
+  
   return (
     <div className="flex flex-col h-screen">
-      <header className='flex px-8 pt-5 bg-white'>
+      <header className='flex px-8 pt-5 bg-white justify-between'>
         {statusOption && <Header title={company?.name} badgeName={statusOption.label} badgeColor={statusOption.color} siren={company?.siren} />}
-      </header>  
+        {user?.role !== ROLES.PROSPECT ? <Link className="text-blueCustom" href={`/dashboard/prospect/${company?.company_id}`}>Retour</Link> :
+          <div className='flex ml-3 cursor-pointer' onClick={handleLogout}>
+              <label className="mt-5 block text-base text-red-500 cursor-pointer">
+                Se déconnecter
+              </label>
+          </div>}
+      </header>   
 
       <div className='flex justify-center mt-10'>
         <ProspectNavBar active="audit" prospectId={id as string} />

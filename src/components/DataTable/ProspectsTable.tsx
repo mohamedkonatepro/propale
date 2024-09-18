@@ -87,11 +87,13 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="flex flex-col text-xs">
-          <div className='text-sm'>{row.original.name}</div>
-          <div className='text-stone-400'>{row.original.activity_sector}</div>
-          <div className='text-stone-400'>SIREN: {row.original.siren}</div>
-        </div>
+        <Link href={`/client-portal/infos/${row.original.id}`}>
+          <div className="flex flex-col text-xs">
+            <div className='text-sm'>{row.original.name}</div>
+            <div className='text-stone-400'>{row.original.activity_sector}</div>
+            <div className='text-stone-400'>SIREN: {row.original.siren}</div>
+          </div>
+        </Link>
       ),
     },
     {
@@ -107,7 +109,10 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <PrimaryContact companyId={row.original.id} />,
+      cell: ({ row }) => (
+      <Link href={`/client-portal/infos/${row.original.id}`}>
+        <PrimaryContact companyId={row.original.id} />
+      </Link>),
     },
     {
       accessorKey: "contacts_others",
@@ -125,7 +130,7 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
       cell: ({ row }) => (
         <div>
           {contacts[row.original.id] && (
-            <ProfileAvatarGroup profiles={contacts[row.original.id]} maxDisplay={3} onButtonClick={() => openContactModal(row.original)} />
+              <ProfileAvatarGroup profiles={contacts[row.original.id]} maxDisplay={3} onButtonClick={() => openContactModal(row.original)} />
           )}
         </div>
       ),
@@ -207,7 +212,7 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
       ),
       cell: ({ row }) => (
         <Link 
-          href={`/client-portal/audit/${row.original.id}`}
+          href={`/client-portal/workflow/${row.original.id}`}
           className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
           target="_blank"
           rel="noopener noreferrer"

@@ -12,6 +12,8 @@ import { fetchCompanyWithoutParentByProfileId, fetchProspectByUserId } from '@/s
 import { ROLES } from '@/constants/roles';
 import { getUserDetails } from '@/services/profileService';
 import { Button } from '@/components/common/Button';
+import { CompanySettings } from '../../types/models';
+import { fetchCompanySettings } from '@/services/companySettingsService';
 
 type LoginFormInputs = {
   email: string;
@@ -38,6 +40,14 @@ const Login = () => {
         setMessage(['']);
         if (user) {
           const userDetails = await getUserDetails();
+          const company = await fetchCompanyWithoutParentByProfileId(user?.id);
+          // if (company) {
+          //   const companySettings = await fetchCompanySettings(company.id)
+          //   if (companySettings?.is_account_disabled === true) {
+          //     router.push('/');
+          //     return;
+          //   }
+          // }
           if (userDetails?.blocked) {
             await supabase.auth.signOut();
             router.push('/');
@@ -47,12 +57,11 @@ const Login = () => {
             router.push('/dashboard');
             return;
           }
-          if (userDetails?.role === ROLES.SALES) {
+          if (userDetails?.role === ROLES.PROSPECT) {
             const prospect = await fetchProspectByUserId(userDetails.id)
-            router.push(`/client-portal/audit/${prospect?.id}`);
+            router.push(`/client-portal/infos/${prospect?.id}`);
             return;
           }
-          const company = await fetchCompanyWithoutParentByProfileId(user?.id);
           if (company) {
             router.push(`/dashboard/folders/${company.id}`);
           }
