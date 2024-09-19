@@ -47,6 +47,8 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
         setValue('city', company.libelle_commune || '');
         setValue('postalcode', company.code_postal || '');
         setValue('country', 'France');
+        setValue('name', company.nom_commercial);
+
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
       }
@@ -60,6 +62,8 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
       setValue('address', '');
       setValue('city', '');
       setValue('postalcode', '');
+      setValue('name', '');
+
     }
   }, [sirenValue, setValue]);
 

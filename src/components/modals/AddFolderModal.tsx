@@ -54,6 +54,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
         setValue('city', adresseEtablissement.libelleCommuneEtablissement);
         setValue('postalcode', adresseEtablissement.codePostalEtablissement);
         setValue('country', 'France');
+        setValue('name', companyData.uniteLegale.denominationUniteLegale);
         setMessageAlertSiret('');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
@@ -68,6 +69,7 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
       setValue('address', '');
       setValue('city', '');
       setValue('postalcode', '');
+      setValue('name', '');
     }
   }, [siretValue, setValue]);
 

@@ -90,6 +90,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
         setValue('address', `${company.numero_voie} ${company.type_voie} ${company.libelle_voie}`);
         setValue('city', company.libelle_commune);
         setValue('postalcode', company.code_postal);
+        setValue('name', company.nom_commercial);
         setValue('country', 'France');
         setMessageAlertSiren('');
       } catch (error) {
@@ -106,6 +107,7 @@ const AddCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClos
       setValue('address', '');
       setValue('city', '');
       setValue('postalcode', '');
+      setValue('name', '');
     }
   }, [sirenValue, setValue]);
 

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ColumnDef } from "@tanstack/react-table";
+import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { ColumnDef, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Row, useReactTable } from "@tanstack/react-table";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable/DataTable';
@@ -15,7 +15,7 @@ import { fetchContactByCompanyId } from '@/services/profileService';
 import ProfileAvatarGroup from '../common/ProfileAvatarGroup';
 import Link from 'next/link';
 
-type ProspectsTableProps = {
+interface ProspectsTableProps {
   prospects: Company[];
   handleSearch: (search: string) => void;
   openProspectModal: (data?: Company) => void;
@@ -23,13 +23,26 @@ type ProspectsTableProps = {
   handleMultipleDelete: (selectedRows: Company[]) => void;
   handleExportCsv: (selectedRows: Company[]) => void;
   openContactModal: (data?: Company) => void;
-};
+}
 
-const ProspectsTable: React.FC<ProspectsTableProps> = ({
-  prospects, handleSearch, openContactModal, openProspectModal, openDeleteModal, handleMultipleDelete, handleExportCsv,
-}) => {
+export interface ProspectsTableRef {
+  toggleAllRowsSelected: (value: boolean) => void;
+  getSelectedRows: () => Company[];
+}
+
+const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props, ref) => {
+  const {
+    prospects,
+    handleSearch,
+    openContactModal,
+    openProspectModal,
+    openDeleteModal,
+    handleMultipleDelete,
+    handleExportCsv,
+  } = props;
 
   const [contacts, setContacts] = useState<{ [key: string]: Profile[] }>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -48,7 +61,6 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
   
   const getStatusOption = (value: string) => statuses.find(status => status.value === value);
   const getHeatLevelOption = (value: string) => heatLevels.find(level => level.value === value);
-
 
   const columns: ColumnDef<Company>[] = [
     {
@@ -214,7 +226,6 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
         <Link 
           href={`/client-portal/workflow/${row.original.id}`}
           className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
-          target="_blank"
           rel="noopener noreferrer"
         >
           {"Démarrer l'audit"}
@@ -244,18 +255,52 @@ const ProspectsTable: React.FC<ProspectsTableProps> = ({
     },
   ];
 
+
+  const table = useReactTable({
+    data: prospects,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onRowSelectionChange: setRowSelection,
+    state: {
+      rowSelection,
+    },
+  });
+
+  useImperativeHandle(ref, () => ({
+    toggleAllRowsSelected: (value: boolean) => table.toggleAllRowsSelected(value),
+    getSelectedRows: () => {
+      return table.getFilteredSelectedRowModel().rows.map((row: Row<Company>) => row.original);
+    },
+  }));
+
+  const handleDeleteClick = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows.map((row: Row<Company>) => row.original);
+    handleMultipleDelete(selectedRows);
+  };
+
+  const handleDownloadClick = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows.map((row: Row<Company>) => row.original);
+    handleExportCsv(selectedRows);
+  };
+
   return (
     <DataTable<Company>
       data={prospects}
       columns={columns}
       placeholder="Recherche"
       addButtonLabel="Ajouter un prospect"
-      onAddButtonClick={openProspectModal}
+      onAddButtonClick={() => openProspectModal()}
       onChangeSearch={handleSearch}
-      handleDeleteClick={handleMultipleDelete}
-      handleDownloadClick={handleExportCsv}
+      handleDeleteClick={handleDeleteClick}
+      handleDownloadClick={handleDownloadClick}
+      table={table}
     />
   );
-};
+});
+
+ProspectsTable.displayName = 'ProspectsTable';
 
 export default ProspectsTable;

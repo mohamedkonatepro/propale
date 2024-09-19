@@ -8,7 +8,7 @@ const UserProfile = ({ user, isCollapsed, handleEditUser }: { user: Profile, isC
       <div><Image src="/avatar.svg" alt={user.lastname} width={50} height={50} className="rounded-full mr-3" /></div>
       {!isCollapsed && <div>
         <p className="font-semibold">{user.firstname} {user.lastname}</p>
-        <p className="text-gray-500 text-sm">{user.email}</p>
+        {/* <p className="text-gray-500 text-sm">{user.email}</p> */}
       </div>}
     </div>
   );

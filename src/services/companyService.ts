@@ -177,7 +177,7 @@ export const createCompany = async (dataModal: CompanyModalData): Promise<Compan
       city: dataModal.city,
       postalcode: dataModal.postalcode,
       country: dataModal.country,
-      heat_level: dataModal.heatLevel,
+      heat_level: dataModal.heat_level,
       status: dataModal.status,
       type: dataModal.type,
     }])

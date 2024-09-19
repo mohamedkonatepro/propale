@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { Company, Question } from '@/types/models';
 import { GetServerSideProps } from 'next';
 import { getStepperSession, saveStepperSession } from '@/services/stepperService';
-import { fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
+import { fetchCompanyById, fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
 import { IoIosArrowBack } from "react-icons/io";
 import { useUser } from '@/context/userContext';
 
@@ -28,6 +28,7 @@ const StepperPage: React.FC = () => {
   const [validatedQuestions, setValidatedQuestions] = useState<string[]>([]);
   const [finish, setFinish] = useState<boolean>(false);
   const [company, setCompany] = useState<Company | null>(null);
+  const [prospect, setProspect] = useState<Company | null>(null);
   const [storedAnswers, setStoredAnswers] = useState<Array<{
     question: DbQuestion;
     answer: string | string[];
@@ -43,17 +44,23 @@ const StepperPage: React.FC = () => {
 
   const loadData = useCallback(async () => {
     if (typeof id !== 'string' || !user?.id) return;
-
+  
     setLoading(true);
     try {
-
+      const prospect = await fetchCompanyById(id);
       const company = await fetchTopMostParentCompanyCompanyById(id);
+      if (!company || !prospect) {
+        setError("Entreprise ou prospect non trouvée");
+        return;
+      }
+  
+      const settings = await fetchCompanySettings(company.id);
+      const savedSession = await getStepperSession(company.id, user.id, prospect.id);
+  
+      setProspect(prospect);
       setCompany(company);
-      if (!company) return;
-      const settings = companySettings || await fetchCompanySettings(company.id);
-      const savedSession = await getStepperSession(company.id, user.id);
       setCompanySettings(settings);
-
+  
       if (savedSession) {
         const restoredAnswers = savedSession.responses.map(r => ({
           question: settings?.workflow.questions.find(q => q.id === r.question_id) as DbQuestion,
@@ -66,11 +73,10 @@ const StepperPage: React.FC = () => {
           currentQuestionId: savedSession.session.current_question_id,
           answers: Object.fromEntries(restoredAnswers.map(({question, answer}) => [question.id, answer]))
         });
-
-        // Initialize answeredQuestions with the IDs of restored answers
+  
         setAnsweredQuestions(restoredAnswers.map(({question}) => question.id));
         setValidatedQuestions(restoredAnswers.map(({question}) => question.id));
-
+  
         if (savedSession.session.status === 'completed') {
           setFinish(true);
           setCompletedSteps([savedSession.session.current_step_name]);
@@ -82,8 +88,8 @@ const StepperPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, user, companySettings]);
-
+  }, [id, user]);
+  
   useEffect(() => {
     loadData();
   }, [loadData]);
@@ -143,11 +149,12 @@ const StepperPage: React.FC = () => {
         // Check if this is the last question
         const isLastQuestion = currentStep.questions[currentStep.questions.length - 1].id === currentQuestion.id;
         
-        if (isLastQuestion && user) {
+        if (isLastQuestion && user && prospect) {
           try {
             await saveStepperSession(
               user.id,
               companySettings.company_id,
+              prospect?.id,
               companySettings.workflow.id,
               companySettings.workflow.name,
               currentStep.name,
@@ -216,11 +223,12 @@ const StepperPage: React.FC = () => {
   }, [setAnswer, currentQuestion, companySettings, storeAnswer]);
 
   const handleSaveForLater = async () => {
-    if (companySettings && currentStep && currentQuestion && user) {
+    if (companySettings && currentStep && currentQuestion && user && prospect) {
       try {
         await saveStepperSession(
           user.id,
           companySettings.company_id,
+          prospect?.id,
           companySettings.workflow.id,
           companySettings.workflow.name,
           currentStep.name,
@@ -255,8 +263,8 @@ const StepperPage: React.FC = () => {
     <div className="flex flex-col h-screen">
       <header className='flex justify-between p-8 bg-white'>
         <div>
-          <h1 className='mb-3 text-2xl text-blueCustom font-bold'>{companySettings.workflow.name}</h1>
-          <h5 className='text-black'>{company?.name}</h5>
+          <h1 className='text-2xl text-blueCustom font-bold mr-5'>{companySettings.workflow.name}</h1>  
+          <h5 className='text-black text-lg mt-2'>{prospect?.name}</h5>
         </div>
         {!finish && <div>
           <span className='text-red-500 cursor-pointer' onClick={handleSaveForLater}>Reprendre plus tard</span>

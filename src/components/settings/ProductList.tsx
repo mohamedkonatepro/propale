@@ -26,7 +26,11 @@ const ProductList: React.FC<ProductListProps> = ({ products, updateProducts }) =
 
   return (
     <div className="mb-4">
-      <h4 className="text-sm font-medium text-labelGray mb-2">Produits</h4>
+      <div className='flex items-center mb-2 w-full'>
+        <h4 className="text-sm font-medium text-labelGray w-3/5">Produits</h4>
+        <h4 className="text-sm font-medium text-labelGray w-1/5">Montant / Prix € </h4>
+        <h4 className="text-sm font-medium text-labelGray w-1/5">Nombre de JH</h4>
+      </div>
       {products.map((product, index) => (
         <div key={index} className="flex items-center mb-2 w-full">
           <input

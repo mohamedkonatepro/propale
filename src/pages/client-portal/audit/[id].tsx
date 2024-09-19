@@ -47,8 +47,8 @@ const Audit: React.FC = () => {
       }
 
       const companySettings = await fetchTopMostParentCompanyCompanyById(id)
-      if (companySettings) {
-        const session = await getStepperSession(companySettings.id, user.id);
+      if (companySettings && company) {
+        const session = await getStepperSession(companySettings.id, user.id, company.id);
         if (session) {
           setWorkflowStatus(session.session.status);
   
@@ -127,7 +127,6 @@ const Audit: React.FC = () => {
                 <Link 
                   href={`/client-portal/workflow/${id}`}
                   className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
-                  target="_blank"
                   rel="noopener noreferrer"
                 >
                   {getButtonText()}

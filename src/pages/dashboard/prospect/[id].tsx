@@ -6,7 +6,7 @@ import AddFolderModal from '@/components/modals/AddFolderModal';
 import AddProspectModal from '@/components/modals/AddProspectModal';
 import ListContactsModal from '@/components/modals/ListContactsModal';
 import ContactModal from '@/components/modals/ContactModal';
-import ProspectsTable from '@/components/DataTable/ProspectsTable';
+import ProspectsTable, { ProspectsTableRef } from '@/components/DataTable/ProspectsTable';
 import { Company, CompanyModalData, Profile } from '@/types/models';
 import { toast } from 'react-toastify';
 import useProspects from '@/hooks/useProspects';
@@ -29,7 +29,9 @@ const ProspectList: React.FC = () => {
   const csvLinkRef = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [selectedProspect, setSelectedProspect] = useState<Company | undefined>(undefined);
+  const [selectedProspects, setSelectedProspects] = useState<Company[] | undefined>(undefined);
   const [isCsvLinkVisible, setIsCsvLinkVisible] = useState(false);
+  const tableRef = useRef<ProspectsTableRef>(null);
 
   const { prospects, fetchData, addProspect, editProspect, removeProspect } = useProspects(id as string, search);
   const {
@@ -52,6 +54,7 @@ const ProspectList: React.FC = () => {
 
   const prospectModalState = useModalState();
   const deleteModalState = useModalState();
+  const deleteMultipleModalState = useModalState();
   const folderModalState = useModalState();
   const contactsModalState = useModalState();
   const addContactModalState = useModalState();
@@ -104,6 +107,18 @@ const ProspectList: React.FC = () => {
     await fetchData();
   };
 
+  const executeMultipleDelete = async () => {
+    if (selectedProspects) {
+      if (tableRef.current) {
+        tableRef.current.toggleAllRowsSelected(false);
+      }
+      await handleMultipleDelete(selectedProspects);
+      deleteMultipleModalState.closeModal();
+      
+      setSelectedProspects(undefined);
+    }
+  };
+
   const handleExportCsv = (selectedRows: Company[]) => {
     if (selectedRows.length === 0) return;
     const csvData = selectedRows.map(row => ({
@@ -152,7 +167,7 @@ const ProspectList: React.FC = () => {
     contactsModalState.closeModal();
     addContactModalState.openModal();
   };
-
+  
   return (
     <div className="flex-1 p-6">
       <div className='flex flex-col'>
@@ -172,13 +187,20 @@ const ProspectList: React.FC = () => {
         </div>
       </div>
       <ProspectsTable
+        ref={tableRef}
         prospects={prospects}
         handleSearch={setSearch}
         openProspectModal={(data) => { prospectModalState.openModal(); setSelectedProspect(data); }}
         openContactModal={(data) => { contactsModalState.openModal(); getContacts(data); setSelectedProspect(data); }}
         openDeleteModal={(id: string) => { setSelectedProspect(prospects.find(p => p.id === id)); deleteModalState.openModal(); }}
-        handleMultipleDelete={handleMultipleDelete}
+        handleMultipleDelete={(selectedRows: Company[]) => {setSelectedProspects(selectedRows); deleteMultipleModalState.openModal(); }}
         handleExportCsv={handleExportCsv}
+      />
+      <ConfirmDeleteModal
+        isOpen={deleteMultipleModalState.isModalOpen}
+        onClose={deleteMultipleModalState.closeModal}
+        onConfirm={executeMultipleDelete}
+        message="Êtes-vous sûr de vouloir supprimer les prospects ?"
       />
       <ConfirmDeleteModal
         isOpen={deleteModalState.isModalOpen}

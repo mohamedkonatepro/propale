@@ -169,11 +169,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
           <div className='flex pt-5 mr-2'> 
             <HiMiniArrowLeftStartOnRectangle className='text-red-500' size={25}/>
           </div>
-          <div className='flex'>
+          {!isCollapsed && <div className='flex'>
             <label className="mt-5 block text-base text-red-500 cursor-pointer">
               Se déconnecter
             </label>
-          </div>
+          </div>}
         </div>
       </div>
 

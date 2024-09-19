@@ -58,7 +58,7 @@ export type CompanyModalData = {
   city?: string;
   postalcode?: string;
   country?: string;
-  heatLevel?: string;
+  heat_level?: string;
   status?: string;
   type?: string;
   email: string;

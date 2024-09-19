@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  Table as TableTanstack 
 } from "@tanstack/react-table"
 import { Button } from "@/components/common/Button"
 import {
@@ -42,32 +43,48 @@ type DataTableProps<T> = {
   onChangeSearch?: (value: string) => void;
   handleDeleteClick?: (selectedRows: T[]) => void;
   handleDownloadClick?: (selectedRows: T[]) => void;
+  table?: TableTanstack<T>;  // Ajout de cette ligne
 }
 
-export function DataTable<T>({ data, columns, placeholder = "Recherche", addButtonLabel = "Ajouter", onAddButtonClick, onChangeSearch, handleDeleteClick, handleDownloadClick }: DataTableProps<T>) {
+export function DataTable<T>({ 
+  data, 
+  columns, 
+  placeholder = "Recherche", 
+  addButtonLabel = "Ajouter", 
+  onAddButtonClick, 
+  onChangeSearch, 
+  handleDeleteClick, 
+  handleDownloadClick, 
+  table: externalTable 
+}: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const { user } = useUser();
-  const table = useReactTable({
+
+  const tableOptions = React.useMemo(() => ({
     data,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      ...(externalTable?.options.state || {}),
     },
-  })
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    ...(externalTable?.options || {}),
+  }), [data, columns, sorting, columnFilters, columnVisibility, rowSelection, externalTable]);
+
+  const table = useReactTable(tableOptions);
 
   const selectedRows = table.getFilteredSelectedRowModel().rows.map(row => row.original);
 

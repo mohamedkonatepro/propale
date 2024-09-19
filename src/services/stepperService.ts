@@ -4,6 +4,7 @@ import { DbQuestion, DbProduct } from '@/types/dbTypes';
 export const saveStepperSession = async (
   profileId: string,
   companyId: string,
+  prospectId: string,
   workflowId: string,
   workflowName: string,
   currentStepName: string,
@@ -20,13 +21,14 @@ export const saveStepperSession = async (
     .upsert([{
       company_id: companyId,
       profile_id: profileId,
+      prospect_id: prospectId,
       workflow_id: workflowId,
       workflow_name: workflowName,
       status,
       current_step_name: currentStepName,
       current_question_id: currentQuestionId,
     }], {
-      onConflict: 'company_id,workflow_id,profile_id',
+      onConflict: 'company_id,workflow_id,profile_id,prospect_id',
     })
     .select()
     .single();
@@ -60,12 +62,13 @@ export const saveStepperSession = async (
   if (responsesError) throw responsesError;
 };
 
-export const getStepperSession = async (companyId: string, profileId: string) => {
+export const getStepperSession = async (companyId: string, profileId: string, prospectId: string) => {
   const { data: session, error: sessionError } = await supabase
     .from('stepper_sessions')
     .select('*')
     .eq('company_id', companyId)
     .eq('profile_id', profileId)
+    .eq('prospect_id', prospectId)
     .single();
 
   if (sessionError) return null;
