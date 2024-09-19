@@ -17,6 +17,9 @@ import { createOrUpdateCompanySettings, fetchCompanySettings } from '@/services/
 import dynamic from 'next/dynamic';
 import { countProfilesByCompanyId } from '@/services/profileService';
 import { Button } from '@/components/common/Button';
+import { companySettingsSchema } from '@/schemas/workflowAndSettingsSchema'; // Import du schéma Zod
+import { z } from 'zod';
+import { countStepperSessionByCompanyId } from '@/services/stepperService';
 
 const Select = dynamic(() => import('react-select'), { ssr: false });
 
@@ -39,6 +42,8 @@ const Settings: React.FC = () => {
   const [userCount, setUserCount] = useState(0);
   const [folderCount, setFolderCount] = useState(0);
   const [prospectCount, setProspectCount] = useState(0);
+  const [countWorkflow, setCountWorkflow] = useState(0);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -55,6 +60,7 @@ const Settings: React.FC = () => {
         setUserCount(await countProfilesByCompanyId(id as string));
         setFolderCount(await countCompaniesByParentId(id as string));
         setProspectCount(await countAllProspectsByCompanyId(id as string));
+        setCountWorkflow(await countStepperSessionByCompanyId(id as string));
       }
     };
     loadData();
@@ -77,14 +83,32 @@ const Settings: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    if (settings) {
-      const updatedSettings = await createOrUpdateCompanySettings({ ...settings, workflow });
+
+    try {
+      // Validation with Zod
+      const validatedSettings = companySettingsSchema.parse({
+        ...settings,
+        workflow,
+      });
+
+      // If validation successful, sends data
+      const updatedSettings = await createOrUpdateCompanySettings(validatedSettings);
+      setErrors({})
       setIsLoading(false);
       if (updatedSettings) {
         toast.success("Paramètres enregistrés avec succès !");
       } else {
         toast.error("Erreur lors de l'enregistrement des paramètres.");
       }
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const validationErrors = err.errors.reduce((acc: any, curr: any) => {
+          acc[curr.path.join('.')] = curr.message;
+          return acc;
+        }, {});
+        setErrors(validationErrors); // Stores errors in state
+      }
+      setIsLoading(false);
     }
   };
 
@@ -108,7 +132,7 @@ const Settings: React.FC = () => {
         <div>
           <h3 className="text-base font-medium text-labelGray">{"Vue d'ensemble"}</h3>
           <div className="grid grid-cols-4 gap-10 mb-4 mt-2">
-            <StatCard icon={<TbSitemap className='text-blueCustom' size="30" />} title="Workflows" total={settings.workflows_allowed.toString()} value="0" />
+            <StatCard icon={<TbSitemap className='text-blueCustom' size="30" />} title="Workflows" total={settings.workflows_allowed.toString()} value={countWorkflow.toString()} />
             <StatCard icon={<PiUsers className='text-blueCustom' size="30" />} title="Utilisateurs" total={settings.users_allowed.toString()} value={userCount.toString()} />
             <StatCard icon={<MdFolderOpen className='text-blueCustom' size="30" />} title="Dossiers" total={settings.folders_allowed.toString()} value={folderCount.toString()} />
             <StatCard icon={<HiOutlineBuildingOffice className='text-blueCustom' size="30" />} title="Prospects" value={prospectCount.toString()} />
@@ -214,9 +238,10 @@ const Settings: React.FC = () => {
         </div>
 
         <h3 className="text-base font-medium text-labelGray mt-6">Workflow</h3>
-        <Workflow 
+        <Workflow
           workflow={workflow}
           updateWorkflow={(updatedWorkflow) => setWorkflow(updatedWorkflow)}
+          errors={errors}
         />
 
         <div className='flex justify-center mt-5'>

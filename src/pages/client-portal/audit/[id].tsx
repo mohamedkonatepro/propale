@@ -12,8 +12,9 @@ import { fetchCompanySettings } from '@/services/companySettingsService';
 import ProspectNavBar from '@/components/clientPortal/ProspectNavBar';
 import { ROLES } from '@/constants/roles';
 import { supabase } from '@/lib/supabaseClient';
-
-const getStatusOption = (value: string) => statuses.find(status => status.value === value);
+import { DbCompanySettings } from '@/types/dbTypes';
+import { getOption } from '@/lib/utils';
+import { hasAccessToAudit } from '@/constants/permissions';
 
 const ProgressBar: React.FC<{ percentage: number }> = ({ percentage }) => (
   <div className="w-full bg-gray-200 rounded-b-3xl h-2.5 mb-4 dark:bg-gray-700">
@@ -34,6 +35,8 @@ const Audit: React.FC = () => {
   const [statusOption, setStatusOption] = useState<Option>();
   const [workflowStatus, setWorkflowStatus] = useState<string>('not_started');
   const [completionPercentage, setCompletionPercentage] = useState<number>(0);
+  const [settings, setSettings] = useState<DbCompanySettings | null>(null);
+  const accessAudit = hasAccessToAudit(user, settings);
 
   const loadData = useCallback(async () => {
     if (typeof id !== 'string' || !user?.id) return;
@@ -43,17 +46,18 @@ const Audit: React.FC = () => {
       const company = await fetchCompanyById(id);
       setCompany(company);
       if (company?.status) {
-        setStatusOption(getStatusOption(company.status));
+        setStatusOption(getOption(company.status, statuses));
       }
 
-      const companySettings = await fetchTopMostParentCompanyCompanyById(id)
-      if (companySettings && company) {
-        const session = await getStepperSession(companySettings.id, user.id, company.id);
+      const companyForSettings = await fetchTopMostParentCompanyCompanyById(id)
+      if (companyForSettings && company) {
+        const session = await getStepperSession(companyForSettings.id, user.id, company.id);
         if (session) {
           setWorkflowStatus(session.session.status);
   
           if (session.session.status === 'saved') {
-            const settings = await fetchCompanySettings(companySettings.id);
+            const settings = await fetchCompanySettings(companyForSettings.id);
+            setSettings(settings)
             if (settings && settings.workflow) {
               const totalQuestions = settings.workflow.questions.length;
               const answeredQuestions = session.responses.length;
@@ -95,7 +99,7 @@ const Audit: React.FC = () => {
     await supabase.auth.signOut();
     router.push('/');
   };
-  
+
   return (
     <div className="flex flex-col h-screen">
       <header className='flex px-8 pt-5 bg-white justify-between'>
@@ -120,7 +124,7 @@ const Audit: React.FC = () => {
                 <h4 className="text-black text-2xl font-semibold mb-2">Workflow</h4>
                 <h6 className="text-gray-400 text-base font-normal">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.</h6>
               </div>
-              <div className='flex flex-col justify-start mt-5'>
+              {accessAudit && <div className='flex flex-col justify-start mt-5'>
                 {(
                   <h4 className="text-blueCustom text-2xl text-center font-semibold mb-5">{completionPercentage}%</h4>
                 )}
@@ -132,7 +136,7 @@ const Audit: React.FC = () => {
                   {getButtonText()}
                   <FaArrowRight className="ml-2" />
                 </Link>
-              </div>
+              </div>}
             </div>
             <ProgressBar percentage={completionPercentage} />
           </div>

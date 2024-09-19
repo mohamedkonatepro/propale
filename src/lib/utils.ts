@@ -24,3 +24,5 @@ export const formatDate = (date: Date) => {
 export const getInitials = (firstname: string, lastname: string) => {
   return `${firstname[0]}${lastname[0]}`.toUpperCase();
 };
+
+export const getOption = (value: any, options: any) => options.find((option: any) => option.value === value);

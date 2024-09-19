@@ -12,16 +12,12 @@ import useModalState from '@/hooks/useModalState';
 import ContactModal from '@/components/modals/ContactModal';
 import Badge from '@/components/common/Badge';
 import { GrFormEdit } from 'react-icons/gr';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getOption } from '@/lib/utils';
 import AddProspectModal from '@/components/modals/AddProspectModal';
 import useProspects from '@/hooks/useProspects';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
-import { HiMiniArrowLeftStartOnRectangle } from 'react-icons/hi2';
 import { ROLES } from '@/constants/roles';
-
-const getStatusOption = (value: string) => statuses.find(status => status.value === value);
-const getHeatLevelOption = (value: string) => heatLevels.find(level => level.value === value);
 
 const Audit: React.FC = () => {
   const router = useRouter();
@@ -87,10 +83,10 @@ const Audit: React.FC = () => {
       const company = await fetchCompanyById(id);
       setCompany(company);
       if (company?.status) {
-        setStatusOption(getStatusOption(company.status));
+        setStatusOption(getOption(company.status, statuses));
       }
       if (company?.heat_level) {
-        setHeatLevelOption(getHeatLevelOption(company.heat_level));
+        setHeatLevelOption(getOption(company.heat_level, heatLevels));
       }
     } catch (err) {
       setError("Une erreur s'est produite lors du chargement des données");

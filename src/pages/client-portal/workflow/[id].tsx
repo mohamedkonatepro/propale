@@ -7,10 +7,11 @@ import { useStepperState } from '@/hooks/useStepperState';
 import { useRouter } from 'next/router';
 import { Company, Question } from '@/types/models';
 import { GetServerSideProps } from 'next';
-import { getStepperSession, saveStepperSession } from '@/services/stepperService';
+import { countStepperSessionByCompanyId, getStepperSession, saveStepperSession } from '@/services/stepperService';
 import { fetchCompanyById, fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
 import { IoIosArrowBack } from "react-icons/io";
 import { useUser } from '@/context/userContext';
+import { hasAccessToAudit } from '@/constants/permissions';
 
 interface StepperPageProps {
   companySettings: DbCompanySettings | null;
@@ -29,6 +30,7 @@ const StepperPage: React.FC = () => {
   const [finish, setFinish] = useState<boolean>(false);
   const [company, setCompany] = useState<Company | null>(null);
   const [prospect, setProspect] = useState<Company | null>(null);
+  const [access, setAccess] = useState<boolean>(true);
   const [storedAnswers, setStoredAnswers] = useState<Array<{
     question: DbQuestion;
     answer: string | string[];
@@ -61,6 +63,13 @@ const StepperPage: React.FC = () => {
       setCompany(company);
       setCompanySettings(settings);
   
+      const countStepper = await countStepperSessionByCompanyId(company.id);
+      if (settings && countStepper >= settings.workflows_allowed && !savedSession) {
+        setAccess(false)
+        return;
+      }
+      setAccess(true)
+      
       if (savedSession) {
         const restoredAnswers = savedSession.responses.map(r => ({
           question: settings?.workflow.questions.find(q => q.id === r.question_id) as DbQuestion,
@@ -259,6 +268,16 @@ const StepperPage: React.FC = () => {
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>Erreur : {error}</div>;
   if (!companySettings) return <div>Aucune donnée disponible</div>;
+  if (!access) {
+    return (
+      <h1 className='text-3xl text-center mt-10'>Le nombre maximum de workflow autorisés a été atteint.</h1>
+    );
+  }
+  if (!hasAccessToAudit(user, companySettings)) {
+    return (
+      <h1 className='text-3xl text-center mt-10'>Page indisponible.</h1>
+    );
+  }
   return (
     <div className="flex flex-col h-screen">
       <header className='flex justify-between p-8 bg-white'>

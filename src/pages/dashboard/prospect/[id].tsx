@@ -10,7 +10,7 @@ import ProspectsTable, { ProspectsTableRef } from '@/components/DataTable/Prospe
 import { Company, CompanyModalData, Profile } from '@/types/models';
 import { toast } from 'react-toastify';
 import useProspects from '@/hooks/useProspects';
-import { fetchCompanyById, updateCompany } from '@/services/companyService';
+import { fetchCompanyById, fetchTopMostParentCompanyCompanyById, updateCompany } from '@/services/companyService';
 import useModalState from '@/hooks/useModalState';
 import useContacts from '@/hooks/useContacts';
 import { CSVLink } from 'react-csv';
@@ -18,6 +18,8 @@ import { GrFormEdit } from "react-icons/gr";
 import ProfileAvatarGroup from '@/components/common/ProfileAvatarGroup';
 import ShareFolderModal from '@/components/modals/ShareFolderModal';
 import useProfileManagement from '@/hooks/useProfileManagement';
+import { DbCompanySettings } from '@/types/dbTypes';
+import { fetchCompanySettings } from '@/services/companySettingsService';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -32,6 +34,7 @@ const ProspectList: React.FC = () => {
   const [selectedProspects, setSelectedProspects] = useState<Company[] | undefined>(undefined);
   const [isCsvLinkVisible, setIsCsvLinkVisible] = useState(false);
   const tableRef = useRef<ProspectsTableRef>(null);
+  const [settings, setSettings] = useState<DbCompanySettings | null>(null);
 
   const { prospects, fetchData, addProspect, editProspect, removeProspect } = useProspects(id as string, search);
   const {
@@ -63,6 +66,11 @@ const ProspectList: React.FC = () => {
   const getCompanyData = useCallback(async () => {
     if (!user?.id || !id) return;
     const companyData = await fetchCompanyById(id as string);
+    const companyForSettings = await fetchTopMostParentCompanyCompanyById(id as string)
+    if (companyForSettings) {
+      const settings = await fetchCompanySettings(companyForSettings.id);
+      setSettings(settings)
+    }
     setCompany(companyData);
   }, [user, id]);
 
@@ -195,6 +203,8 @@ const ProspectList: React.FC = () => {
         openDeleteModal={(id: string) => { setSelectedProspect(prospects.find(p => p.id === id)); deleteModalState.openModal(); }}
         handleMultipleDelete={(selectedRows: Company[]) => {setSelectedProspects(selectedRows); deleteMultipleModalState.openModal(); }}
         handleExportCsv={handleExportCsv}
+        settings={settings}
+        user={user}
       />
       <ConfirmDeleteModal
         isOpen={deleteMultipleModalState.isModalOpen}

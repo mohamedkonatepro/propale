@@ -8,6 +8,7 @@ interface QuestionListProps {
   questions: Question[];
   products: Product[];
   updateQuestions: (questions: Question[]) => void;
+  errors?: Record<string, string>;
 }
 
 const responseTypeOptions = [
@@ -17,7 +18,7 @@ const responseTypeOptions = [
   { value: 'FreeText', label: 'Texte libre' }
 ];
 
-const QuestionList: React.FC<QuestionListProps> = ({ questions, products, updateQuestions }) => {
+const QuestionList: React.FC<QuestionListProps> = ({ questions, products, updateQuestions, errors = {} }) => {
   const addQuestion = () => {
     const newQuestion: Question = { 
       text: '', 
@@ -125,16 +126,21 @@ const QuestionList: React.FC<QuestionListProps> = ({ questions, products, update
     };
   };
 
+  const hasMappingErrors = (questionId: string) => {
+    return Object.keys(errors).some((key) => key.startsWith(`workflow.questions.${questionId}.mapping`));
+  };
+
   const renderQuestion = (question: Question, index: number) => (
-    <div key={index} className="mb-4">
+    <div key={index}>
       <div className="flex items-center mb-2">
         <input
           value={question.text}
           onChange={(e) => updateQuestion(index, { ...question, text: e.target.value })}
           placeholder="Question"
-          className="mr-2 rounded p-2 bg-backgroundGray flex-grow"
+          className={`mr-2 rounded p-2 bg-backgroundGray flex-grow ${errors[`workflow.questions.${index}.text`] ? 'border-red-500 border-2' : ''}`}
           type="text"
         />
+        
         <Select
           options={responseTypeOptions}
           value={responseTypeOptions.find(option => option.value === question.type)}
@@ -143,7 +149,7 @@ const QuestionList: React.FC<QuestionListProps> = ({ questions, products, update
               handleTypeChange(index, selectedOption.value);
             }
           }}
-          className="w-48 mr-2"
+          className={`w-48 mr-2 ${errors[`workflow.questions.${index}.type`] ? 'border-red-500 border-2' : ''}`}
           classNamePrefix="select"
         />
         <button
@@ -154,11 +160,21 @@ const QuestionList: React.FC<QuestionListProps> = ({ questions, products, update
           <FaRegTrashAlt className="text-red-500" size={20} />
         </button>
       </div>
-      <QuestionMapping 
-        question={question} 
-        products={products}
-        updateQuestion={(updatedQuestion) => updateQuestion(index, updatedQuestion)}
-      />
+      <div>
+       {errors[`workflow.questions.${index}.text`] && <div className="text-red-500">{errors[`workflow.questions.${index}.text`]}</div>}
+      </div>
+      <div>
+        <QuestionMapping 
+          question={question} 
+          products={products}
+          updateQuestion={(updatedQuestion) => updateQuestion(index, updatedQuestion)}
+        />
+        {hasMappingErrors(index.toString()) && (
+          <div className="text-red-500 mt-2">
+            Veuillez lier toutes les réponses à un produit.
+          </div>
+        )}
+      </div>
     </div>
   );
 

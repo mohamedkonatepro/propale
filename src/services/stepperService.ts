@@ -82,3 +82,17 @@ export const getStepperSession = async (companyId: string, profileId: string, pr
 
   return { session, responses };
 };
+
+export const countStepperSessionByCompanyId = async (companyId: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from('stepper_sessions')
+    .select('company_id', { count: 'exact' })
+    .eq('company_id', companyId);
+
+  if (error) {
+    console.error('Error counting stepper:', error);
+    return 0;
+  }
+
+  return count ?? 0;
+};

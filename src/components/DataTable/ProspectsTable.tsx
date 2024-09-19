@@ -14,6 +14,10 @@ import { heatLevels, statuses } from '@/constants';
 import { fetchContactByCompanyId } from '@/services/profileService';
 import ProfileAvatarGroup from '../common/ProfileAvatarGroup';
 import Link from 'next/link';
+import { DbCompanySettings } from '@/types/dbTypes';
+import { ROLES } from '@/constants/roles';
+import { getOption } from '@/lib/utils';
+import { hasAccessToAudit } from '@/constants/permissions';
 
 interface ProspectsTableProps {
   prospects: Company[];
@@ -23,6 +27,8 @@ interface ProspectsTableProps {
   handleMultipleDelete: (selectedRows: Company[]) => void;
   handleExportCsv: (selectedRows: Company[]) => void;
   openContactModal: (data?: Company) => void;
+  settings: DbCompanySettings | null;
+  user: Profile | null;
 }
 
 export interface ProspectsTableRef {
@@ -39,11 +45,13 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
     openDeleteModal,
     handleMultipleDelete,
     handleExportCsv,
+    settings,
+    user,
   } = props;
 
   const [contacts, setContacts] = useState<{ [key: string]: Profile[] }>({});
   const [rowSelection, setRowSelection] = useState({});
-
+  
   useEffect(() => {
     const fetchContacts = async () => {
       const contactData: { [key: string]: Profile[] } = {};
@@ -59,9 +67,6 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
     fetchContacts();
   }, [prospects]);
   
-  const getStatusOption = (value: string) => statuses.find(status => status.value === value);
-  const getHeatLevelOption = (value: string) => heatLevels.find(level => level.value === value);
-
   const columns: ColumnDef<Company>[] = [
     {
       id: "select",
@@ -160,7 +165,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         </Button>
       ),
       cell: ({ row }) => {
-        const statusOption = getStatusOption(row.getValue("status"));
+        const statusOption = getOption(row.getValue("status"), statuses);
         return statusOption ? (
           <Badge
             label={statusOption.label}
@@ -182,7 +187,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         </Button>
       ),
       cell: ({ row }) => {
-        const heatLevelOption = getHeatLevelOption(row.getValue("heat_level"));
+        const heatLevelOption = getOption(row.getValue("heat_level"), heatLevels);
         return heatLevelOption ? (
           <Badge
             label={heatLevelOption.label}
@@ -210,10 +215,10 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         </div>
       ),
     },
-    {
+    ...(hasAccessToAudit(user, settings) ? [{
       id: "workflow",
       enableHiding: false,
-      header: ({ column }) => (
+      header: ({ column }: any) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
@@ -222,7 +227,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => (
+      cell: ({ row }: any) => (
         <Link 
           href={`/client-portal/workflow/${row.original.id}`}
           className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
@@ -231,7 +236,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
           {"Démarrer l'audit"}
         </Link>
       ),
-    },
+    }] : []),
     {
       id: "menuProspect",
       enableHiding: false,

@@ -12,34 +12,6 @@ interface QuestionMappingProps {
 const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products, updateQuestion }) => {
   const productOptions = products.map(product => ({ value: product.id, label: product.name }));
 
-  // useEffect(() => {
-  //   // Reset mapping and dropdownValues ​​when type changes
-  //   let newMapping: { [key: string]: string } = {};
-  //   let newDropdownValues: DropdownValue[] = [];
-
-  //   switch (question.type) {
-  //     case 'YesNo':
-  //       newMapping = { Yes: '', No: '' };
-  //       break;
-  //     case 'Dropdown':
-  //       newDropdownValues = question.dropdownValues && question.dropdownValues.length > 0 
-  //         ? question.dropdownValues 
-  //         : [{ question_id: question.id || '', value: '' }];
-  //       newMapping = {};
-  //       break;
-  //     case 'DateRange':
-  //     case 'FreeText':
-  //       newMapping = { default: '' };
-  //       break;
-  //   }
-
-  //   updateQuestion({
-  //     ...question,
-  //     mapping: newMapping,
-  //     dropdownValues: newDropdownValues
-  //   });
-  // }, [question.type]);
-
   const addDropdownValue = () => {
     const newDropdownValue: DropdownValue = { question_id: question.id || '', value: '' };
     updateQuestion({
