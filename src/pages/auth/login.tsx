@@ -41,13 +41,14 @@ const Login = () => {
         if (user) {
           const userDetails = await getUserDetails();
           const company = await fetchCompanyWithoutParentByProfileId(user?.id);
-          // if (company) {
-          //   const companySettings = await fetchCompanySettings(company.id)
-          //   if (companySettings?.is_account_disabled === true) {
-          //     router.push('/');
-          //     return;
-          //   }
-          // }
+          if (company) {
+            const companySettings = await fetchCompanySettings(company.id)
+            if (companySettings?.is_account_disabled === true) {
+              await supabase.auth.signOut();
+              router.push('/');
+              return;
+            }
+          }
           if (userDetails?.blocked) {
             await supabase.auth.signOut();
             router.push('/');
