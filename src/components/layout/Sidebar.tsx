@@ -49,7 +49,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/');
   };
   
   const toggleSidebar = () => {

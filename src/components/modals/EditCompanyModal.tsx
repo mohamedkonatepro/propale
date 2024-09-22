@@ -18,6 +18,13 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
     defaultValues,
   });
 
+  useEffect(() => {
+    Object.entries(defaultValues).forEach(([key, value]) => {
+      setValue(key as keyof CompanyFormInputs, value);
+    });
+  }, [defaultValues, setValue]);
+
+
   const onSubmitHandler = async (data: CompanyFormInputs) => {
     await onSubmit(data);
     reset();
@@ -47,7 +54,7 @@ const EditCompanyModal: React.FC<AddCompanyModalProps> = ({ isOpen, onRequestClo
         setValue('city', company.libelle_commune || '');
         setValue('postalcode', company.code_postal || '');
         setValue('country', 'France');
-        setValue('name', company.nom_commercial);
+        // setValue('name', company.nom_commercial);
 
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);

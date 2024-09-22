@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { UserProvider } from '@/context/userContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import AuthListener from '@/components/auth/AuthListener';
 export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [page, setPage] = useState('folders');
@@ -22,16 +22,19 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   const isDashboardHome = router.pathname === '/dashboard';
 
   return (
-    <UserProvider>
-      {isDashboard ? (
-        <DashboardLayout currentPage={isDashboardHome ? page : router.pathname.split('/')[2]} setPage={setPage} isDashboardHome={isDashboardHome}>
-          <Component {...pageProps} page={page} />
-        </DashboardLayout>
-      ) : (
-        <Component {...pageProps} />
-      )}
-      <ToastContainer />
-    </UserProvider>
+    <>
+      <AuthListener />
+      <UserProvider>
+        {isDashboard ? (
+          <DashboardLayout currentPage={isDashboardHome ? page : router.pathname.split('/')[2]} setPage={setPage} isDashboardHome={isDashboardHome}>
+            <Component {...pageProps} page={page} />
+          </DashboardLayout>
+        ) : (
+          <Component {...pageProps} />
+        )}
+        <ToastContainer />
+      </UserProvider>
+    </>
   );
 }
 

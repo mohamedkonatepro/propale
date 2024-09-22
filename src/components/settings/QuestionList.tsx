@@ -5,8 +5,8 @@ import QuestionMapping from './QuestionMapping';
 import { Product, Question, DropdownValue } from '@/types/models';
 
 interface QuestionListProps {
-  questions: Question[];
-  products: Product[];
+  questions?: Question[];
+  products?: Product[];
   updateQuestions: (questions: Question[]) => void;
   errors?: Record<string, string>;
 }
@@ -18,7 +18,7 @@ const responseTypeOptions = [
   { value: 'FreeText', label: 'Texte libre' }
 ];
 
-const QuestionList: React.FC<QuestionListProps> = ({ questions, products, updateQuestions, errors = {} }) => {
+const QuestionList: React.FC<QuestionListProps> = ({ questions = [], products = [], updateQuestions, errors = {} }) => {
   const addQuestion = () => {
     const newQuestion: Question = { 
       text: '', 

@@ -5,12 +5,12 @@ import { DropdownValue, Product, Question } from '@/types/models';
 
 interface QuestionMappingProps {
   question: Question;
-  products: Product[];
+  products?: Product[];
   updateQuestion: (updatedQuestion: Question) => void;
 }
 
-const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products, updateQuestion }) => {
-  const productOptions = products.map(product => ({ value: product.id, label: product.name }));
+const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products = [], updateQuestion }) => {
+  const productOptions = products?.map(product => ({ value: product.id, label: product.name }));
 
   const addDropdownValue = () => {
     const newDropdownValue: DropdownValue = { question_id: question.id || '', value: '' };

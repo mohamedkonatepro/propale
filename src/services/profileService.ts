@@ -2,8 +2,8 @@ import { supabase } from '@/lib/supabaseClient';
 import { Profile } from '@/types/models';
 import { createUser, sendPasswordResetEmail } from './userService';
 
-export const getUserDetails = async (): Promise<Profile | null> => {
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+export const getUserDetails = async (token?: string): Promise<Profile | null> => {
+  const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
   if (userError) {
     return null;

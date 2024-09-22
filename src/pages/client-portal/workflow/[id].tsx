@@ -245,7 +245,7 @@ const StepperPage: React.FC = () => {
           'saved',
           storedAnswers,
         );
-        router.push(`/client-portal/audit/${id}`); // Redirection vers la page d'accueil
+        router.push(`/client-portal/audit/${id}`);
       } catch (error) {
         console.error('Error saving session:', error);
         alert('Une erreur est survenue lors de la sauvegarde de la session.');

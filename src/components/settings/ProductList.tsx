@@ -4,12 +4,12 @@ import { FaRegTrashAlt, FaPlus } from 'react-icons/fa';
 import { v4 as uuidv4 } from 'uuid';
 
 interface ProductListProps {
-  products: Product[];
+  products?: Product[];  // Products can be optional
   updateProducts: (products: Product[]) => void;
   errors?: Record<string, string>;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ products, updateProducts, errors = {} }) => {
+const ProductList: React.FC<ProductListProps> = ({ products = [], updateProducts, errors = {} }) => {
   const addProduct = () => {
     updateProducts([...products, { id: uuidv4(), name: '', price: 0, quantity: 0 }]);
   };

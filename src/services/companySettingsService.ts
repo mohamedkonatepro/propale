@@ -150,7 +150,7 @@ export const createOrUpdateCompanySettings = async (settings: CompanySettings): 
   }
 };
 
-async function updateWorkflowProducts(workflowId: string, newProducts: Product[]) {
+async function updateWorkflowProducts(workflowId: string, newProducts: Product[] = []) {
   // Retrieve all existing products for this workflow
   const { data: existingProducts, error: existingProductsError } = await supabase
     .from('products')
@@ -190,7 +190,7 @@ async function updateWorkflowProducts(workflowId: string, newProducts: Product[]
   }
 }
 
-async function updateWorkflowQuestions(workflowId: string, newQuestions: Question[]) {
+async function updateWorkflowQuestions(workflowId: string, newQuestions: Question[] = []) {
   // Retrieve all existing questions for this workflow
   const { data: existingQuestions, error: existingQuestionsError } = await supabase
     .from('questions')

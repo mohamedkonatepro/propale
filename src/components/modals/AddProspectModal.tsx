@@ -114,7 +114,9 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
       setValue('address', `${companySearch.numero_voie} ${companySearch.type_voie} ${companySearch.libelle_voie}`);
       setValue('city', companySearch.libelle_commune);
       setValue('postalcode', companySearch.code_postal);
-      setValue('name', companySearch.nom_commercial);
+      if (!defaultValues?.id) {
+        setValue('name', companySearch.nom_commercial);
+      }
       setValue('country', 'France');
       setMessageAlertSiren('');
     } catch (error) {

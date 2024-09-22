@@ -21,9 +21,11 @@
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cookies-next": "^4.2.1",
+    "cors": "^2.8.5",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.400.0",
-    "next": "14.2.4",
+    "next": "^14.2.13",
     "react": "^18",
     "react-csv": "^2.2.2",
     "react-day-picker": "^8.10.1",
@@ -39,6 +41,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-csv": "^1.1.10",

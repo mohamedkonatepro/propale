@@ -82,8 +82,8 @@ export interface Product {
 export interface Workflow {
   id?: string;
   name: string;
-  products: Product[];
-  questions: Question[];
+  products?: Product[];
+  questions?: Question[];
 }
 
 export interface CompanySettings {

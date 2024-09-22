@@ -8,12 +8,7 @@ import SocialLinks from '@/components/auth/SocialLinks';
 import CustomAlert from '@/components/common/Alert';
 import LoginHeader from '@/components/auth/LoginHeader';
 import { FcGoogle } from "react-icons/fc";
-import { fetchCompanyWithoutParentByProfileId, fetchProspectByUserId } from '@/services/companyService';
-import { ROLES } from '@/constants/roles';
-import { getUserDetails } from '@/services/profileService';
 import { Button } from '@/components/common/Button';
-import { CompanySettings } from '../../types/models';
-import { fetchCompanySettings } from '@/services/companySettingsService';
 
 type LoginFormInputs = {
   email: string;
@@ -33,40 +28,11 @@ const Login = () => {
     setIsLoading(true);
     const { email, password } = data;
     try {
-      const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setMessage(['error', 'Adresse email ou mot de passe incorrects. Veuillez réessayer.']);
       } else {
         setMessage(['']);
-        if (user) {
-          const userDetails = await getUserDetails();
-          const company = await fetchCompanyWithoutParentByProfileId(user?.id);
-          if (company) {
-            const companySettings = await fetchCompanySettings(company.id)
-            if (companySettings?.is_account_disabled === true) {
-              await supabase.auth.signOut();
-              router.push('/');
-              return;
-            }
-          }
-          if (userDetails?.blocked) {
-            await supabase.auth.signOut();
-            router.push('/');
-            return;
-          }
-          if (userDetails?.role === ROLES.SUPER_ADMIN) {
-            router.push('/dashboard');
-            return;
-          }
-          if (userDetails?.role === ROLES.PROSPECT) {
-            const prospect = await fetchProspectByUserId(userDetails.id)
-            router.push(`/client-portal/infos/${prospect?.id}`);
-            return;
-          }
-          if (company) {
-            router.push(`/dashboard/folders/${company.id}`);
-          }
-        }
       }
     } catch (error) {
       setMessage(['error', 'Une erreur est survenue. Veuillez réessayer.']);

@@ -19,12 +19,6 @@ const Callback = () => {
         if (!user.app_metadata.providers.includes('email')) {
           await supabase.auth.signOut();
           await supabaseAdmin.auth.admin.deleteUser(user.id);
-          router.push('/');
-        } else {
-          const company = await fetchCompanyWithoutParentByProfileId(user?.id);
-          if (company) {
-            router.push(`/dashboard/folders/${company.id}`);
-          }
         }
       }
     };

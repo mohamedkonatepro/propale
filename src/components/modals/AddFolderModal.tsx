@@ -54,7 +54,9 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
         setValue('city', adresseEtablissement.libelleCommuneEtablissement);
         setValue('postalcode', adresseEtablissement.codePostalEtablissement);
         setValue('country', 'France');
-        setValue('name', companyData.uniteLegale.denominationUniteLegale);
+        if (!defaultValues?.id) {
+          setValue('name', companyData.uniteLegale.denominationUniteLegale);
+        }
         setMessageAlertSiret('');
       } catch (error) {
         console.error('Erreur lors de la récupération des informations de l’entreprise:', error);
@@ -83,12 +85,15 @@ const AddFolderModal: React.FC<AddFolderModalProps> = ({ isOpen, onRequestClose,
 
   const onSubmitHandler = async (data: FolderFormInputs) => {
     setIsLoading(true);
-    const isValid = await checkSiretAndCompanyId(companyId, watch('siret'));
 
-    if (!isValid) {
-      setMessageAlertSiret('Le SIRET existe déjà');
-      setIsLoading(false);
-      return;
+    if (!defaultValues?.id) {
+      const isValid = await checkSiretAndCompanyId(companyId, watch('siret'));
+
+      if (!isValid) {
+        setMessageAlertSiret('Le SIRET existe déjà');
+        setIsLoading(false);
+        return;
+      }
     }
     await onSubmit(data);
     reset();

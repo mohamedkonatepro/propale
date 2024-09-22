@@ -28,8 +28,8 @@ const productSchema = z.object({
 export const workflowSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1, "Le nom du workflow est requis"),
-  products: z.array(productSchema).min(1, "Au moins un produit est requis"),
-  questions: z.array(questionSchema).min(1, "Au moins une question est requise"),
+  products: z.array(productSchema).optional(),
+  questions: z.array(questionSchema).optional(),
 });
 
 // Schema for company settings

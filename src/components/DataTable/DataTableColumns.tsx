@@ -7,6 +7,27 @@ import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { Company, Profile } from '@/types/models';
 import { IoEyeOutline } from "react-icons/io5";
 import Link from "next/link";
+import { fetchCompanySettings } from "@/services/companySettingsService";
+import { useEffect, useState } from "react";
+
+const StatusCell = ({ companyId }: { companyId: string }) => {
+  const [status, setStatus] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      const companySettings = await fetchCompanySettings(companyId);
+      setStatus(companySettings?.is_account_disabled || false);
+    };
+
+    fetchStatus();
+  }, [companyId]);
+
+  return (
+    <span className={`text-sm ${status ? 'bg-red-100 text-red-600 border border-red-600' : 'bg-green-100 text-green-600 border border-green-600'} px-5 py-1 rounded-full mt-5`}>
+      {status ? 'Inactif' : 'Actif'}
+    </span>
+  );
+};
 
 export const folderColumns = (handleEditCompany: (company: Company) => void, openModalCompany: (companyId: string) => void): ColumnDef<Company>[] => [
   {
@@ -64,7 +85,8 @@ export const folderColumns = (handleEditCompany: (company: Company) => void, ope
         <LiaSortSolid className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <span className={`text-sm ${row.original.blocked ? 'bg-red-100 text-red-600 border border-red-600' : 'bg-green-100 text-green-600 border border-green-600'} px-5 py-1 rounded-full mt-5`}>{row.original.blocked ? 'Inactif' : 'Actif'}</span>
+    cell: ({ row }) => <StatusCell companyId={row.original.id} />,
+
   },
   {
     id: "settings",
