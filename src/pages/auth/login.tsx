@@ -9,6 +9,7 @@ import CustomAlert from '@/components/common/Alert';
 import LoginHeader from '@/components/auth/LoginHeader';
 import { FcGoogle } from "react-icons/fc";
 import { Button } from '@/components/common/Button';
+import handleSessionAndRedirect from '@/services/authService';
 
 type LoginFormInputs = {
   email: string;
@@ -28,11 +29,12 @@ const Login = () => {
     setIsLoading(true);
     const { email, password } = data;
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: { user, session }, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
         setMessage(['error', 'Adresse email ou mot de passe incorrects. Veuillez réessayer.']);
       } else {
         setMessage(['']);
+        await handleSessionAndRedirect(user, session, router);
       }
     } catch (error) {
       setMessage(['error', 'Une erreur est survenue. Veuillez réessayer.']);

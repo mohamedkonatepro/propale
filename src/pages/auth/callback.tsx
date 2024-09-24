@@ -1,4 +1,5 @@
 import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
+import handleSessionAndRedirect from '@/services/authService';
 import { fetchCompanyWithoutParentByProfileId } from '@/services/companyService';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
@@ -20,6 +21,7 @@ const Callback = () => {
           await supabase.auth.signOut();
           await supabaseAdmin.auth.admin.deleteUser(user.id);
         }
+        await handleSessionAndRedirect(user, session, router);
       }
     };
 
