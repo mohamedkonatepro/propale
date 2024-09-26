@@ -138,3 +138,55 @@ export interface Item {
   showName?: boolean;
   content: string | React.ReactNode;
 }
+
+export interface Need {
+  id?: string;
+  name: string;
+  description: string;
+  quantity: number;
+  price: number;
+  showName: boolean;
+  showPrice: boolean;
+}
+
+export interface Paragraph {
+  id?: string;
+  name: string;
+  description: string;
+  showName: boolean;
+}
+
+export interface ProposalData {
+  companyId: string;
+  companyName: string;
+  companySiren: string;
+  prospectId: string;
+  prospectName: string;
+  prospectSiren: string;
+  createdBy: string;
+  title: string;
+  description: string;
+  totalPrice: number;
+  needs: Need[];
+  paragraphs: Paragraph[];
+  status: 'draft' | 'published' | 'archived';
+  mention_realise: boolean;
+}
+
+export interface Proposal {
+  id: string;
+  company_id: string;
+  company_name: string;
+  company_siren: string;
+  prospect_id: string;
+  prospect_name: string;
+  prospect_siren: string;
+  created_by: string;
+  status: 'draft' | 'published' | 'archived';
+  title: string;
+  description: string;
+  total_price: number;
+  mention_realise: boolean;
+  created_at: string;
+  updated_at: string;
+}

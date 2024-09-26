@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { NeedFormData, Item } from '@/types/models';
+import { Need, Item } from '@/types/models';
 import React from 'react';
 import NeedContent from '@/components/clientPortal/proposal/NeedContent';
 
 export const useNeedManagement = (setLeftColumn: React.Dispatch<React.SetStateAction<Item[]>>, newNeedModalState: any) => {
-  const [currentNeed, setCurrentNeed] = useState<NeedFormData | null>(null);
+  const [currentNeed, setCurrentNeed] = useState<Need | null>(null);
 
   const handleAddNeed = () => {
     setCurrentNeed(null);
@@ -16,8 +16,8 @@ export const useNeedManagement = (setLeftColumn: React.Dispatch<React.SetStateAc
     setCurrentNeed({
       id: need.id,
       name: need.name || '',
-      quantity: need.quantity?.toString() || '',
-      price: need.price?.toString() || '',
+      quantity: need.quantity || 1,
+      price: need.price || 1,
       description: need.description || '',
       showPrice: need.showPrice || false,
       showName: need.showName || false,
@@ -25,14 +25,14 @@ export const useNeedManagement = (setLeftColumn: React.Dispatch<React.SetStateAc
     newNeedModalState.openModal();
   };
 
-  const handleModalSubmitNeed = (data: NeedFormData) => {
+  const handleModalSubmitNeed = (data: Need) => {
     const needId = currentNeed?.id || uuidv4();
     const newNeed: Item = {
       id: needId,
       type: 'need' as const,
       name: data.name,
-      quantity: data.quantity ? parseFloat(data.quantity) : 1,
-      price: parseFloat(data.price),
+      quantity: data.quantity,
+      price: data.price,
       description: data.description,
       showPrice: data.showPrice,
       showName: data.showName,

@@ -145,7 +145,6 @@ export const fetchPrimaryContactByCompanyId = async (companyId: string): Promise
     });
 
   if (error) {
-    console.error('Error fetching primary contact:', error);
     return null;
   }
 

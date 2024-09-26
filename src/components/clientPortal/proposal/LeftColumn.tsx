@@ -4,6 +4,7 @@ import { Button } from '@/components/common/Button';
 import { FaPlus } from "react-icons/fa";
 import { CiTextAlignLeft } from "react-icons/ci";
 import { MdLabelOutline } from "react-icons/md";
+import Image from 'next/image';
 
 interface Item {
   id: string;
@@ -36,7 +37,10 @@ const LeftColumn: React.FC<LeftColumnProps> = ({
     <Droppable droppableId="leftColumn">
       {(provided) => (
         <div {...provided.droppableProps} ref={provided.innerRef} className="bg-backgroundGray p-6 rounded-lg shadow-lg w-1/2 min-h-[400px] relative">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">Besoins et Paragraphes</h3>
+          <div className='flex justify-center items-center'>
+            <Image src="/image-drag.png" alt="moove" height={52} width={52}/>
+            <h3 className="text-lg ml-4 mb-2 text-gray-400">Cliquez les éléments pour les modifier</h3>
+          </div>
 
           <div className={`${showExtraButtons ? 'mb-36' : 'mb-16'}`}>
             {items.map((item, index) => (

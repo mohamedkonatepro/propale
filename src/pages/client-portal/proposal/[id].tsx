@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { Company, Item, NeedFormData } from '@/types/models';
+import { Company, Item, Need, Paragraph } from '@/types/models';
 import { fetchCompanyById, fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
 import { useUser } from '@/context/userContext';
 import { statuses, Option } from '@/constants';
@@ -34,6 +34,7 @@ const Proposal: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [prospect, setProspect] = useState<Company | null>(null);
+  const [company, setCompany] = useState<Company | null>(null);
   const [statusOption, setStatusOption] = useState<Option>();
   const newNeedModalState = useModalState();
   const newParagraphModalState = useModalState();
@@ -84,13 +85,54 @@ const Proposal: React.FC = () => {
     setSwitchEnabled(value);
   };
 
-  const handleSave = () => {
-    console.log(rightColumn, switchEnabled);
-    // Ajoutez ici la logique pour sauvegarder la proposition
-    console.log("Sauvegarde des données...");
+  const handleSave = (status: string = 'draft') => {
+    const needs: Need[] = rightColumn
+      .filter(item => item.type === 'need')
+      .map(need => ({
+        name: need.name || '',
+        description: need.description || '',
+        quantity: need.quantity || 1,
+        price: need.price || 0,
+        showName: need.showName || true,
+        showPrice: need.showPrice || true,
+      }));
+  
+    const paragraphs: Paragraph[] = rightColumn
+      .filter(item => item.type === 'paragraph')
+      .map(paragraph => ({
+        name: paragraph.name || '',
+        description: paragraph.description || '',
+        showName: paragraph.showName || true,
+      }));
+  
+    const descriptionItem = rightColumn.find(item => item.type === 'description');
+  
+    // Calcul du prix total en additionnant les prix des besoins
+    const totalPrice = needs.reduce((sum, need) => sum + (need.price * need.quantity), 0);
+  
+    const dataToSave = {
+      companyId: company?.id,
+      companyName: company?.name,
+      companySiren: company?.siren,
+      prospectId: prospect?.id,
+      prospectName: prospect?.name,
+      prospectSiren: prospect?.siren,
+      createdBy: user?.id,
+      title: descriptionItem?.name,
+      description: descriptionItem?.description,
+      totalPrice,
+      needs,
+      paragraphs,
+      status,
+      mention_realise: switchEnabled, // L'état du bouton "Réalisé avec Propale"
+    };
+  
+    console.log('Données de la proposition à sauvegarder :', dataToSave);
   };
+  
 
   const handlePublish = () => {
+    handleSave('publish');
     // Ajoutez ici la logique pour publier la proposition
     console.log("Publication de la proposition...");
   };
@@ -103,18 +145,18 @@ const Proposal: React.FC = () => {
       const prospect = await fetchCompanyById(id);
       const company = await fetchTopMostParentCompanyCompanyById(id);
       setProspect(prospect);
+      setCompany(company);
       if (prospect?.status) {
         setStatusOption(getOption(prospect.status, statuses));
       }
       if (company && prospect) {
         const savedSession = await getStepperSession(company.id, prospect.id);
-        // Logique pour filtrer et combiner les éléments de type "need"
         const combinedNeeds = savedSession?.responses
-          ?.filter(response => response.product_id) // On filtre les éléments avec product_id (les "needs")
+          ?.filter(response => response.product_id)
           ?.reduce((acc, response) => {
             const existingNeed = acc.find(need => need.id === response.product_id);
             if (existingNeed && existingNeed.quantity) {
-              existingNeed.quantity += response.product_quantity; // Si doublon, on additionne les quantités
+              existingNeed.quantity += response.product_quantity;
             } else {
               acc.push({
                 id: response.product_id || '',
@@ -141,7 +183,7 @@ const Proposal: React.FC = () => {
           description: need.description,
           showPrice: true,
           showTitle: true,
-          content: React.createElement(NeedContent, { data: {...need, quantity: need.quantity?.toString(), price: need.price?.toString()} as NeedFormData, id: need.id || '', onEdit: handleEditNeed }),
+          content: React.createElement(NeedContent, { data: need as Need, id: need.id || '', onEdit: handleEditNeed }),
         }));
 
         setLeftColumn((prev) => [
@@ -189,7 +231,7 @@ const Proposal: React.FC = () => {
 
       {/* Boutons en haut à droite */}
       <div className="flex justify-end space-x-4 px-16 mt-4">
-        <button onClick={handleSave} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</button>
+        <button onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</button>
         <button onClick={handlePublish} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></button>
       </div>
       <div className="flex-grow p-8 mx-16 mt-4 bg-backgroundBlue rounded-2xl">

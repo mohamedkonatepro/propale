@@ -1,6 +1,7 @@
 import React from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { Switch } from '@/components/common/Switch';
+import Image from 'next/image';
 
 interface Item {
   id: string;
@@ -15,6 +16,8 @@ interface RightColumnProps {
 }
 
 const RightColumn: React.FC<RightColumnProps> = ({ items, switchEnabled, onSwitchChange }) => {
+  const hasContentItems = items.some(item => item.type !== 'header' && item.type !== 'price');
+
   return (
     <Droppable droppableId="rightColumn">
       {(provided) => (
@@ -23,7 +26,7 @@ const RightColumn: React.FC<RightColumnProps> = ({ items, switchEnabled, onSwitc
           ref={provided.innerRef}
           className="bg-backgroundGray p-6 rounded-lg shadow-lg w-1/2 min-h-[400px] relative"
         >
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">Proposition</h3>
+          <h3 className="text-xl font-semibold mb-4 text-black text-center">Ma Propale</h3>
           
           <div className={'mb-16'}>
             {items.map((item, index) => (
@@ -47,6 +50,14 @@ const RightColumn: React.FC<RightColumnProps> = ({ items, switchEnabled, onSwitc
             ))}
             
             {provided.placeholder}
+            {!hasContentItems && (
+              <div className='flex flex-col justify-center items-center'>
+                <Image src="/image-drag-and-drop.png" alt="drag-and-drop" height={104} width={104}/>
+                <div className='text-gray-400 w-1/2 text-center'>
+                  Glissez les éléments sur cette fenêtre pour constituer votre Propale
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Element en bas de la colonne */}

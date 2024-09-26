@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { FaTimes } from 'react-icons/fa';
 import { Switch } from '../common/Switch';
-import { NeedFormData } from '@/types/models';
+import { Need } from '@/types/models';
 
 const customStyles = {
   content: {
@@ -24,7 +24,7 @@ type NewNeedModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => void;
-  initialData?: NeedFormData | null;
+  initialData?: Need | null;
 };
 
 const NewNeedModal: React.FC<NewNeedModalProps> = ({ isOpen, onRequestClose, onSubmit, initialData }) => {

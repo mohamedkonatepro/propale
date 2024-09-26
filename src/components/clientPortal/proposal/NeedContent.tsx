@@ -1,9 +1,9 @@
 import React from 'react';
 import { GrFormEdit } from 'react-icons/gr';
-import { NeedFormData, Item } from '@/types/models';
+import { Need, Item } from '@/types/models';
 
 interface NeedContentProps {
-  data: NeedFormData;
+  data: Need;
   id: string;
   onEdit: (item: Item) => void;
 }
