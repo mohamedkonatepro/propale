@@ -22,6 +22,7 @@ const productSchema = z.object({
   name: z.string().min(1, "Le nom du produit est requis"),
   price: z.number().min(0, "Le prix ne peut pas être négatif"),
   quantity: z.number().int().min(0, "La quantité ne peut pas être négative"),
+  description: z.string().optional(),
 });
 
 // Schema for workflow

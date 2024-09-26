@@ -11,7 +11,7 @@ interface ProductListProps {
 
 const ProductList: React.FC<ProductListProps> = ({ products = [], updateProducts, errors = {} }) => {
   const addProduct = () => {
-    updateProducts([...products, { id: uuidv4(), name: '', price: 0, quantity: 0 }]);
+    updateProducts([...products, { id: uuidv4(), name: '', price: 0, quantity: 0, description: '' }]);
   };
 
   const updateProduct = (index: number, field: keyof Product, value: string | number) => {
@@ -63,6 +63,15 @@ const ProductList: React.FC<ProductListProps> = ({ products = [], updateProducts
             >
               <FaRegTrashAlt className="text-red-500" size={20} />
             </button>
+          </div>
+          <div className="mb-2 w-full">
+            <textarea 
+              value={product.description || ''}
+              onChange={(e) => updateProduct(index, 'description', e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Entrez votre description"
+              rows={2}
+            />
           </div>
           <div className="flex items-center mb-2 w-full">
             {errors[`workflow.products.${index}.name`] && <div className='w-3/5'><span className="text-red-500">{errors[`workflow.products.${index}.name`]}</span></div>}

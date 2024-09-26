@@ -171,7 +171,8 @@ async function updateWorkflowProducts(workflowId: string, newProducts: Product[]
         workflow_id: workflowId,
         name: product.name,
         price: product.price,
-        quantity: product.quantity
+        quantity: product.quantity,
+        description: product.description,
       });
 
     if (productError) throw productError;

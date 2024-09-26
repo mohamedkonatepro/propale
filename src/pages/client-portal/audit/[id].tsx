@@ -51,7 +51,7 @@ const Audit: React.FC = () => {
 
       const companyForSettings = await fetchTopMostParentCompanyCompanyById(id)
       if (companyForSettings && company) {
-        const session = await getStepperSession(companyForSettings.id, user.id, company.id);
+        const session = await getStepperSession(companyForSettings.id, company.id);
         if (session) {
           setWorkflowStatus(session.session.status);
   

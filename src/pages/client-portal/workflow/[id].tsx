@@ -57,7 +57,7 @@ const StepperPage: React.FC = () => {
       }
   
       const settings = await fetchCompanySettings(company.id);
-      const savedSession = await getStepperSession(company.id, user.id, prospect.id);
+      const savedSession = await getStepperSession(company.id, prospect.id);
   
       setProspect(prospect);
       setCompany(company);
@@ -65,30 +65,37 @@ const StepperPage: React.FC = () => {
   
       const countStepper = await countStepperSessionByCompanyId(company.id);
       if (settings && countStepper >= settings.workflows_allowed && !savedSession) {
-        setAccess(false)
+        setAccess(false);
         return;
       }
-      setAccess(true)
-      
+      setAccess(true);
+  
       if (savedSession) {
-        const restoredAnswers = savedSession.responses.map(r => ({
+        // Récupération des réponses restaurées
+        let restoredAnswers = savedSession.responses.map(r => ({
           question: settings?.workflow.questions.find(q => q.id === r.question_id) as DbQuestion,
-          answer: JSON.parse(r.answer),
+          answer: JSON.parse(r.answer || ''),
           products: r.product_id ? [settings?.workflow.products.find(p => p.id === r.product_id) as DbProduct] : []
         }));
+  
+        // Si la session est "completed", ne garder que les questions avec des réponses
+        if (savedSession.session.status === 'completed') {
+          restoredAnswers = restoredAnswers.filter(({ answer }) => answer !== null && answer !== '');
+        }
+  
         setStoredAnswers(restoredAnswers);
         setInitialState({
           currentStepId: savedSession.session.current_step_name,
           currentQuestionId: savedSession.session.current_question_id,
-          answers: Object.fromEntries(restoredAnswers.map(({question, answer}) => [question.id, answer]))
+          answers: Object.fromEntries(restoredAnswers.map(({ question, answer }) => [question.id, answer]))
         });
   
-        setAnsweredQuestions(restoredAnswers.map(({question}) => question.id));
-        setValidatedQuestions(restoredAnswers.map(({question}) => question.id));
+        setAnsweredQuestions(restoredAnswers.map(({ question }) => question.id));
+        setValidatedQuestions(restoredAnswers.map(({ question }) => question.id));
   
         if (savedSession.session.status === 'completed') {
           setFinish(true);
-          setCompletedSteps([savedSession.session.current_step_name]);
+          setCompletedSteps([savedSession.session.current_step_name || '']);
         }
       }
     } catch (err) {
@@ -98,6 +105,7 @@ const StepperPage: React.FC = () => {
       setLoading(false);
     }
   }, [id, user]);
+  
   
   useEffect(() => {
     loadData();
@@ -115,7 +123,7 @@ const StepperPage: React.FC = () => {
     handlePreviousClick,
     setAnswer,
     getQuestionResponses,
-  } = useStepperState(companySettings?.workflow.questions || [], initialState);
+  } = useStepperState(companySettings?.workflow.questions || [], finish, initialState);
 
   const storeAnswer = useCallback((question: Question, answer: string | string[], products: DbProduct[]) => {
     if (!question.id) {

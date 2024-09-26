@@ -9,11 +9,12 @@ interface Step {
 
 export const useStepperState = (
   initialQuestions: any[], 
+  finish: boolean,
   initialState?: {
     currentStepId?: string;
     currentQuestionId?: string;
     answers?: Record<string, string | string[]>;
-  }
+  },
 ) => {
   const [steps, setSteps] = useState<Step[]>([]);
 
@@ -35,10 +36,13 @@ export const useStepperState = (
 
   useEffect(() => {
     if (initialQuestions.length > 0) {
-      setSteps([{ id: 'default-step', name: 'Questionnaire', questions: initialQuestions }]);
+      const finishQuestions = initialQuestions.filter(question =>
+        initialState?.answers?.[question.id]
+      );
+      setSteps([{ id: 'default-step', name: 'Questionnaire', questions: finish ? finishQuestions : initialQuestions }]);
     }
-  }, [initialQuestions]);
-
+  }, [initialQuestions, initialState]);
+  
   useEffect(() => {
     if (initialState?.currentStepId) {
       const index = steps.findIndex(step => step.id === initialState.currentStepId);

@@ -77,6 +77,7 @@ export interface Product {
   name: string;
   price: number;
   quantity: number;
+  description?: string;
 }
 
 export interface Workflow {
@@ -114,4 +115,26 @@ export interface Question {
   mapping?: {
     [key: string]: string;
   };
+}
+
+export interface NeedFormData {
+  id?: string;
+  name: string;
+  quantity: string;
+  price: string;
+  description: string;
+  showPrice: boolean;
+  showName: boolean;
+}
+
+export interface Item {
+  id: string;
+  type: 'need' | 'paragraph' | 'header' | 'price' | 'description';
+  name?: string;
+  quantity?: number;
+  price?: number;
+  description?: string;
+  showPrice?: boolean;
+  showName?: boolean;
+  content: string | React.ReactNode;
 }

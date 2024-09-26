@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
-import { DbQuestion, DbProduct } from '@/types/dbTypes';
+import { DbQuestion, DbProduct, StepperSession } from '@/types/dbTypes';
+import { StepperResponse } from '../types/dbTypes';
 
 export const saveStepperSession = async (
   profileId: string,
@@ -28,7 +29,7 @@ export const saveStepperSession = async (
       current_step_name: currentStepName,
       current_question_id: currentQuestionId,
     }], {
-      onConflict: 'company_id,workflow_id,profile_id,prospect_id',
+      onConflict: 'company_id,workflow_id,prospect_id',
     })
     .select()
     .single();
@@ -54,6 +55,7 @@ export const saveStepperSession = async (
         product_id: products[0]?.id,
         product_price: products[0]?.price,
         product_quantity: products[0]?.quantity,
+        product_description: products[0]?.description,
         answer: JSON.stringify(answer),
         is_validated: true,
       }))
@@ -62,12 +64,11 @@ export const saveStepperSession = async (
   if (responsesError) throw responsesError;
 };
 
-export const getStepperSession = async (companyId: string, profileId: string, prospectId: string) => {
+export const getStepperSession = async (companyId: string, prospectId: string): Promise<{ session: StepperSession, responses: StepperResponse[] } | null> => {
   const { data: session, error: sessionError } = await supabase
     .from('stepper_sessions')
     .select('*')
     .eq('company_id', companyId)
-    .eq('profile_id', profileId)
     .eq('prospect_id', prospectId)
     .single();
 
