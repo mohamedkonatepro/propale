@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ColumnDef } from "@tanstack/react-table";
 import { FaDownload, FaPlus } from "react-icons/fa";
 import { LiaSortSolid } from "react-icons/lia";
@@ -9,6 +9,16 @@ import { format } from 'date-fns';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../common/DropdownMenu';
 import { MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/router';
+import { Option } from '@/constants';
+import { getOption } from '@/lib/utils';
+import Badge from '../common/Badge';
+
+const statusOptions: Option[] = [
+  { label: 'En cours', value: 'draft', color: 'blue' },
+  { label: 'Accepté', value: 'accepted', color: 'green' },
+  { label: 'Refusé', value: 'refused', color: 'red' },
+  { label: 'Proposé', value: 'proposed', color: 'orange' },
+];
 
 type ProposalTableProps = {
   proposals: Proposal[];
@@ -59,14 +69,22 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
       header: ({ column }) => (
         <Button
           variant="ghost"
-          className='flex items-center justify-start w-full p-0'
+          className='flex items-center justify-center w-full p-0'
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Statut
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="capitalize">{row.getValue("status")}</div>,
+      cell: ({ row }) => {
+        const status = getOption(row.getValue("status"), statusOptions);
+        return (
+          <Badge
+            label={status.label}
+            color={status.color}
+          />
+        )
+      },
     },
     {
       accessorKey: "created_at",
@@ -81,7 +99,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div>{format(new Date(row.getValue("created_at")), 'dd/MM/yyyy')}</div>,
+      cell: ({ row }) => <div className='ml-4'>{format(new Date(row.getValue("created_at")), 'dd/MM/yyyy')}</div>,    
     },
     {
       accessorKey: "updated_at",
@@ -96,7 +114,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div>{format(new Date(row.getValue("updated_at")), 'dd/MM/yyyy')}</div>,
+      cell: ({ row }) => <div className='ml-4'>{format(new Date(row.getValue("updated_at")), 'dd/MM/yyyy')}</div>,
     },
     {
       id: "download",
