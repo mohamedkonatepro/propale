@@ -34,8 +34,8 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
 
   const columns: ColumnDef<Proposal>[] = [
     {
-      accessorKey: "title",
-      id: "title",
+      accessorKey: "name",
+      id: "name",
       header: ({ column }) => (
         <Button
           variant="ghost"
@@ -46,7 +46,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className="capitalize">{row.getValue("title")}</div>,
+      cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
     },
     {
       accessorKey: "total_price",

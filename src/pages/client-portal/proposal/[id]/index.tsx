@@ -36,12 +36,14 @@ const Proposal: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [prospect, setProspect] = useState<Company | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [statusOption, setStatusOption] = useState<Option>();
   const newNeedModalState = useModalState();
   const newParagraphModalState = useModalState();
   const [showExtraButtons, setShowExtraButtons] = useState(false);
+  const [nameProposal, setNameProposal] = useState('');
   const newDescriptionModalState = useModalState();
   const [switchEnabled, setSwitchEnabled] = useState(true);
   const [proposalStatus, setProposalStatus] = useState<ProposalStatus['status']>();
@@ -90,6 +92,12 @@ const Proposal: React.FC = () => {
   };
 
   const handleSave = async (status: ProposalStatus['status'] = 'draft') => {
+    if (!nameProposal.trim()) {
+      setNameError("Le nom de la proposition est obligatoire.");
+      setLoadingSave(false);
+      return;
+    }
+    setNameError(null);
     setLoadingSave(true);
     const needs: Need[] = rightColumn
       .filter(item => item.type === 'need')
@@ -115,6 +123,7 @@ const Proposal: React.FC = () => {
   
     if (company && prospect && user) {
       const dataToSave: ProposalData = {
+        name: nameProposal,
         companyId: company?.id,
         companyName: company?.name,
         companySiren: company?.siren || '',
@@ -170,7 +179,8 @@ const Proposal: React.FC = () => {
         handleEditDescription,
         handleEditNeed,
         handleEditParagraph,
-        setProposalStatus
+        setProposalStatus,
+        setNameProposal
       );
     } catch (err) {
       setError("Une erreur s'est produite lors du chargement des données");
@@ -210,9 +220,21 @@ const Proposal: React.FC = () => {
         <ProspectNavBar active="proposal" prospectId={id as string} />
       </div>
 
-      <div className="flex justify-end space-x-4 px-16 mt-4">
-        <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</Button>
-        <Button isLoading={loadingSave} disabled={loadingSave} onClick={handlePublish} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
+      <div className="flex justify-between space-x-4 px-16 mt-4 items-center">
+        <div>
+          <input
+            type="text"
+            value={nameProposal}
+            onChange={(e) => setNameProposal(e.target.value)}
+            placeholder="Nom de la proposition"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {nameError && <p className="text-red-600 text-sm mt-1">{nameError}</p>}
+        </div>
+        <div className='flex space-x-4'>
+          <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</Button>
+          <Button isLoading={loadingSave} disabled={loadingSave} onClick={handlePublish} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
+        </div>
       </div>
       <div className="flex-grow p-8 mx-16 mt-4 bg-backgroundBlue rounded-2xl">
         <DragDropContext onDragEnd={onDragEnd}>

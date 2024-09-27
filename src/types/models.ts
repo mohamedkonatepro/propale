@@ -161,6 +161,7 @@ export interface Paragraph {
 }
 
 export interface ProposalData {
+  name: string;
   companyId: string;
   companyName: string;
   companySiren: string;
@@ -180,6 +181,7 @@ export interface ProposalData {
 
 export interface Proposal {
   id: string;
+  name: string;
   company_id: string;
   company_name: string;
   company_siren: string;

@@ -16,12 +16,13 @@ export const loadProposalData = async (
   handleEditDescription: (description: any) => void,
   handleEditNeed: (need: any) => void,
   handleEditParagraph: (paragraph: any) => void,
-  setProposalStatus: (status: ProposalStatus['status']) => void
+  setProposalStatus: (status: ProposalStatus['status']) => void,
+  setNameProposal: (name: string) => void,
 ) => {
   if (proposalId) {
     const { proposal, needs, paragraphs } = await getProposalById(proposalId);
     setProposalStatus(proposal.status);
-
+    setNameProposal(proposal.name);
     if (proposal.title && proposal.description || proposal.description === 'Ceci est la description initiale du projet.' && proposal.title === 'Description du projet') {
       setLeftColumn([] as any);
       setRightColumn((prev) => [

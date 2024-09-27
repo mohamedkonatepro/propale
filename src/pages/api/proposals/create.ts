@@ -8,6 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   await corsMiddleware(req, res, cors);
   if (req.method === 'POST') {
     const { 
+      name,
       companyId, 
       companyName, 
       companySiren, 
@@ -30,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { data: proposal, error: proposalError } = await supabase
         .from('proposals')
         .insert([{
+          name,
           company_id: companyId,
           company_name: companyName,
           company_siren: companySiren,
