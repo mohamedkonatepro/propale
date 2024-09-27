@@ -36,7 +36,7 @@ const ProspectNavBar: React.FC<ProspectNavBarProps> = ({ active, prospectId }) =
       {/* <NavItem href={`/client-portal/canvas/${prospectId}`} isActive={active === 'canvas'}>
         Canevas
       </NavItem> */}
-      <NavItem href={`/client-portal/proposal/${prospectId}`} isActive={active === 'proposal'}>
+      <NavItem href={`/client-portal/proposal/${prospectId}/list`} isActive={active === 'proposal'}>
         Proposition
       </NavItem>
     </div>

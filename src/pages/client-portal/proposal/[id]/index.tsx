@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { Company, Item, Need, Paragraph } from '@/types/models';
+import { Company, Item, Need, Paragraph, ProposalData, ProposalStatus } from '@/types/models';
 import { fetchCompanyById, fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
 import { useUser } from '@/context/userContext';
 import { statuses, Option } from '@/constants';
@@ -12,7 +12,6 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { ROLES } from '@/constants/roles';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { getStepperSession } from '@/services/stepperService';
 import { GrFormEdit } from 'react-icons/gr';
 import NewParagraphModal from '@/components/modals/NewParagraphModal';
 import NewDescriptionModal from '@/components/modals/NewDescriptionModal';
@@ -21,17 +20,21 @@ import LeftColumn from '@/components/clientPortal/proposal/LeftColumn';
 import { useNeedManagement } from '@/hooks/proposal/useNeedManagement';
 import { useParagraphManagement } from '@/hooks/proposal/useParagraphManagement';
 import { useDescriptionManagement } from '@/hooks/proposal/useDescriptionManagement';
-import NeedContent from '@/components/clientPortal/proposal/NeedContent';
 import NewNeedModal from '@/components/modals/NewNeedModal';
 import { useDragAndDrop } from '@/hooks/proposal/useDragAndDrop';
 import { VscSend } from "react-icons/vsc";
+import { createProposal, updateProposal } from '@/services/proposalService';
+import { loadProposalData } from '@/hooks/proposal/useLoadData';
+import { Button } from '@/components/common/Button';
+import { toast } from 'react-toastify';
 
 
 const Proposal: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, proposalId } = router.query;
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
+  const [loadingSave, setLoadingSave] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [prospect, setProspect] = useState<Company | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
@@ -41,6 +44,7 @@ const Proposal: React.FC = () => {
   const [showExtraButtons, setShowExtraButtons] = useState(false);
   const newDescriptionModalState = useModalState();
   const [switchEnabled, setSwitchEnabled] = useState(true);
+  const [proposalStatus, setProposalStatus] = useState<ProposalStatus['status']>();
   const [leftColumn, setLeftColumn] = useState<Item[]>([
     {
       id: 'description',
@@ -78,14 +82,15 @@ const Proposal: React.FC = () => {
   ]);
 
   const { handleAddNeed, handleEditNeed, handleModalSubmitNeed, currentNeed } = useNeedManagement(setLeftColumn, newNeedModalState);
-  const { handleAddParagraph, handleModalSubmitParagraph, currentParagraph } = useParagraphManagement(setLeftColumn, newParagraphModalState);
+  const { handleAddParagraph, handleModalSubmitParagraph, handleEditParagraph, currentParagraph } = useParagraphManagement(setLeftColumn, newParagraphModalState);
   const { handleEditDescription, handleModalSubmitDescription, currentDescription } = useDescriptionManagement(setLeftColumn, newDescriptionModalState);
 
   const handleSwitchChange = (value: boolean) => {
     setSwitchEnabled(value);
   };
 
-  const handleSave = (status: string = 'draft') => {
+  const handleSave = async (status: ProposalStatus['status'] = 'draft') => {
+    setLoadingSave(true);
     const needs: Need[] = rightColumn
       .filter(item => item.type === 'need')
       .map(need => ({
@@ -106,34 +111,41 @@ const Proposal: React.FC = () => {
       }));
   
     const descriptionItem = rightColumn.find(item => item.type === 'description');
-  
-    // Calcul du prix total en additionnant les prix des besoins
     const totalPrice = needs.reduce((sum, need) => sum + (need.price * need.quantity), 0);
   
-    const dataToSave = {
-      companyId: company?.id,
-      companyName: company?.name,
-      companySiren: company?.siren,
-      prospectId: prospect?.id,
-      prospectName: prospect?.name,
-      prospectSiren: prospect?.siren,
-      createdBy: user?.id,
-      title: descriptionItem?.name,
-      description: descriptionItem?.description,
-      totalPrice,
-      needs,
-      paragraphs,
-      status,
-      mention_realise: switchEnabled, // L'état du bouton "Réalisé avec Propale"
-    };
-  
-    console.log('Données de la proposition à sauvegarder :', dataToSave);
+    if (company && prospect && user) {
+      const dataToSave: ProposalData = {
+        companyId: company?.id,
+        companyName: company?.name,
+        companySiren: company?.siren || '',
+        prospectId: prospect?.id,
+        prospectName: prospect?.name,
+        prospectSiren: prospect?.siren || '',
+        createdBy: user?.id,
+        title: descriptionItem?.name || '',
+        showTitle: descriptionItem?.showName || true,
+        description: descriptionItem?.description || '',
+        totalPrice,
+        needs,
+        paragraphs,
+        status,
+        mention_realise: switchEnabled,
+      };
+    
+      if (proposalStatus === 'draft' && proposalId) {
+        await updateProposal(proposalId as string, dataToSave);
+        toast.success('La proposition a bien été mise à jour.');
+      } else {
+        await createProposal(dataToSave);
+        toast.success('La proposition a bien été créée.');
+      }      
+    }
+    setLoadingSave(false);
   };
   
 
   const handlePublish = () => {
-    handleSave('publish');
-    // Ajoutez ici la logique pour publier la proposition
+    handleSave('accepted');
     console.log("Publication de la proposition...");
   };
 
@@ -149,48 +161,17 @@ const Proposal: React.FC = () => {
       if (prospect?.status) {
         setStatusOption(getOption(prospect.status, statuses));
       }
-      if (company && prospect) {
-        const savedSession = await getStepperSession(company.id, prospect.id);
-        const combinedNeeds = savedSession?.responses
-          ?.filter(response => response.product_id)
-          ?.reduce((acc, response) => {
-            const existingNeed = acc.find(need => need.id === response.product_id);
-            if (existingNeed && existingNeed.quantity) {
-              existingNeed.quantity += response.product_quantity;
-            } else {
-              acc.push({
-                id: response.product_id || '',
-                name: response.product_name,
-                price: response.product_price,
-                quantity: response.product_quantity,
-                description: response.product_description,
-                type: 'need',
-                showPrice: true,
-                showName: true,
-                content: '',
-              });
-            }
-            return acc;
-          }, [] as Array<Item>) ?? [];
-
-        // Mettre à jour la colonne gauche avec les "needs" combinés
-        const newNeeds = combinedNeeds.map(need => ({
-          id: need.id || '',
-          type: 'need' as 'need',
-          name: need.name,
-          quantity: need.quantity,
-          price: need.price,
-          description: need.description,
-          showPrice: true,
-          showTitle: true,
-          content: React.createElement(NeedContent, { data: need as Need, id: need.id || '', onEdit: handleEditNeed }),
-        }));
-
-        setLeftColumn((prev) => [
-          ...prev.filter((item: Item) => item.type !== 'need'),
-          ...newNeeds
-        ])
-      }
+      await loadProposalData(
+        proposalId as string,
+        company,
+        prospect,
+        setLeftColumn,
+        setRightColumn,
+        handleEditDescription,
+        handleEditNeed,
+        handleEditParagraph,
+        setProposalStatus
+      );
     } catch (err) {
       setError("Une erreur s'est produite lors du chargement des données");
       console.error(err);
@@ -229,10 +210,9 @@ const Proposal: React.FC = () => {
         <ProspectNavBar active="proposal" prospectId={id as string} />
       </div>
 
-      {/* Boutons en haut à droite */}
       <div className="flex justify-end space-x-4 px-16 mt-4">
-        <button onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</button>
-        <button onClick={handlePublish} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></button>
+        <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</Button>
+        <Button isLoading={loadingSave} disabled={loadingSave} onClick={handlePublish} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
       </div>
       <div className="flex-grow p-8 mx-16 mt-4 bg-backgroundBlue rounded-2xl">
         <DragDropContext onDragEnd={onDragEnd}>

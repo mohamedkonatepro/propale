@@ -54,7 +54,7 @@ export const useDragAndDrop = (
   return { onDragEnd };
 };
 
-const enforceRightColumnConstraints = (items: Item[]): Item[] => {
+export const enforceRightColumnConstraints = (items: Item[]): Item[] => {
   const header = items.find(item => item.type === 'header');
   const description = items.find(item => item.type === 'description');
   const price = items.find(item => item.type === 'price');

@@ -147,6 +147,8 @@ export interface Need {
   price: number;
   showName: boolean;
   showPrice: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Paragraph {
@@ -154,6 +156,8 @@ export interface Paragraph {
   name: string;
   description: string;
   showName: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ProposalData {
@@ -165,11 +169,12 @@ export interface ProposalData {
   prospectSiren: string;
   createdBy: string;
   title: string;
+  showTitle: boolean;
   description: string;
   totalPrice: number;
   needs: Need[];
   paragraphs: Paragraph[];
-  status: 'draft' | 'published' | 'archived';
+  status: ProposalStatus['status'];
   mention_realise: boolean;
 }
 
@@ -182,11 +187,16 @@ export interface Proposal {
   prospect_name: string;
   prospect_siren: string;
   created_by: string;
-  status: 'draft' | 'published' | 'archived';
+  status: ProposalStatus['status'];
   title: string;
   description: string;
+  show_title: boolean;
   total_price: number;
   mention_realise: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface ProposalStatus {
+  status: 'draft' | 'accepted' | 'refused' | 'proposed';
 }
