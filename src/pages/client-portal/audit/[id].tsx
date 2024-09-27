@@ -100,21 +100,6 @@ const Audit: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
-      <header className='flex px-8 pt-5 bg-white justify-between'>
-        {statusOption && <Header title={company?.name} badgeName={statusOption.label} badgeColor={statusOption.color} siren={company?.siren} />}
-        {user?.role !== ROLES.PROSPECT ? <Link className="text-blueCustom" href={`/dashboard/prospect/${company?.company_id}`}>Retour</Link> :
-          <div className='flex ml-3 cursor-pointer' onClick={handleLogout}>
-              <label className="mt-5 block text-base text-red-500 cursor-pointer">
-                Se déconnecter
-              </label>
-          </div>}
-      </header>   
-
-      <div className='flex justify-center mt-10'>
-        <ProspectNavBar active="audit" prospectId={id as string} />
-      </div>
-
       <div className="flex flex-1 items-center justify-center overflow-hidden">
         <main className="w-4/5 p-12 overflow-y-auto flex flex-col">
           <div className="flex-grow">
@@ -141,7 +126,6 @@ const Audit: React.FC = () => {
           </div>
         </main>
       </div>
-    </div>
   );
 };
 

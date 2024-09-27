@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { ProspectNavBarActive } from '@/types/types';
 
 interface NavItemProps {
   href: string;
@@ -20,7 +21,7 @@ const NavItem: React.FC<NavItemProps> = ({ href, isActive, children }) => (
 );
 
 interface ProspectNavBarProps {
-  active: 'infos' | 'audit' | 'proposal' | 'canvas';
+  active: ProspectNavBarActive;
   prospectId: string;
 }
 

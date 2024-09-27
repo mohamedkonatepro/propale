@@ -98,22 +98,7 @@ const Proposal: React.FC = () => {
   if (error) return <div>Erreur : {error}</div>;
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      <header className='flex px-8 py-5 bg-white justify-between items-center shadow-md'>
-        {statusOption && <Header title={prospect?.name} badgeName={statusOption.label} badgeColor={statusOption.color} siren={prospect?.siren} />}
-        {user?.role !== ROLES.PROSPECT ? (
-          <Link className="text-blue-600 hover:text-blue-800 transition-colors" href={`/dashboard/prospect/${prospect?.company_id}`}>Retour</Link>
-        ) : (
-          <button onClick={handleLogout} className="text-red-500 hover:text-red-700 transition-colors">
-            Se déconnecter
-          </button>
-        )}
-      </header>
-
-      <div className='flex justify-center mt-6'>
-        <ProspectNavBar active="proposal" prospectId={id as string} />
-      </div>
-
+    <div className="">
       <div className="flex justify-between px-16 mt-12">
         <h2 className='text-black font-bold text-2xl'>Vos propales</h2>
         <button onClick={handleAddClick} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Nouvelle propale <FaPlus className='ml-2'/></button>
