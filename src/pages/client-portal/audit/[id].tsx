@@ -8,15 +8,8 @@ import { getStepperSession } from '@/services/stepperService';
 import { fetchCompanySettings } from '@/services/companySettingsService';
 import { DbCompanySettings } from '@/types/dbTypes';
 import { hasAccessToAudit } from '@/constants/permissions';
+import ProgressBar from '@/components/common/ProgressBar';
 
-const ProgressBar: React.FC<{ percentage: number }> = ({ percentage }) => (
-  <div className="w-full bg-gray-200 rounded-b-3xl h-2.5 mb-4 dark:bg-gray-700">
-    <div 
-      className={`bg-blueCustom h-2.5 ${percentage === 100 ? 'rounded-b-full' : 'rounded-bl-full'} dark:bg-blue-500`} 
-      style={{ width: `${percentage}%` }}
-    ></div>
-  </div>
-);
 
 const Audit: React.FC = () => {
   const router = useRouter();

@@ -29,7 +29,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   }, []);
 
   const isDashboard = router.pathname.startsWith('/dashboard');
-  const isClientPortal = router.pathname.startsWith('/client-portal');
+  const isClientPortal = router.pathname.startsWith('/client-portal') && !router.pathname.startsWith('/client-portal/workflow');
   const isDashboardHome = router.pathname === '/dashboard';
 
   useEffect(() => {
