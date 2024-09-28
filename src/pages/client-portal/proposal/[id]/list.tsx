@@ -37,10 +37,6 @@ const Proposal: React.FC = () => {
     fetchProposals();
   }, [id]);
 
-  const handleDownloadPdf = (proposal: IProposal) => {
-    console.log('Télécharger PDF pour la propale :', proposal);
-  };
-
   const handleDeleteClick = async (proposalId: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer cette proposition ?")) {
       try {
@@ -64,7 +60,7 @@ const Proposal: React.FC = () => {
         <button onClick={handleAddClick} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Nouvelle propale <FaPlus className='ml-2'/></button>
       </div>
       <div className="flex-grow mx-16 rounded-2xl">
-        <ProposalTable proposals={proposals} handleDownloadPdf={handleDownloadPdf} handleDeleteClick={handleDeleteClick} />
+        <ProposalTable proposals={proposals} handleDeleteClick={handleDeleteClick} />
       </div>
     </div>
   );

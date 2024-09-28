@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ColumnDef } from "@tanstack/react-table";
-import { FaDownload, FaPlus } from "react-icons/fa";
+import { FaDownload } from "react-icons/fa";
 import { LiaSortSolid } from "react-icons/lia";
 import { DataTable } from '@/components/DataTable/DataTable';
 import { Button } from '@/components/common/Button';
@@ -12,6 +12,7 @@ import { useRouter } from 'next/router';
 import { Option } from '@/constants';
 import { getOption } from '@/lib/utils';
 import Badge from '../common/Badge';
+import { generatePdf } from '@/services/pdfService';
 
 const statusOptions: Option[] = [
   { label: 'En cours', value: 'draft', color: 'blue' },
@@ -22,14 +23,26 @@ const statusOptions: Option[] = [
 
 type ProposalTableProps = {
   proposals: Proposal[];
-  handleDownloadPdf: (proposal: Proposal) => void;
   handleDeleteClick: (proposalId: string) => void;
 };
 
-const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownloadPdf, handleDeleteClick }) => {
+const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteClick }) => {
   const router = useRouter();
+  const [loadingId, setLoadingId] = useState<string | null>(null); // Track the loading state per row
+
   const handleEditClick = (proposal: Proposal) => {
     router.push(`/client-portal/proposal/${proposal.prospect_id}?proposalId=${proposal.id}`);
+  };
+
+  const handleDownloadPdf = async (proposal: Proposal) => {
+    setLoadingId(proposal.id); // Set the current row to loading
+    try {
+      await generatePdf(`${process.env.NEXT_PUBLIC_URL}/proposals/${proposal.id}`);
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+    } finally {
+      setLoadingId(null); // Reset loading state after completion
+    }
   };
 
   const columns: ColumnDef<Proposal>[] = [
@@ -83,7 +96,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
             label={status.label}
             color={status.color}
           />
-        )
+        );
       },
     },
     {
@@ -99,7 +112,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div className='ml-4'>{format(new Date(row.getValue("created_at")), 'dd/MM/yyyy')}</div>,    
+      cell: ({ row }) => <div className='ml-4'>{format(new Date(row.getValue("created_at")), 'dd/MM/yyyy')}</div>,
     },
     {
       accessorKey: "updated_at",
@@ -119,11 +132,19 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDownload
     {
       id: "download",
       enableHiding: false,
-      cell: ({ row }) => (
-        <Button className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100" onClick={() => handleDownloadPdf(row.original)}>
-          <div>Télécharger en PDF</div> <FaDownload className="h-4 w-4 ml-2" />
-        </Button>
-      ),
+      cell: ({ row }) => {
+        const proposal = row.original;
+        return (
+          <Button
+            isLoading={loadingId === proposal.id} // Only show loading for the current row
+            disabled={loadingId === proposal.id}
+            className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100 flex items-center"
+            onClick={() => handleDownloadPdf(proposal)}
+          >
+            <span>Télécharger en PDF</span> <FaDownload className="h-4 w-4 ml-2" />
+          </Button>
+        );
+      },
     },
     {
       id: "menuProspect",

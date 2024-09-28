@@ -2,6 +2,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 import { getProposalById } from "@/services/proposalService";
 import { Proposal, Need, Paragraph } from "@/types/models";
+import { format } from 'date-fns';
 
 interface ProposalPageProps {
   proposalData: Proposal | null;
@@ -33,7 +34,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
           </div>
           <div className="text-right">
             <h5 className="text-lg font-semibold text-black">{proposalData.company_name}</h5>
-            <p className="text-sm text-gray-500 mt-10">Le {new Date(proposalData.updated_at).toLocaleDateString()}</p>
+            <p className="text-sm text-gray-500 mt-10">Le {format(new Date(proposalData.updated_at), 'dd/MM/yyyy')}</p>
           </div>
         </div>
 
