@@ -231,74 +231,9 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }: any) => {
-        const [completionPercentage, setCompletionPercentage] = useState<number>(0);
-        const [workflowStatus, setWorkflowStatus] = useState<string>("not_started");
-    
-        useEffect(() => {
-          const fetchWorkflowData = async () => {
-            const companyId = row.original.id;
-            try {
-              const companyForSettings = await fetchTopMostParentCompanyCompanyById(companyId);
-              if (companyForSettings) {
-                const session = await getStepperSession(companyForSettings.id, companyId);
-                if (session) {
-                  setWorkflowStatus(session.session.status);
-    
-                  if (session.session.status === 'saved') {
-                    const settings = await fetchCompanySettings(companyForSettings.id);
-                    if (settings && settings.workflow) {
-                      const totalQuestions = settings.workflow.questions.length;
-                      const answeredQuestions = session.responses.length;
-                      const percentage = Math.round((answeredQuestions / totalQuestions) * 100);
-                      setCompletionPercentage(percentage);
-                    }
-                  }
-                  if (session.session.status === 'completed') {
-                    setCompletionPercentage(100);
-                  }
-                }
-              }
-            } catch (error) {
-              console.error('Failed to fetch workflow data:', error);
-            }
-          };
-    
-          fetchWorkflowData();
-        }, [row.original.id]);
-    
-        const getButtonText = () => {
-          switch (workflowStatus) {
-            case 'saved':
-              return `Continuer l'audit ${completionPercentage}%`;
-            case 'completed':
-              return `Gérer la propale`;
-            default:
-              return `Démarrer l'audit`;
-          }
-        };
-        const getHref = () => {
-          return workflowStatus === 'completed'
-            ? `/client-portal/proposal/${row.original.id}/list`
-            : `/client-portal/workflow/${row.original.id}`;
-        };
-        return (
-          <div>
-            <Link
-              href={getHref()}
-              className={`text-sm flex items-center justify-center text-white bg-blueCustom ${workflowStatus === 'saved' ? 'rounded-t-lg pt-2 pb-1' : 'rounded-lg py-2'} px-2 text-center`}
-              rel="noopener noreferrer"
-            >
-              {getButtonText()}
-            </Link>
-            {workflowStatus === 'saved' && ( 
-
-              <ProgressBar percentage={completionPercentage} progressColor={"bg-green-500"} height={"h-1"} roundedClass={"rounded-b-lg"}/>
-    
-            )}
-          </div>
-        );
-      },
+      cell: ({ row }: any) => (
+        <WorkflowCell row={row} settings={settings} />
+      ),
     }] : []),
     {
       id: "menuProspect",
@@ -372,3 +307,68 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
 ProspectsTable.displayName = 'ProspectsTable';
 
 export default ProspectsTable;
+
+const WorkflowCell: React.FC<{ row: Row<Company>, settings: DbCompanySettings | null }> = ({ row, settings }) => {
+  const [completionPercentage, setCompletionPercentage] = useState<number>(0);
+  const [workflowStatus, setWorkflowStatus] = useState<string>("not_started");
+
+  useEffect(() => {
+    const fetchWorkflowData = async () => {
+      const companyId = row.original.id;
+      try {
+        const companyForSettings = await fetchTopMostParentCompanyCompanyById(companyId);
+        if (companyForSettings) {
+          const session = await getStepperSession(companyForSettings.id, companyId);
+          if (session) {
+            setWorkflowStatus(session.session.status);
+
+            if (session.session.status === 'saved') {
+              const settingsData = await fetchCompanySettings(companyForSettings.id);
+              if (settingsData && settingsData.workflow) {
+                const totalQuestions = settingsData.workflow.questions.length;
+                const answeredQuestions = session.responses.length;
+                const percentage = Math.round((answeredQuestions / totalQuestions) * 100);
+                setCompletionPercentage(percentage);
+              }
+            }
+            if (session.session.status === 'completed') {
+              setCompletionPercentage(100);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch workflow data:', error);
+      }
+    };
+
+    fetchWorkflowData();
+  }, [row.original.id]);
+
+  const getButtonText = () => {
+    switch (workflowStatus) {
+      case 'saved':
+        return `Continuer l'audit ${completionPercentage}%`;
+      case 'completed':
+        return `Gérer la propale`;
+      default:
+        return `Démarrer l'audit`;
+    }
+  };
+
+  const getHref = () => {
+    return workflowStatus === 'completed'
+      ? `/client-portal/proposal/${row.original.id}/list`
+      : `/client-portal/workflow/${row.original.id}`;
+  };
+
+  return (
+    <div>
+      <Link href={getHref()} className={`text-sm flex items-center justify-center text-white bg-blueCustom ${workflowStatus === 'saved' ? 'rounded-t-lg pt-2 pb-1' : 'rounded-lg py-2'} px-2 text-center`} rel="noopener noreferrer">
+        {getButtonText()}
+      </Link>
+      {workflowStatus === 'saved' && (
+        <ProgressBar percentage={completionPercentage} progressColor={"bg-green-500"} height={"h-1"} roundedClass={"rounded-b-lg"} />
+      )}
+    </div>
+  );
+};

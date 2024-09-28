@@ -76,23 +76,47 @@
   }
 
   @media print {
-    .break-inside-avoid {
-      break-inside: avoid;
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
+  
+    /* Fixer le pied de page en bas de chaque page */
     .print\\:fixed {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      height: 60px;
+    }
+  
+    /* Empêcher que le contenu chevauche le pied de page */
+    #proposal-content {
+      page-break-before: auto;
+      page-break-after: auto;
+      page-break-inside: avoid;
+      margin-bottom: 80px; /* Espace réservé pour le pied de page */
+    }
+  
+    .break-inside-avoid {
+      page-break-inside: avoid;
+    }
+  
+    footer {
+      page-break-inside: avoid;
       position: fixed;
-    }
-    .print\\:bottom-4 {
-      bottom: 1rem;
-    }
-    .print\\:left-0 {
+      bottom: 0;
       left: 0;
-    }
-    .print\\:right-0 {
       right: 0;
-    }
-    .print\\:text-center {
+      height: 60px;
+      background-color: white;
       text-align: center;
+      padding-top: 20px;
+    }
+  
+    .page-break {
+      page-break-before: always;
     }
   }
+    
   
