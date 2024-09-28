@@ -1,6 +1,6 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Need, Paragraph, Item, ProposalStatus } from '@/types/models';
+import { Need, Paragraph, Item, ProposalStatus, Company } from '@/types/models';
 import { getProposalById } from '@/services/proposalService';
 import NeedContent from '@/components/clientPortal/proposal/NeedContent';
 import ParagraphContent from '@/components/clientPortal/proposal/ParagraphContent';
@@ -9,8 +9,8 @@ import { getStepperSession } from '@/services/stepperService';
 
 export const loadProposalData = async (
   proposalId: string | undefined,
-  company: any,
-  prospect: any,
+  company: Company | null,
+  prospect: Company | null,
   setLeftColumn: (updateFn: (prev: Item[]) => Item[]) => void,
   setRightColumn: (updateFn: (prev: Item[]) => Item[]) => void,
   handleEditDescription: (description: any) => void,

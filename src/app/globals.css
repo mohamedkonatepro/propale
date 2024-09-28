@@ -74,3 +74,25 @@
       @apply bg-background text-foreground;
     }
   }
+
+  @media print {
+    .break-inside-avoid {
+      break-inside: avoid;
+    }
+    .print\\:fixed {
+      position: fixed;
+    }
+    .print\\:bottom-4 {
+      bottom: 1rem;
+    }
+    .print\\:left-0 {
+      left: 0;
+    }
+    .print\\:right-0 {
+      right: 0;
+    }
+    .print\\:text-center {
+      text-align: center;
+    }
+  }
+  

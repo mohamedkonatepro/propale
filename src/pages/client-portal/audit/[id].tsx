@@ -1,19 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { Company } from '@/types/models';
-import { fetchCompanyById, fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
+import { fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
 import { useUser } from '@/context/userContext';
 import Link from 'next/link';
 import { FaArrowRight } from "react-icons/fa";
-import { statuses, Option } from '@/constants';
-import Header from '@/components/layout/Header';
 import { getStepperSession } from '@/services/stepperService';
 import { fetchCompanySettings } from '@/services/companySettingsService';
-import ProspectNavBar from '@/components/clientPortal/ProspectNavBar';
-import { ROLES } from '@/constants/roles';
-import { supabase } from '@/lib/supabaseClient';
 import { DbCompanySettings } from '@/types/dbTypes';
-import { getOption } from '@/lib/utils';
 import { hasAccessToAudit } from '@/constants/permissions';
 
 const ProgressBar: React.FC<{ percentage: number }> = ({ percentage }) => (
@@ -31,8 +24,6 @@ const Audit: React.FC = () => {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [company, setCompany] = useState<Company | null>(null);
-  const [statusOption, setStatusOption] = useState<Option>();
   const [workflowStatus, setWorkflowStatus] = useState<string>('not_started');
   const [completionPercentage, setCompletionPercentage] = useState<number>(0);
   const [settings, setSettings] = useState<DbCompanySettings | null>(null);
@@ -43,15 +34,9 @@ const Audit: React.FC = () => {
 
     setLoading(true);
     try {
-      const company = await fetchCompanyById(id);
-      setCompany(company);
-      if (company?.status) {
-        setStatusOption(getOption(company.status, statuses));
-      }
-
       const companyForSettings = await fetchTopMostParentCompanyCompanyById(id)
-      if (companyForSettings && company) {
-        const session = await getStepperSession(companyForSettings.id, company.id);
+      if (companyForSettings) {
+        const session = await getStepperSession(companyForSettings.id, id);
         if (session) {
           setWorkflowStatus(session.session.status);
   
@@ -94,9 +79,6 @@ const Audit: React.FC = () => {
       default:
         return "Démarrer l'audit";
     }
-  };
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
   };
 
   return (

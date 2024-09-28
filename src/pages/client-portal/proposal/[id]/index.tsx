@@ -3,14 +3,7 @@ import { useRouter } from 'next/router';
 import { Company, Item, Need, Paragraph, ProposalData, ProposalStatus } from '@/types/models';
 import { fetchCompanyById, fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
 import { useUser } from '@/context/userContext';
-import { statuses, Option } from '@/constants';
-import Header from '@/components/layout/Header';
-import ProspectNavBar from '@/components/clientPortal/ProspectNavBar';
 import useModalState from '@/hooks/useModalState';
-import { getOption } from '@/lib/utils';
-import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
-import { ROLES } from '@/constants/roles';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { GrFormEdit } from 'react-icons/gr';
 import NewParagraphModal from '@/components/modals/NewParagraphModal';
@@ -39,7 +32,6 @@ const Proposal: React.FC = () => {
   const [nameError, setNameError] = useState<string | null>(null);
   const [prospect, setProspect] = useState<Company | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
-  const [statusOption, setStatusOption] = useState<Option>();
   const newNeedModalState = useModalState();
   const newParagraphModalState = useModalState();
   const [showExtraButtons, setShowExtraButtons] = useState(false);
@@ -167,9 +159,6 @@ const Proposal: React.FC = () => {
       const company = await fetchTopMostParentCompanyCompanyById(id);
       setProspect(prospect);
       setCompany(company);
-      if (prospect?.status) {
-        setStatusOption(getOption(prospect.status, statuses));
-      }
       await loadProposalData(
         proposalId as string,
         company,
@@ -193,10 +182,6 @@ const Proposal: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
 
   const { onDragEnd } = useDragAndDrop(leftColumn, setLeftColumn, rightColumn, setRightColumn);
 

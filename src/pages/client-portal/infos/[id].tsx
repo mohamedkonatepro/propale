@@ -4,8 +4,6 @@ import { Company, CompanyModalData, Profile } from '@/types/models';
 import { fetchCompanyById } from '@/services/companyService';
 import { useUser } from '@/context/userContext';
 import { heatLevels, statuses, Option } from '@/constants';
-import Header from '@/components/layout/Header';
-import ProspectNavBar from '@/components/clientPortal/ProspectNavBar';
 import ContactListContent from '@/components/clientPortal/ContactListContent';
 import useContacts from '@/hooks/useContacts';
 import useModalState from '@/hooks/useModalState';
@@ -15,9 +13,6 @@ import { GrFormEdit } from 'react-icons/gr';
 import { formatDate, getOption } from '@/lib/utils';
 import AddProspectModal from '@/components/modals/AddProspectModal';
 import useProspects from '@/hooks/useProspects';
-import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
-import { ROLES } from '@/constants/roles';
 
 const Audit: React.FC = () => {
   const router = useRouter();
@@ -99,10 +94,6 @@ const Audit: React.FC = () => {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
   
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>Erreur : {error}</div>;
