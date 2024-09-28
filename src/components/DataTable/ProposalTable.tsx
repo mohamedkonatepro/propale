@@ -33,6 +33,9 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
   const handleEditClick = (proposal: Proposal) => {
     router.push(`/client-portal/proposal/${proposal.prospect_id}?proposalId=${proposal.id}`);
   };
+  const handlePreviewClick = (proposal: Proposal) => {
+    router.push(`/client-portal/proposal/${proposal.prospect_id}/preview/${proposal.id}`);
+  };
 
   const handleDownloadPdf = async (proposal: Proposal) => {
     setLoadingId(proposal.id); // Set the current row to loading
@@ -157,6 +160,9 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handlePreviewClick(row.original)}>
+              Aperçu
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleEditClick(row.original)}>
               Modifier
             </DropdownMenuItem>

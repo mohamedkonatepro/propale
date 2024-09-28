@@ -8,20 +8,21 @@ interface ProposalPageProps {
   proposalData: Proposal | null;
   needs: Need[];
   paragraphs: Paragraph[];
+  classCss?: string;
 }
 
-const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragraphs }) => {
+const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragraphs, classCss = "min-h-screen" }) => {
   if (!proposalData) {
     return <div>Failed to load proposal data</div>;
   }
 
   return (
-    <div className="bg-white min-h-screen flex flex-col">
+    <div className={`bg-white ${classCss} flex flex-col`}>
       <div className="max-w-2xl w-full mx-auto bg-white print:shadow-none print:border-none flex-grow" id="proposal-content">
         {/* Header Section */}
         <div className="flex justify-between items-center mb-6 break-inside-avoid">
           <div className="mt-7">
-            <h1 className="text-3xl font-bold text-blue-600">Proposition commerciale</h1>
+            <h1 className="text-3xl font-bold text-blueCustom">Proposition commerciale</h1>
             <div className="mt-10">
               <p className="text-sm text-gray-500">Destinée à</p>
               <div className="flex items-center space-x-2">
@@ -41,7 +42,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {/* Description Section */}
         {proposalData.description && (
           <div className="mb-6 break-inside-avoid">
-            {proposalData.show_title && <h2 className="text-xl font-bold text-blue-600">{proposalData.title}</h2>}
+            {proposalData.show_title && <h2 className="text-xl font-bold text-blueCustom">{proposalData.title}</h2>}
             <p className="text-gray-600 mt-2">{proposalData.description}</p>
           </div>
         )}
@@ -49,7 +50,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {/* Needs Section */}
         {needs.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-blue-600">Besoins</h2>
+            <h2 className="text-xl font-bold text-blueCustom">Besoins</h2>
             {needs.map((need, index) => (
               <div key={index} className="mb-4 break-inside-avoid">
                 {need.showPrice && <h3 className="text-lg font-semibold text-gray-800">{need.name}</h3>}
@@ -82,7 +83,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
       {/* Footer Section */}
       {proposalData.mention_realise && (
         <footer className="max-w-3xl w-full bg-white mx-auto py-8 text-center text-gray-500 text-sm print:fixed print:bottom-0 print:left-0 print:right-0 print:py-4 print:bg-white">
-          <p>Réalisé avec <span className="font-semibold text-blue-600">Propale</span></p>
+          <p>Réalisé avec <span className="font-semibold text-blueCustom">Propale</span></p>
         </footer>
       )}
     </div>

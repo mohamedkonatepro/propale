@@ -103,7 +103,7 @@ const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequest
         <div className="flex justify-center">
           <button
             type="submit"
-            className="bg-blueCustom text-white py-2 px-6 rounded shadow hover:bg-blue-600"
+            className="bg-blueCustom text-white py-2 px-6 rounded shadow hover:bg-blueCustom"
           >
             {initialData ? 'Modifier' : 'Enregistrer'}
           </button>

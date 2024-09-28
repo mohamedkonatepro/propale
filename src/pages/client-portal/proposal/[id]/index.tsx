@@ -197,7 +197,7 @@ const Proposal: React.FC = () => {
             value={nameProposal}
             onChange={(e) => setNameProposal(e.target.value)}
             placeholder="Nom de la proposition"
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blueCustom focus:border-transparent"
           />
           {nameError && <p className="text-red-600 text-sm mt-1">{nameError}</p>}
         </div>

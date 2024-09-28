@@ -146,7 +146,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
             <h4 className="text-xl font-semibold mb-4">{'Félicitations, vous avez terminé l’audit !'}</h4>
             <div className='pl-10'>
               <Link href={`/client-portal/audit/${companyId}`}>
-                <Button className="flex items-center text-white border border-2 bg-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blue-600">
+                <Button className="flex items-center text-white border border-2 bg-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blueCustom">
                   Consulter le résultat
                   <FaArrowRight className="ml-2" />
                 </Button>

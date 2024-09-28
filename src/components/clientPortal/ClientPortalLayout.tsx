@@ -28,7 +28,7 @@ const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({ statusOption, p
       <header className="flex px-8 py-5 bg-white justify-between items-center shadow-md">
         {statusOption && <Header title={prospect?.name} badgeName={statusOption.label} badgeColor={statusOption.color} siren={prospect?.siren} />}
         {user?.role !== ROLES.PROSPECT ? (
-          <Link className="text-blue-600 hover:text-blue-800 transition-colors" href={`/dashboard/prospect/${prospect?.company_id}`}>
+          <Link className="text-blueCustom hover:text-blue-800 transition-colors" href={`/dashboard/prospect/${prospect?.company_id}`}>
             Retour
           </Link>
         ) : (

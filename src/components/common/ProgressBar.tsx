@@ -17,7 +17,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 }) => (
   <div className={`w-full ${backgroundColor} ${roundedClass} ${height} mb-4 dark:bg-gray-700`}>
     <div 
-      className={`${progressColor} ${height} ${percentage === 100 ? 'rounded-b-full' : 'rounded-bl-full'} dark:bg-blue-500`} 
+      className={`${progressColor} ${height} ${percentage === 100 ? 'rounded-b-full' : 'rounded-bl-full'} dark:bg-blueCustom`} 
       style={{ width: `${percentage}%` }}
     ></div>
   </div>
