@@ -10,8 +10,11 @@ import ProposalPage from '@/pages/proposals/[proposalId]';
 import { FaArrowLeft } from 'react-icons/fa';
 import { VscSend } from 'react-icons/vsc';
 import { CiFileOn } from "react-icons/ci";
+import { useUser } from '@/context/userContext';
+import { ROLES } from '@/constants/roles';
 
 const ProposalPreview: NextPage = () => {
+  const { user } = useUser();
   const [proposalData, setProposalData] = useState<Proposal | null>(null);
   const [needs, setNeeds] = useState<Need[]>([]);
   const [paragraphs, setParagraphs] = useState<Paragraph[]>([]);
@@ -62,7 +65,7 @@ const ProposalPreview: NextPage = () => {
             {proposalData.status === 'accepted' ? 'Publiée le ' : 'modifié le '} {format(new Date(proposalData.updated_at), 'dd/MM/yyyy')}
           </div>
         </div>
-        {proposalData.status !== 'accepted' && proposalData.status !== 'refused' && <div className="flex items-center space-x-4">
+        {user?.role !== ROLES.PROSPECT && proposalData.status !== 'accepted' && proposalData.status !== 'refused' && <div className="flex items-center space-x-4">
           <Button onClick={() => handleEditClick(proposalData)} className="px-4 py-2 bg-white text-blueCustom border border-blueCustom rounded-md hover:bg-blue-200">Modifier</Button>
           <Button disabled={true} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
         </div>}

@@ -13,6 +13,8 @@ import { Option } from '@/constants';
 import { getOption } from '@/lib/utils';
 import Badge from '../common/Badge';
 import { generatePdf } from '@/services/pdfService';
+import { useUser } from '@/context/userContext';
+import { ROLES } from '@/constants/roles';
 
 const statusOptions: Option[] = [
   { label: 'En cours', value: 'draft', color: 'blue' },
@@ -28,7 +30,8 @@ type ProposalTableProps = {
 
 const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteClick }) => {
   const router = useRouter();
-  const [loadingId, setLoadingId] = useState<string | null>(null); // Track the loading state per row
+  const { user } = useUser();
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const handleEditClick = (proposal: Proposal) => {
     router.push(`/client-portal/proposal/${proposal.prospect_id}?proposalId=${proposal.id}`);
@@ -132,23 +135,27 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
       ),
       cell: ({ row }) => <div className='ml-4'>{format(new Date(row.getValue("updated_at")), 'dd/MM/yyyy')}</div>,
     },
-    {
-      id: "download",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const proposal = row.original;
-        return (
-          <Button
-            isLoading={loadingId === proposal.id} // Only show loading for the current row
-            disabled={loadingId === proposal.id}
-            className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100 flex items-center"
-            onClick={() => handleDownloadPdf(proposal)}
-          >
-            <span>Télécharger en PDF</span> <FaDownload className="h-4 w-4 ml-2" />
-          </Button>
-        );
-      },
-    },
+    ...(user?.role !== ROLES.PROSPECT
+      ? [
+          {
+            id: "download",
+            enableHiding: false,
+            cell: ({ row }: any) => {
+              const proposal = row.original;
+              return (
+                <Button
+                  isLoading={loadingId === proposal.id} // Only show loading for the current row
+                  disabled={loadingId === proposal.id}
+                  className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100 flex items-center"
+                  onClick={() => handleDownloadPdf(proposal)}
+                >
+                  <span>Télécharger en PDF</span> <FaDownload className="h-4 w-4 ml-2" />
+                </Button>
+              );
+            },
+          },
+        ]
+      : []),
     {
       id: "menuProspect",
       enableHiding: false,
@@ -163,12 +170,13 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
             <DropdownMenuItem onClick={() => handlePreviewClick(row.original)}>
               Aperçu
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleEditClick(row.original)}>
+            {user?.role !== ROLES.PROSPECT && <DropdownMenuItem onClick={() => handleEditClick(row.original)}>
               Modifier
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDeleteClick(row.original.id)}>
+            </DropdownMenuItem>}
+            
+            {user?.role !== ROLES.PROSPECT && <DropdownMenuItem onClick={() => handleDeleteClick(row.original.id)}>
               Supprimer
-            </DropdownMenuItem>
+            </DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
       ),

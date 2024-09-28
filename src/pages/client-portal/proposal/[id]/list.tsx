@@ -5,6 +5,9 @@ import { FaPlus } from "react-icons/fa";
 import { deleteProposal, getProposalsByProspectId } from '@/services/proposalService';
 import ProposalTable from '@/components/DataTable/ProposalTable';
 import { toast } from 'react-toastify';
+import { ROLES } from '@/constants/roles';
+import { Button } from '@/components/common/Button';
+import { useUser } from '@/context/userContext';
 
 
 const Proposal: React.FC = () => {
@@ -13,6 +16,7 @@ const Proposal: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [proposals, setProposals] = useState<IProposal[]>([]);
+  const { user } = useUser();
 
   const handleAddClick = () => {
     router.push(`/client-portal/proposal/${id}`);
@@ -57,7 +61,7 @@ const Proposal: React.FC = () => {
     <div className="">
       <div className="flex justify-between px-16 mt-12">
         <h2 className='text-black font-bold text-2xl'>Vos propales</h2>
-        <button onClick={handleAddClick} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Nouvelle propale <FaPlus className='ml-2'/></button>
+        {user?.role !== ROLES.PROSPECT && <Button onClick={handleAddClick} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Nouvelle propale <FaPlus className='ml-2'/></Button>}
       </div>
       <div className="flex-grow mx-16 rounded-2xl">
         <ProposalTable proposals={proposals} handleDeleteClick={handleDeleteClick} />
