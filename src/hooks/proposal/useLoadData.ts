@@ -58,12 +58,16 @@ export const loadProposalData = async (
         },
         { id: 'price', type: 'price', content: 'Prix' },
       ]);
+    } else {
+      setLeftColumn((prev) => [
+        ...prev.filter((item: Item) => item.type === 'description'),
+      ]);
     }
 
     if (needs.length > 0) {
       setRightColumn((prev) => {
         const updatedRightColumn = [
-          ...prev,
+          ...prev.filter(item => item.type !== 'need'),
           ...needs.map((need: Need) => ({
             id: need.id || uuidv4(),
             type: 'need' as const,
@@ -83,7 +87,7 @@ export const loadProposalData = async (
     if (paragraphs.length > 0) {
       setRightColumn((prev) => {
         const updatedRightColumn = [
-          ...prev,
+          ...prev.filter(item => item.type !== 'paragraph'),
           ...paragraphs.map((paragraph: Paragraph) => ({
             id: paragraph.id || uuidv4(),
             type: 'paragraph' as const,

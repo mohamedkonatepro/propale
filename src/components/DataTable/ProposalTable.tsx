@@ -170,9 +170,9 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
             <DropdownMenuItem onClick={() => handlePreviewClick(row.original)}>
               Aperçu
             </DropdownMenuItem>
-            {user?.role !== ROLES.PROSPECT && <DropdownMenuItem onClick={() => handleEditClick(row.original)}>
+            {user?.role !== ROLES.PROSPECT && row.original.status !== "accepted" && "refused" ? <DropdownMenuItem onClick={() => handleEditClick(row.original)}>
               Modifier
-            </DropdownMenuItem>}
+            </DropdownMenuItem> : ''}
             
             {user?.role !== ROLES.PROSPECT && <DropdownMenuItem onClick={() => handleDeleteClick(row.original.id)}>
               Supprimer

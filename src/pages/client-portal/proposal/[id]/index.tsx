@@ -20,7 +20,20 @@ import { createProposal, updateProposal } from '@/services/proposalService';
 import { loadProposalData } from '@/hooks/proposal/useLoadData';
 import { Button } from '@/components/common/Button';
 import { toast } from 'react-toastify';
+import { fetchProfilesWithUserDetails } from '@/services/profileService';
+import { generateProposalEmailContent } from '@/lib/emailUtils';
+import { sendEmailByContacts } from '@/services/emailService';
+import ConfirmPublishModal from '@/components/clientPortal/proposal/ConfirmPublishModal';
 
+
+const notifyContacts = async (prospectId: string, proposalId: string | null) => {
+  const contact = await fetchProfilesWithUserDetails(prospectId);
+  const proposalUrl = `${process.env.NEXT_PUBLIC_URL}/client-portal/proposal/${prospectId}/preview/${proposalId}`;
+  const content = generateProposalEmailContent(proposalUrl);
+  const subject = "Nouvelle proposition commerciale";
+  
+  await sendEmailByContacts(contact, content, subject);
+};
 
 const Proposal: React.FC = () => {
   const router = useRouter();
@@ -38,6 +51,7 @@ const Proposal: React.FC = () => {
   const [nameProposal, setNameProposal] = useState('');
   const newDescriptionModalState = useModalState();
   const [switchEnabled, setSwitchEnabled] = useState(true);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [proposalStatus, setProposalStatus] = useState<ProposalStatus['status']>();
   const [leftColumn, setLeftColumn] = useState<Item[]>([
     {
@@ -84,6 +98,7 @@ const Proposal: React.FC = () => {
   };
 
   const handleSave = async (status: ProposalStatus['status'] = 'draft') => {
+    setProposalStatus(status);
     if (!nameProposal.trim()) {
       setNameError("Le nom de la proposition est obligatoire.");
       setLoadingSave(false);
@@ -133,12 +148,24 @@ const Proposal: React.FC = () => {
         mention_realise: switchEnabled,
       };
     
-      if (proposalStatus === 'draft' && proposalId) {
+
+      if (proposalId) {
         await updateProposal(proposalId as string, dataToSave);
-        toast.success('La proposition a bien été mise à jour.');
+        if (status === "accepted") {
+          await notifyContacts(prospect.id, proposalId as string);
+          toast.success('La proposition a bien été publiée.');
+        } else {
+          toast.success('La proposition a bien été mise à jour.');
+        }
       } else {
-        await createProposal(dataToSave);
-        toast.success('La proposition a bien été créée.');
+        const { proposal } = await createProposal(dataToSave);
+        if (status === "accepted") {
+          await notifyContacts(prospect.id, proposal.id);
+          toast.success('La proposition a bien été publiée.');
+        } else {
+          router.push(`/client-portal/proposal/${proposal.prospect_id}?proposalId=${proposal.id}`);
+          toast.success('La proposition a bien été créée.');
+        }
       }      
     }
     setLoadingSave(false);
@@ -147,7 +174,7 @@ const Proposal: React.FC = () => {
 
   const handlePublish = () => {
     handleSave('accepted');
-    console.log("Publication de la proposition...");
+    setIsPublishModalOpen(false);
   };
 
   const loadData = useCallback(async () => {
@@ -185,6 +212,10 @@ const Proposal: React.FC = () => {
 
   const { onDragEnd } = useDragAndDrop(leftColumn, setLeftColumn, rightColumn, setRightColumn);
 
+  const handlePreviewClick = () => {
+    router.push(`/client-portal/proposal/${prospect?.id}/preview/${proposalId}`);
+  };
+
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>Erreur : {error}</div>;
 
@@ -202,8 +233,9 @@ const Proposal: React.FC = () => {
           {nameError && <p className="text-red-600 text-sm mt-1">{nameError}</p>}
         </div>
         <div className='flex space-x-4'>
-          <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</Button>
-          <Button isLoading={loadingSave} disabled={loadingSave} onClick={handlePublish} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
+          {proposalStatus !== "accepted" && "refused" ? <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</Button> : ''}
+          {proposalId && <Button onClick={() => handlePreviewClick()} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Aperçu</Button>}
+          {proposalStatus !== "accepted" && "refused" ? <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => setIsPublishModalOpen(true)} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button> : ''}
         </div>
       </div>
       <div className="flex-grow p-8 mx-16 mt-4 bg-backgroundBlue rounded-2xl">
@@ -238,6 +270,12 @@ const Proposal: React.FC = () => {
         onRequestClose={newDescriptionModalState.closeModal}
         onSubmit={handleModalSubmitDescription}
         initialData={currentDescription}
+      />
+      <ConfirmPublishModal
+        isOpen={isPublishModalOpen}
+        onClose={() => setIsPublishModalOpen(false)}
+        onConfirm={handlePublish}
+        message={`Êtes-vous sûr de vouloir publier ?`}
       />
     </div>
   );
