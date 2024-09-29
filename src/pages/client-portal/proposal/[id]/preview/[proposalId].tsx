@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import React, { useEffect, useState } from 'react';
-import { getProposalById } from '@/services/proposalService'; // Update this to your correct path for fetching proposals
+import { getProposalById, updateProposalStatus } from '@/services/proposalService'; // Update this to your correct path for fetching proposals
 import { Proposal, Need, Paragraph } from '@/types/models';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -19,10 +19,17 @@ const ProposalPreview: NextPage = () => {
   const [needs, setNeeds] = useState<Need[]>([]);
   const [paragraphs, setParagraphs] = useState<Paragraph[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [publishLoading, setPublishLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { proposalId } = router.query;
 
+  const handlePublishClick = async (proposal: Proposal) => {
+    setPublishLoading(true);
+    const proposalUpdated = await updateProposalStatus(proposal.id, 'accepted');
+    setProposalData(proposalUpdated);
+    setPublishLoading(false);
+  };
   const handleEditClick = (proposal: Proposal) => {
     router.push(`/client-portal/proposal/${proposal.prospect_id}?proposalId=${proposal.id}`);
   };
@@ -67,7 +74,7 @@ const ProposalPreview: NextPage = () => {
         </div>
         {user?.role !== ROLES.PROSPECT && proposalData.status !== 'accepted' && proposalData.status !== 'refused' ? <div className="flex items-center space-x-4">
           <Button onClick={() => handleEditClick(proposalData)} className="px-4 py-2 bg-white text-blueCustom border border-blueCustom rounded-md hover:bg-blue-200">Modifier</Button>
-          <Button disabled={true} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
+          <Button isLoading={publishLoading} disabled={publishLoading} onClick={() => handlePublishClick(proposalData)} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
         </div> : <div></div>}
       </header>
       <div className='flex justify-center items-center mt-10'>

@@ -105,3 +105,31 @@ export const deleteProposal = async (proposalId: string): Promise<void> => {
     throw error;
   }
 };
+
+
+export const updateProposalStatus = async (proposalId: string, status: string): Promise<Proposal> => {
+  if (!proposalId || !status) {
+    throw new Error('Proposal ID and status are required');
+  }
+
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/proposals/${proposalId}/update-status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(`Error updating status: ${errorResponse.error}`);
+    }
+
+    const data = await response.json();
+    return data.proposal;
+  } catch (error) {
+    console.error('Failed to update proposal status:', error);
+    throw new Error('Error updating proposal status');
+  }
+};
