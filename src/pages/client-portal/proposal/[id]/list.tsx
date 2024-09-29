@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Proposal as IProposal } from '@/types/models';
+import { Proposal as IProposal, ProposalStatus } from '@/types/models';
 import { FaPlus } from "react-icons/fa";
-import { deleteProposal, getProposalsByProspectId } from '@/services/proposalService';
+import { deleteProposal, getProposalsByProspectId, updateProposalStatus } from '@/services/proposalService';
 import ProposalTable from '@/components/DataTable/ProposalTable';
 import { toast } from 'react-toastify';
 import { ROLES } from '@/constants/roles';
@@ -54,6 +54,11 @@ const Proposal: React.FC = () => {
     }
   };
 
+  const handleStatusChange = async (proposalId: string, newStatus: ProposalStatus['status']) => {
+    await updateProposalStatus(proposalId, newStatus);
+    await fetchProposals();
+  };
+
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>Erreur : {error}</div>;
 
@@ -64,7 +69,7 @@ const Proposal: React.FC = () => {
         {user?.role !== ROLES.PROSPECT && <Button onClick={handleAddClick} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Nouvelle propale <FaPlus className='ml-2'/></Button>}
       </div>
       <div className="flex-grow mx-16 rounded-2xl">
-        <ProposalTable proposals={proposals} handleDeleteClick={handleDeleteClick} />
+        <ProposalTable proposals={proposals} handleDeleteClick={handleDeleteClick} handleStatusChange={handleStatusChange}/>
       </div>
     </div>
   );

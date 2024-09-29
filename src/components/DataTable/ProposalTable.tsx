@@ -4,17 +4,17 @@ import { FaDownload } from "react-icons/fa";
 import { LiaSortSolid } from "react-icons/lia";
 import { DataTable } from '@/components/DataTable/DataTable';
 import { Button } from '@/components/common/Button';
-import { Proposal } from '@/types/models';
+import { Proposal, ProposalStatus } from '@/types/models';
 import { format } from 'date-fns';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../common/DropdownMenu';
 import { MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { Option } from '@/constants';
 import { getOption } from '@/lib/utils';
-import Badge from '../common/Badge';
 import { generatePdf } from '@/services/pdfService';
 import { useUser } from '@/context/userContext';
 import { ROLES } from '@/constants/roles';
+import CustomDropdown from '../common/CustomDropdown';
 
 const statusOptions: Option[] = [
   { label: 'En cours', value: 'draft', color: 'blue' },
@@ -26,9 +26,10 @@ const statusOptions: Option[] = [
 type ProposalTableProps = {
   proposals: Proposal[];
   handleDeleteClick: (proposalId: string) => void;
+  handleStatusChange: (proposalId: string, newStatus: ProposalStatus['status']) => void;
 };
 
-const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteClick }) => {
+const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteClick, handleStatusChange }) => {
   const router = useRouter();
   const { user } = useUser();
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -98,9 +99,11 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
       cell: ({ row }) => {
         const status = getOption(row.getValue("status"), statusOptions);
         return (
-          <Badge
-            label={status.label}
-            color={status.color}
+          <CustomDropdown
+            options={statusOptions}
+            label=""
+            selected={row.getValue("status")}
+            onChange={(newStatus) => handleStatusChange(row.original.id, newStatus as ProposalStatus['status'])}
           />
         );
       },

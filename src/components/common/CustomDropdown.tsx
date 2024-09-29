@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { IconType } from 'react-icons/lib';
 import clsx from 'clsx';
-import { Color } from '@/constants'; // Import the Color type
+import { Color } from '@/constants';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './DropdownMenu';
 
 type Option = {
   label: string;
@@ -46,35 +47,23 @@ const colorClasses = {
 };
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, label, selected, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find(option => option.value === selected) || options[0];
   const selectedColorClasses = colorClasses[selectedOption.color];
 
-  const handleToggle = () => setIsOpen(!isOpen);
   const handleOptionClick = (option: Option) => {
     onChange(option.value);
-    setIsOpen(false);
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
+    <DropdownMenu>
     <div className="w-full relative" ref={dropdownRef}>
-      <label className="block text-sm font-medium text-black">{label}</label>
-      <div
-        onClick={handleToggle}
+      <label className="block text-sm font-medium text-black mb-2">{label}</label>
+      <DropdownMenuTrigger
         className={clsx(
-          'text-sm px-5 py-1 rounded-full mt-1 flex items-center justify-between cursor-pointer',
+          'text-sm px-5 py-1 rounded-full flex items-center justify-between cursor-pointer',
           selectedColorClasses.bg,
           selectedColorClasses.text,
           selectedColorClasses.border,
@@ -83,20 +72,23 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, label, selecte
       >
         {selectedOption.label}
         {selectedOption.icon && <selectedOption.icon className="ml-2" />}
-      </div>
-      {isOpen && (
-        <ul className="absolute z-10 bg-white border border-blueCustom rounded-lg mt-2 w-full">
+      </DropdownMenuTrigger>
+        <DropdownMenuContent className="absolute z-999 bg-white border border-blueCustom rounded-lg mt-2 w-full">
           {options.map((option) => (
-            <li key={option.value} onClick={() => handleOptionClick(option)} className="px-5 py-1 cursor-pointer hover:bg-blue-100 w-full">
+            <DropdownMenuItem
+              key={option.value}
+              onClick={() => handleOptionClick(option)}
+              className="cursor-pointer px-4 py-2 hover:bg-blue-100 z-999"
+            >
               <div className="text-sm flex items-center justify-between">
                 {option.label}
                 {option.icon && <option.icon className="ml-2" />}
               </div>
-            </li>
+            </DropdownMenuItem>
           ))}
-        </ul>
-      )}
+        </DropdownMenuContent>
     </div>
+    </DropdownMenu>
   );
 };
 
