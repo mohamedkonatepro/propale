@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
     if (user) {
       if (user?.blocked) {
         console.log('User is blocked');
-        return NextResponse.redirect(new URL(`/`, req.url));
+        return NextResponse.redirect(new URL(`/restricted`, req.url));
       }
 
       // Check if the company is disabled
@@ -29,7 +29,7 @@ export async function middleware(req: NextRequest) {
         const companySettings = await fetchCompanySettings(company.id);
         if (companySettings?.is_account_disabled && user.role !== ROLES.SUPER_ADMIN) {
           console.log('Company account is disabled');
-          return NextResponse.redirect(new URL(`/`, req.url));
+          return NextResponse.redirect(new URL(`/restricted`, req.url));
         }
       }
 

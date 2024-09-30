@@ -201,24 +201,6 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         ) : null;
       },
     },
-    {
-      accessorKey: "score",
-      id: "score",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Score
-          <LiaSortSolid className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }) => (
-        <div className='text-xs px-5 py-1 rounded-full flex items-center justify-center bg-gray-100 text-gray-600 border border-gray-600'>
-          <span>-</span>
-        </div>
-      ),
-    },
     ...(hasAccessToAudit(user, settings) ? [{
       id: "workflow",
       enableHiding: false,

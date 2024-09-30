@@ -73,12 +73,12 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, label, selecte
         {selectedOption.label}
         {selectedOption.icon && <selectedOption.icon className="ml-2" />}
       </DropdownMenuTrigger>
-        <DropdownMenuContent className="absolute z-999 bg-white border border-blueCustom rounded-lg mt-2 w-full">
+        <DropdownMenuContent className="bg-white border border-blueCustom rounded-lg mt-2 w-full">
           {options.map((option) => (
             <DropdownMenuItem
               key={option.value}
               onClick={() => handleOptionClick(option)}
-              className="cursor-pointer px-4 py-2 hover:bg-blue-100 z-999"
+              className="cursor-pointer px-4 py-2 hover:bg-blue-100"
             >
               <div className="text-sm flex items-center justify-between">
                 {option.label}
