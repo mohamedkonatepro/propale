@@ -32,6 +32,7 @@ const notifyContacts = async (prospectId: string, proposalId: string | null) => 
   const content = generateProposalEmailContent(proposalUrl);
   const subject = "Nouvelle proposition commerciale";
   
+  console.log('send Email')
   await sendEmailByContacts(contact, content, subject);
 };
 

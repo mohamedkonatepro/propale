@@ -12,6 +12,19 @@ import { VscSend } from 'react-icons/vsc';
 import { CiFileOn } from "react-icons/ci";
 import { useUser } from '@/context/userContext';
 import { ROLES } from '@/constants/roles';
+import { fetchProfilesWithUserDetails } from '@/services/profileService';
+import { generateProposalEmailContent } from '@/lib/emailUtils';
+import { sendEmailByContacts } from '@/services/emailService';
+
+const notifyContacts = async (prospectId: string, proposalId: string | null) => {
+  const contact = await fetchProfilesWithUserDetails(prospectId);
+  const proposalUrl = `${process.env.NEXT_PUBLIC_URL}/client-portal/proposal/${prospectId}/preview/${proposalId}`;
+  const content = generateProposalEmailContent(proposalUrl);
+  const subject = "Nouvelle proposition commerciale";
+  
+  console.log('send Email')
+  await sendEmailByContacts(contact, content, subject);
+};
 
 const ProposalPreview: NextPage = () => {
   const { user } = useUser();
