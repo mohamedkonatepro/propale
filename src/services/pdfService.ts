@@ -1,4 +1,4 @@
-export const generatePdf = async (url: string) => {
+export const generatePdf = async (url: string, nameFile: string) => {
   try {
     const response = await fetch('/api/generatePdf', {
       method: 'POST',
@@ -16,7 +16,7 @@ export const generatePdf = async (url: string) => {
     const downloadUrl = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = downloadUrl;
-    link.setAttribute('download', 'proposal.pdf');
+    link.setAttribute('download', `${nameFile}.pdf`);
     document.body.appendChild(link);
     link.click();
     link.remove();

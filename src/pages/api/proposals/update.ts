@@ -8,6 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'PUT') {
     const { id: proposalId } = req.query;
     const {
+      name,
       companyId,
       companyName,
       companySiren,
@@ -33,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { data: proposal, error: proposalError } = await supabase
         .from('proposals')
         .update({
+          name,
           company_id: companyId,
           company_name: companyName,
           company_siren: companySiren,
@@ -67,6 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         price: need.price,
         show_name: need.showName,
         show_price: need.showPrice,
+        show_quantity: need.showQuantity,
         order_position: index,
       }));
 

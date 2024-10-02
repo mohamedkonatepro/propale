@@ -77,6 +77,7 @@ export const loadProposalData = async (
             description: need.description,
             showName: need.showName,
             showPrice: need.showPrice,
+            showQuantity: need.showQuantity,
             content: React.createElement(NeedContent, { data: need, id: need.id || uuidv4(), onEdit: handleEditNeed }),
           })),
         ];
@@ -118,6 +119,7 @@ export const loadProposalData = async (
             type: 'need',
             showPrice: true,
             showName: true,
+            showQuantity: true,
             content: '',
           });
         }
@@ -133,6 +135,7 @@ export const loadProposalData = async (
       description: need.description,
       showPrice: true,
       showTitle: true,
+      showQuantity: true,
       content: React.createElement(NeedContent, { data: need as Need, id: need.id || '', onEdit: handleEditNeed }),
     }));
 

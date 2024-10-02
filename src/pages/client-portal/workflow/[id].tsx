@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { Company, Question } from '@/types/models';
 import { GetServerSideProps } from 'next';
 import { countStepperSessionByCompanyId, getStepperSession, saveStepperSession } from '@/services/stepperService';
-import { fetchCompanyById, fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
+import { fetchCompanyById, fetchTopMostParentCompanyCompanyById, updateProspectStatus } from '@/services/companyService';
 import { IoIosArrowBack } from "react-icons/io";
 import { useUser } from '@/context/userContext';
 import { hasAccessToAudit } from '@/constants/permissions';
@@ -180,6 +180,8 @@ const StepperPage: React.FC = () => {
               storedAnswers
             );
             setFinish(true);
+            await updateProspectStatus(prospect?.id, 'proposal');
+
             setCompletedSteps([currentStep.name]);
           } catch (error) {
             console.error('Error saving session:', error);
@@ -253,6 +255,7 @@ const StepperPage: React.FC = () => {
           'saved',
           storedAnswers,
         );
+        await updateProspectStatus(prospect?.id, 'audit');
         router.push(`/client-portal/audit/${id}`);
       } catch (error) {
         console.error('Error saving session:', error);

@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         ...need,
         showName: need.show_name,
         showPrice: need.show_price,
+        showQuantity: need.show_quantity,
       }));
 
       const { data: paragraphs, error: paragraphsError } = await supabase

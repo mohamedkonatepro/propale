@@ -21,6 +21,7 @@ export const useNeedManagement = (setLeftColumn: React.Dispatch<React.SetStateAc
       description: need.description || '',
       showPrice: need.showPrice || false,
       showName: need.showName || false,
+      showQuantity: need.showQuantity || false,
     });
     newNeedModalState.openModal();
   };
@@ -36,6 +37,7 @@ export const useNeedManagement = (setLeftColumn: React.Dispatch<React.SetStateAc
       description: data.description,
       showPrice: data.showPrice,
       showName: data.showName,
+      showQuantity: data.showQuantity,
       content: React.createElement(NeedContent, { data, id: needId, onEdit: handleEditNeed }),
 
     };

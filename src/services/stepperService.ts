@@ -56,6 +56,7 @@ export const saveStepperSession = async (
         product_price: products[0]?.price,
         product_quantity: products[0]?.quantity,
         product_description: products[0]?.description,
+        product_name: products[0]?.name,
         answer: JSON.stringify(answer),
         is_validated: true,
       }))

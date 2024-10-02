@@ -125,6 +125,7 @@ export interface NeedFormData {
   description: string;
   showPrice: boolean;
   showName: boolean;
+  showQuantity: boolean;
 }
 
 export interface Item {
@@ -135,6 +136,7 @@ export interface Item {
   price?: number;
   description?: string;
   showPrice?: boolean;
+  showQuantity?: boolean;
   showName?: boolean;
   content: string | React.ReactNode;
 }
@@ -147,6 +149,7 @@ export interface Need {
   price: number;
   showName: boolean;
   showPrice: boolean;
+  showQuantity: boolean;
   created_at?: string;
   updated_at?: string;
 }

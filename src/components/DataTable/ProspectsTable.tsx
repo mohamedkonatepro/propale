@@ -15,7 +15,6 @@ import { fetchContactByCompanyId } from '@/services/profileService';
 import ProfileAvatarGroup from '../common/ProfileAvatarGroup';
 import Link from 'next/link';
 import { DbCompanySettings } from '@/types/dbTypes';
-import { ROLES } from '@/constants/roles';
 import { getOption } from '@/lib/utils';
 import { hasAccessToAudit } from '@/constants/permissions';
 import { fetchTopMostParentCompanyCompanyById } from '@/services/companyService';
@@ -111,7 +110,11 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         <Link href={`/client-portal/infos/${row.original.id}`}>
           <div className="flex flex-col text-xs">
             <div className='text-sm'>{row.original.name}</div>
-            <div className='text-stone-400'>{row.original.activity_sector}</div>
+            <div className='text-stone-400'>
+              {row.original.activity_sector && row.original.activity_sector.length > 70
+                ? `${row.original.activity_sector.substring(0, 50)}...`
+                : row.original.activity_sector}
+            </div>
             <div className='text-stone-400'>SIREN: {row.original.siren}</div>
           </div>
         </Link>

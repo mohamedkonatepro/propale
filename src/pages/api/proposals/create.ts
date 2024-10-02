@@ -61,6 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         price: need.price,
         show_name: need.showName,
         show_price: need.showPrice,
+        show_quantity: need.showQuantity,
         order_position: index
       }));
 

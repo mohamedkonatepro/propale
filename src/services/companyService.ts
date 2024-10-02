@@ -273,3 +273,26 @@ export const fetchProspectByUserId = async (userId: string): Promise<Company | n
 
   return await response.json();
 };
+
+export const updateProspectStatus = async (prospectId: string, status: string): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/prospect/update-status?prospectId=${prospectId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update prospect status');
+    }
+
+    const data = await response.json();
+    return { success: true, message: data.message };
+  } catch (error: any) {
+    console.error('Error updating prospect status:', error.message);
+    return { success: false, message: error.message };
+  }
+};

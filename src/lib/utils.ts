@@ -26,3 +26,13 @@ export const getInitials = (firstname: string, lastname: string) => {
 };
 
 export const getOption = (value: any, options: any) => options.find((option: any) => option.value === value);
+
+export const formatAmount = (amount: number): string => {
+  const amountString = amount.toFixed(2);
+
+  const [integerPart, decimalPart] = amountString.split(".");
+
+  const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+  return `${formattedIntegerPart}.${decimalPart}`;
+}

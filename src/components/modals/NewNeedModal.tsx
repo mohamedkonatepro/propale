@@ -30,7 +30,8 @@ type NewNeedModalProps = {
 const NewNeedModal: React.FC<NewNeedModalProps> = ({ isOpen, onRequestClose, onSubmit, initialData }) => {
   // Pre-fill form fields if initialData is provided (for editing)
   const [name, setName] = useState(initialData?.name || '');
-  const [showName, setShowName] = useState(initialData?.showName ?? true); // Default true if no value
+  const [showName, setShowName] = useState(initialData?.showName ?? true);
+  const [showQuantity, setShowQuantity] = useState(initialData?.showQuantity ?? true);
   const [price, setPrice] = useState(initialData?.price || '');
   const [showPrice, setShowPrice] = useState(initialData?.showPrice ?? true);
   const [description, setDescription] = useState(initialData?.description || '');
@@ -44,12 +45,14 @@ const NewNeedModal: React.FC<NewNeedModalProps> = ({ isOpen, onRequestClose, onS
       setPrice(initialData.price);
       setQuantity(initialData.quantity);
       setShowPrice(initialData.showPrice);
+      setShowQuantity(initialData?.showQuantity);
       setDescription(initialData.description);
     } else {
       setName('');
       setShowName(true);
       setPrice('');
       setShowPrice(true);
+      setShowQuantity(true);
       setDescription('');
       setQuantity('1');
     }
@@ -57,7 +60,7 @@ const NewNeedModal: React.FC<NewNeedModalProps> = ({ isOpen, onRequestClose, onS
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name, showName, price, showPrice, description, quantity});
+    onSubmit({ name, showName, price, showPrice, showQuantity, description, quantity});
     onRequestClose();
   };
 
@@ -107,6 +110,23 @@ const NewNeedModal: React.FC<NewNeedModalProps> = ({ isOpen, onRequestClose, onS
           <div className="flex items-center mt-2">
             <span className="mr-2">Afficher le prix</span>
             <Switch checked={showPrice} onCheckedChange={setShowPrice} />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-labelGray">Quantité</label>
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              placeholder="quantité"
+              className="mt-1 block w-full p-2 rounded bg-backgroundGray w-1/3"
+            />
+          </div>
+          <div className="flex items-center mt-2">
+            <span className="mr-2">Afficher la quantité</span>
+            <Switch checked={showQuantity} onCheckedChange={setShowQuantity} />
           </div>
         </div>
 

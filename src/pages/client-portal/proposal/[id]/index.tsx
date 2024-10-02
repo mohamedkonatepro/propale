@@ -109,14 +109,17 @@ const Proposal: React.FC = () => {
     setLoadingSave(true);
     const needs: Need[] = rightColumn
       .filter(item => item.type === 'need')
-      .map(need => ({
-        name: need.name || '',
-        description: need.description || '',
-        quantity: need.quantity || 1,
-        price: need.price || 0,
-        showName: need.showName || true,
-        showPrice: need.showPrice || true,
-      }));
+      .map(need => {
+        return {
+          name: need.name || '',
+          description: need.description || '',
+          quantity: need.quantity || 1,
+          price: need.price || 0,
+          showName: need.showName || false,
+          showPrice: need.showPrice || false,
+          showQuantity: need.showQuantity || false,
+      }
+    });
   
     const paragraphs: Paragraph[] = rightColumn
       .filter(item => item.type === 'paragraph')
@@ -149,10 +152,9 @@ const Proposal: React.FC = () => {
         mention_realise: switchEnabled,
       };
     
-
       if (proposalId) {
         await updateProposal(proposalId as string, dataToSave);
-        if (status === "accepted") {
+        if (status === "proposed") {
           await notifyContacts(prospect.id, proposalId as string);
           toast.success('La proposition a bien été publiée.');
         } else {
@@ -160,7 +162,7 @@ const Proposal: React.FC = () => {
         }
       } else {
         const { proposal } = await createProposal(dataToSave);
-        if (status === "accepted") {
+        if (status === "proposed") {
           await notifyContacts(prospect.id, proposal.id);
           toast.success('La proposition a bien été publiée.');
         } else {
@@ -174,7 +176,7 @@ const Proposal: React.FC = () => {
   
 
   const handlePublish = () => {
-    handleSave('accepted');
+    handleSave('proposed');
     setIsPublishModalOpen(false);
   };
 
@@ -234,9 +236,9 @@ const Proposal: React.FC = () => {
           {nameError && <p className="text-red-600 text-sm mt-1">{nameError}</p>}
         </div>
         <div className='flex space-x-4'>
-          {proposalStatus !== "accepted" && "refused" ? <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</Button> : ''}
+          {proposalStatus !== "proposed" && "refused" && "accepted" ? <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => handleSave('draft')} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Enregistrer</Button> : ''}
           {proposalId && <Button onClick={() => handlePreviewClick()} className="bg-white text-blueCustom border border-blueCustom px-4 py-2 rounded-md hover:bg-blue-100">Aperçu</Button>}
-          {proposalStatus !== "accepted" && "refused" ? <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => setIsPublishModalOpen(true)} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button> : ''}
+          {proposalStatus !== "proposed" && "refused" && "accepted" ? <Button isLoading={loadingSave} disabled={loadingSave} onClick={() => setIsPublishModalOpen(true)} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button> : ''}
         </div>
       </div>
       <div className="flex-grow p-8 mx-16 mt-4 bg-backgroundBlue rounded-2xl">

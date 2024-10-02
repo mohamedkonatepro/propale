@@ -39,7 +39,8 @@ const ProposalPreview: NextPage = () => {
 
   const handlePublishClick = async (proposal: Proposal) => {
     setPublishLoading(true);
-    const proposalUpdated = await updateProposalStatus(proposal.id, 'accepted');
+    const proposalUpdated = await updateProposalStatus(proposal.id, 'proposed');
+    await notifyContacts(proposal.prospect_id, proposal.id)
     setProposalData(proposalUpdated);
     setPublishLoading(false);
   };
@@ -81,11 +82,11 @@ const ProposalPreview: NextPage = () => {
           <div className='flex text-black items-center justify-center'>
             <CiFileOn className='mr-2' /> Proposition commercial
           </div>
-          <div className={`${proposalData.status === 'accepted' ? 'text-green-500' : 'text-gray-500'} text-center`}>
-            {proposalData.status === 'accepted' ? 'Publiée le ' : 'modifié le '} {format(new Date(proposalData.updated_at), 'dd/MM/yyyy')}
+          <div className={`${proposalData.status === 'proposed' ? 'text-green-500' : 'text-gray-500'} text-center`}>
+            {proposalData.status === 'proposed' ? 'Publiée le ' : 'modifié le '} {format(new Date(proposalData.updated_at), 'dd/MM/yyyy')}
           </div>
         </div>
-        {user?.role !== ROLES.PROSPECT && proposalData.status !== 'accepted' && proposalData.status !== 'refused' ? <div className="flex items-center space-x-4">
+        {user?.role !== ROLES.PROSPECT && proposalData.status !== 'proposed' && proposalData.status !== 'accepted' && proposalData.status !== 'refused' ? <div className="flex items-center space-x-4">
           <Button onClick={() => handleEditClick(proposalData)} className="px-4 py-2 bg-white text-blueCustom border border-blueCustom rounded-md hover:bg-blue-200">Modifier</Button>
           <Button isLoading={publishLoading} disabled={publishLoading} onClick={() => handlePublishClick(proposalData)} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Publier <VscSend className='ml-2'/></Button>
         </div> : <div></div>}

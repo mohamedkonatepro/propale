@@ -20,7 +20,6 @@ const Audit: React.FC = () => {
   const [workflowStatus, setWorkflowStatus] = useState<string>('not_started');
   const [completionPercentage, setCompletionPercentage] = useState<number>(0);
   const [settings, setSettings] = useState<DbCompanySettings | null>(null);
-  const accessAudit = hasAccessToAudit(user, settings);
 
   const loadData = useCallback(async () => {
     if (typeof id !== 'string' || !user?.id) return;
@@ -32,10 +31,9 @@ const Audit: React.FC = () => {
         const session = await getStepperSession(companyForSettings.id, id);
         if (session) {
           setWorkflowStatus(session.session.status);
-  
+          const settings = await fetchCompanySettings(companyForSettings.id);
+          setSettings(settings);
           if (session.session.status === 'saved') {
-            const settings = await fetchCompanySettings(companyForSettings.id);
-            setSettings(settings)
             if (settings && settings.workflow) {
               const totalQuestions = settings.workflow.questions.length;
               const answeredQuestions = session.responses.length;
@@ -44,7 +42,7 @@ const Audit: React.FC = () => {
             }
           }
           if (session.session.status === 'completed') {
-            setCompletionPercentage(100)
+            setCompletionPercentage(100);
           }
         }
       }
@@ -74,6 +72,8 @@ const Audit: React.FC = () => {
     }
   };
 
+  console.log(settings)
+
   return (
       <div className="flex flex-1 items-center justify-center overflow-hidden">
         <main className="w-4/5 p-12 overflow-y-auto flex flex-col">
@@ -83,7 +83,7 @@ const Audit: React.FC = () => {
                 <h4 className="text-black text-2xl font-semibold mb-2">Workflow</h4>
                 <h6 className="text-gray-400 text-base font-normal">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.</h6>
               </div>
-              {accessAudit && <div className='flex flex-col justify-start mt-5'>
+              {settings?.composition_workflow && <div className='flex flex-col justify-start mt-5'>
                 {(
                   <h4 className="text-blueCustom text-2xl text-center font-semibold mb-5">{completionPercentage}%</h4>
                 )}

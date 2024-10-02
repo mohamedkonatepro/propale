@@ -18,6 +18,7 @@ import CustomDropdown from '../common/CustomDropdown';
 
 const statusOptions: Option[] = [
   { label: 'En cours', value: 'draft', color: 'blue' },
+  { label: 'Sélectionner', value: 'selected', color: 'gray' },
   { label: 'Accepté', value: 'accepted', color: 'green' },
   { label: 'Refusé', value: 'refused', color: 'red' },
   { label: 'Proposé', value: 'proposed', color: 'orange' },
@@ -44,7 +45,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
   const handleDownloadPdf = async (proposal: Proposal) => {
     setLoadingId(proposal.id); // Set the current row to loading
     try {
-      await generatePdf(`${process.env.NEXT_PUBLIC_URL}/proposals/${proposal.id}`);
+      await generatePdf(`${process.env.NEXT_PUBLIC_URL}/proposals/${proposal.id}`, proposal.name);
     } catch (error) {
       console.error('Failed to download PDF:', error);
     } finally {
@@ -97,13 +98,22 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
         </Button>
       ),
       cell: ({ row }) => {
-        const status = getOption(row.getValue("status"), statusOptions);
+        const currentStatus = row.getValue("status");
+        const isProspect = user?.role === ROLES.PROSPECT;
+
+        const filteredOptions = isProspect
+          ? statusOptions.filter(option => option.value === 'accepted' || option.value === 'selected' || option.value === 'refused')
+          : statusOptions.filter(option => option.value !== 'selected')
+
+        const isEditable = !isProspect || (currentStatus !== "accepted" && currentStatus !== "refused");
+
         return (
           <CustomDropdown
-            options={statusOptions}
+            options={filteredOptions}
             label=""
             selected={row.getValue("status")}
             onChange={(newStatus) => handleStatusChange(row.original.id, newStatus as ProposalStatus['status'])}
+            disabled={!isEditable}
           />
         );
       },

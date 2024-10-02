@@ -3,6 +3,7 @@ import React from 'react';
 import { getProposalById } from "@/services/proposalService";
 import { Proposal, Need, Paragraph } from "@/types/models";
 import { format } from 'date-fns';
+import { formatAmount } from '@/lib/utils';
 
 interface ProposalPageProps {
   proposalData: Proposal | null;
@@ -54,7 +55,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
             {needs.map((need, index) => (
               <div key={index} className="mb-4 break-inside-avoid">
                 {need.showPrice && <h3 className="text-lg font-semibold text-gray-800">{need.name}</h3>}
-                {need.showName && <p className="text-gray-600">{need.price.toLocaleString()} €</p>}
+                {need.showName && <p className="text-gray-600">{formatAmount(need.price)} €</p>}
                 <p className="text-gray-500 mt-1">{need.description}</p>
               </div>
             ))}
@@ -64,7 +65,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {/* Total Section */}
         <div className="flex justify-between items-center mt-8 border-t pt-4 break-inside-avoid">
           <p className="text-gray-600 font-semibold">Total :</p>
-          <p className="text-gray-800 font-bold text-lg">{proposalData.total_price.toLocaleString()} € HT</p>
+          <p className="text-gray-800 font-bold text-lg">{formatAmount(proposalData.total_price)} € HT</p>
         </div>
 
         {/* Additional Content - Paragraphs */}
