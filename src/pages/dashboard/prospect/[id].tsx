@@ -20,6 +20,9 @@ import ShareFolderModal from '@/components/modals/ShareFolderModal';
 import useProfileManagement from '@/hooks/useProfileManagement';
 import { DbCompanySettings } from '@/types/dbTypes';
 import { fetchCompanySettings } from '@/services/companySettingsService';
+import MailGroupModal, { MailGroupFormInputs } from '@/components/modals/MailGroupModal';
+import { fetchContactByCompanyId } from '@/services/profileService';
+import { sendEmailByContacts } from '@/services/emailService';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -58,6 +61,7 @@ const ProspectList: React.FC = () => {
   const prospectModalState = useModalState();
   const deleteModalState = useModalState();
   const deleteMultipleModalState = useModalState();
+  const emailMultipleModalState = useModalState();
   const folderModalState = useModalState();
   const contactsModalState = useModalState();
   const addContactModalState = useModalState();
@@ -140,6 +144,36 @@ const ProspectList: React.FC = () => {
     setIsCsvLinkVisible(true);
   };
 
+  const handleSendEmail = async (selectedRows: Company[]) => {
+    if (selectedRows.length === 0) return;
+    setSelectedProspects(selectedRows);
+    emailMultipleModalState.openModal()
+  };
+
+  const handleSendEmailToProspect = async (data: MailGroupFormInputs) => {
+    try {
+      if (!selectedProspects || selectedProspects.length === 0) {
+        console.error('No prospects selected');
+        return;
+      }
+      const allProfiles: Profile[] = [];
+  
+      for (const prospect of selectedProspects) {
+        const profiles = await fetchContactByCompanyId(prospect.id, true);
+  
+        if (profiles) {
+          allProfiles.push(...profiles);
+        }
+      }
+      await sendEmailByContacts(allProfiles, data.message, data.subject);
+      toast.success('Email envoyé avec succès')
+    } catch (error) {
+      console.error('Error fetching profiles or sending emails:', error);
+      toast.error("Erreur lors de l'envoi des emails")
+
+    }
+  };
+    
   useEffect(() => {
     if (isCsvLinkVisible && csvLinkRef.current) {
       csvLinkRef.current.link.click();
@@ -203,8 +237,14 @@ const ProspectList: React.FC = () => {
         openDeleteModal={(id: string) => { setSelectedProspect(prospects.find(p => p.id === id)); deleteModalState.openModal(); }}
         handleMultipleDelete={(selectedRows: Company[]) => {setSelectedProspects(selectedRows); deleteMultipleModalState.openModal(); }}
         handleExportCsv={handleExportCsv}
+        handleSendEmail={handleSendEmail}
         settings={settings}
         user={user}
+      />
+      <MailGroupModal
+        isOpen={emailMultipleModalState.isModalOpen}
+        onRequestClose={emailMultipleModalState.closeModal}
+        onSubmit={handleSendEmailToProspect}
       />
       <ConfirmDeleteModal
         isOpen={deleteMultipleModalState.isModalOpen}

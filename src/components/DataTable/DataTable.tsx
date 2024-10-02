@@ -29,10 +29,10 @@ import {
 import { InputSearch } from "../common/InputSearch"
 import { FaPlus } from "react-icons/fa"
 import { useUser } from "@/context/userContext"
-import { ROLES } from "@/constants/roles"
 import { FaRegTrashAlt } from "react-icons/fa";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { RxDividerVertical } from "react-icons/rx";
+import { RiMailSendLine } from "react-icons/ri";
 
 type DataTableProps<T> = {
   data: T[];
@@ -43,6 +43,7 @@ type DataTableProps<T> = {
   onChangeSearch?: (value: string) => void;
   handleDeleteClick?: (selectedRows: T[]) => void;
   handleDownloadClick?: (selectedRows: T[]) => void;
+  handleEmailClick?: (selectedRows: T[]) => void;
   table?: TableTanstack<T>;  // Ajout de cette ligne
 }
 
@@ -54,7 +55,8 @@ export function DataTable<T>({
   onAddButtonClick, 
   onChangeSearch, 
   handleDeleteClick, 
-  handleDownloadClick, 
+  handleDownloadClick,
+  handleEmailClick,
   table: externalTable 
 }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -97,6 +99,12 @@ export function DataTable<T>({
   const handleMultipleDownloadClick = () => {
     if (handleDownloadClick) {
       handleDownloadClick(selectedRows);
+    }
+  };
+
+  const handleMultipleEmailClick = () => {
+    if (handleEmailClick) {
+      handleEmailClick(selectedRows);
     }
   };
 
@@ -152,6 +160,10 @@ export function DataTable<T>({
           <RxDividerVertical className="h-full" />
           <div className="text-blueCustom flex p-1 items-center cursor-pointer" onClick={handleMultipleDownloadClick}>
             Télécharger <MdOutlineFileDownload className="ml-1" />
+          </div>
+          <RxDividerVertical className="h-full" />
+          <div className="text-blueCustom flex p-1 items-center cursor-pointer" onClick={handleMultipleEmailClick}>
+            E-mail <RiMailSendLine className="ml-1" />
           </div>
         </div>
       )}

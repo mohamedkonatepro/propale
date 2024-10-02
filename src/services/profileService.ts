@@ -151,7 +151,7 @@ export const fetchPrimaryContactByCompanyId = async (companyId: string): Promise
   return data;
 };
 
-export const fetchContactByCompanyId = async (companyId: string): Promise<Profile[] | null> => {
+export const fetchContactByCompanyId = async (companyId: string, withPrimaryContact: boolean = false): Promise<Profile[] | null> => {
   try {
     const { data: companyProfileData, error: companyProfileError } = await supabase
       .from('companies_profiles')
@@ -165,11 +165,16 @@ export const fetchContactByCompanyId = async (companyId: string): Promise<Profil
 
     const profileIds = companyProfileData.map(cp => cp.profile_id);
 
-    const { data: profilesData, error: profilesError } = await supabase
+    let query = supabase
       .from('profiles')
       .select('*')
-      .in('id', profileIds)
-      .eq('is_primary_contact', false);
+      .in('id', profileIds);
+
+    if (!withPrimaryContact) {
+      query = query.eq('is_primary_contact', false);
+    }
+
+    const { data: profilesData, error: profilesError } = await query;
 
     if (profilesError || !profilesData) {
       console.error('Error fetching profiles:', profilesError);

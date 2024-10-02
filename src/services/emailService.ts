@@ -12,6 +12,8 @@ export const sendEmailByContacts = async (contacts: Profile[], content: string, 
     return;
   }
 
+  const formattedContent = content.replace(/\n/g, '<br>');
+
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL}//api/sendEmail`, {
       method: 'POST',
@@ -21,7 +23,7 @@ export const sendEmailByContacts = async (contacts: Profile[], content: string, 
       body: JSON.stringify({
         to: emails,
         subject,
-        html: content,
+        html: formattedContent,
       }),
     });
 

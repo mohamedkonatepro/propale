@@ -29,6 +29,7 @@ interface ProspectsTableProps {
   openDeleteModal: (prospectId: string) => void;
   handleMultipleDelete: (selectedRows: Company[]) => void;
   handleExportCsv: (selectedRows: Company[]) => void;
+  handleSendEmail: (selectedRows: Company[]) => void;
   openContactModal: (data?: Company) => void;
   settings: DbCompanySettings | null;
   user: Profile | null;
@@ -48,6 +49,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
     openDeleteModal,
     handleMultipleDelete,
     handleExportCsv,
+    handleSendEmail,
     settings,
     user,
   } = props;
@@ -274,6 +276,11 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
     handleExportCsv(selectedRows);
   };
 
+  const handleEmailClick = () => {
+    const selectedRows = table.getFilteredSelectedRowModel().rows.map((row: Row<Company>) => row.original);
+    handleSendEmail(selectedRows);
+  };
+
   return (
     <DataTable<Company>
       data={prospects}
@@ -284,6 +291,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
       onChangeSearch={handleSearch}
       handleDeleteClick={handleDeleteClick}
       handleDownloadClick={handleDownloadClick}
+      handleEmailClick={handleEmailClick}
       table={table}
     />
   );
