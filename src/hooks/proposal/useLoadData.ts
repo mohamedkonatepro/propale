@@ -134,7 +134,7 @@ export const loadProposalData = async (
       price: need.price,
       description: need.description,
       showPrice: true,
-      showTitle: true,
+      showName: true,
       showQuantity: true,
       content: React.createElement(NeedContent, { data: need as Need, id: need.id || '', onEdit: handleEditNeed }),
     }));

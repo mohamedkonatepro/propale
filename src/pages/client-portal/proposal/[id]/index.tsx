@@ -115,9 +115,9 @@ const Proposal: React.FC = () => {
           description: need.description || '',
           quantity: need.quantity || 1,
           price: need.price || 0,
-          showName: need.showName || false,
-          showPrice: need.showPrice || false,
-          showQuantity: need.showQuantity || false,
+          showName: need.showName === true ? need.showName : false,
+          showPrice: need.showPrice === true ? need.showPrice : false,
+          showQuantity: need.showQuantity === true ? need.showQuantity : false,
       }
     });
   
@@ -126,7 +126,7 @@ const Proposal: React.FC = () => {
       .map(paragraph => ({
         name: paragraph.name || '',
         description: paragraph.description || '',
-        showName: paragraph.showName || true,
+        showName: paragraph.showName === true ? paragraph.showName : false,
       }));
   
     const descriptionItem = rightColumn.find(item => item.type === 'description');

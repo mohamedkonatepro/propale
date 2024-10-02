@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { Option } from '@/constants';
-import { getOption } from '@/lib/utils';
+import { formatAmount } from '@/lib/utils';
 import { generatePdf } from '@/services/pdfService';
 import { useUser } from '@/context/userContext';
 import { ROLES } from '@/constants/roles';
@@ -82,7 +82,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
           <LiaSortSolid className="ml-2 h-4 w-4" />
         </Button>
       ),
-      cell: ({ row }) => <div>{`${row.getValue("total_price")} €`}</div>,
+      cell: ({ row }) => <div>{`${formatAmount(row.getValue("total_price"))} €`}</div>,
     },
     {
       accessorKey: "status",

@@ -54,8 +54,9 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
             <h2 className="text-xl font-bold text-blueCustom">Besoins</h2>
             {needs.map((need, index) => (
               <div key={index} className="mb-4 break-inside-avoid">
-                {need.showPrice && <h3 className="text-lg font-semibold text-gray-800">{need.name}</h3>}
-                {need.showName && <p className="text-gray-600">{formatAmount(need.price)} €</p>}
+                {need.showName && <h3 className="text-lg font-semibold text-gray-800">{need.name}</h3>}
+                {need.showPrice && <p className="text-gray-600">{formatAmount(need.price)} €</p>}
+                {need.showQuantity && <p className="text-gray-600">{`nombre de JH : ${need.quantity}`}</p>}
                 <p className="text-gray-500 mt-1">{need.description}</p>
               </div>
             ))}
@@ -82,10 +83,12 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
       </div>
 
       {/* Footer Section */}
-      {proposalData.mention_realise && (
+      {proposalData.mention_realise ? (
         <footer className="max-w-3xl w-full bg-white mx-auto py-8 text-center text-gray-500 text-sm print:fixed print:bottom-0 print:left-0 print:right-0 print:py-4 print:bg-white">
           <p>Réalisé avec <span className="font-semibold text-blueCustom">Propale</span></p>
         </footer>
+      ) : (
+        <footer className="max-w-3xl w-full bg-white mx-auto py-8 text-center text-gray-500 text-sm print:fixed print:bottom-0 print:left-0 print:right-0 print:py-4 print:bg-white"></footer>
       )}
     </div>
   );
