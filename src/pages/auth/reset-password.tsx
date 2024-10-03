@@ -28,6 +28,9 @@ const ResetPassword = () => {
 
     if (error) {
       setPasswordReset(false);
+      if (error.code === "same_password") {
+        setPasswordReset(true);
+      }
     } else {
       setPasswordReset(true);
     }
