@@ -27,12 +27,24 @@ export const getInitials = (firstname: string, lastname: string) => {
 
 export const getOption = (value: any, options: any) => options.find((option: any) => option.value === value);
 
-export const formatAmount = (amount: number): string => {
-  const amountString = amount.toFixed(2);
 
+export const formatAmount = (amount: number | string): string => {
+  let numericAmount = parseFloat(amount as string); // Conversion au cas où ce serait une chaîne
+
+  if (isNaN(numericAmount)) {
+    console.error('Invalid amount value:', amount);
+    return '0.00'; // Retourner une valeur par défaut
+  }
+
+  // Arrondir à deux décimales
+  const amountString = numericAmount.toFixed(2);
+
+  // Séparer la partie entière et la partie décimale
   const [integerPart, decimalPart] = amountString.split(".");
 
+  // Formatage avec espace comme séparateur de milliers
   const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
+  // Retourner le montant formaté
   return `${formattedIntegerPart}.${decimalPart}`;
 }
