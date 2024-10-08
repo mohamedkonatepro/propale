@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaTimes } from 'react-icons/fa';
 import { GrFormEdit } from "react-icons/gr";
@@ -42,10 +42,18 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   defaultValues,
 }) => {
   const [edit, setEdit] = useState(false)
-  const { register, handleSubmit, formState: { errors }, getValues, setValue, watch } = useForm({
+  const { register, handleSubmit, formState: { errors }, getValues, setValue, watch, reset } = useForm({
     defaultValues,
   });
 
+  useEffect(() => {
+    if (defaultValues) {
+      reset(defaultValues);
+    } else {
+      reset();
+    }
+  }, [defaultValues, reset, isOpen]);
+  
   const onSubmitHandler = (data: any) => {
     onSubmit(data);
   };
@@ -61,15 +69,21 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     }
   };
 
+  const handleClose = () => {
+    reset();
+    setEdit(false);
+    onRequestClose();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
-      onRequestClose={onRequestClose}
+      onRequestClose={handleClose}
       style={customStyles}
       ariaHideApp={false}
     >
       <div className="flex justify-end">
-        <button onClick={onRequestClose} className="text-gray-500">
+        <button onClick={handleClose} className="text-gray-500">
           <FaTimes size={20} />
         </button>
       </div>

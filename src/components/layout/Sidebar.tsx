@@ -32,12 +32,14 @@ interface NavigationLinkProps {
   count?: number;
   isCollapsed: boolean;
   onClick: () => void;
+  isLoading?: boolean;  // Nouveau prop pour le loader
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isDashboardHome }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [company, setCompany] = useState<Company>();
   const [profileCount, setProfileCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(false);  // State pour gérer le loader
   const { user, refetchUser } = useUser();
   const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
   const router = useRouter();
@@ -73,16 +75,23 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
         return;
       }
     }
-    await refetchUser()
+    await refetchUser();
     handleCloseModalEdit();
+  };
+
+  const handleSettingsClick = async () => {
+    setIsLoading(true);  // Active le loader
+    setPage("settings");
+    await router.push(`/dashboard/settings/${isProspect ? company?.company_id : company?.id}`);
+    setIsLoading(false);  // Désactive le loader après redirection
   };
 
   useEffect(() => {
     const getCompany = async () => {
-      let companyData
+      let companyData;
       if (user) {
         if (companyId) {
-          companyData = await fetchCompanyById(companyId as string)
+          companyData = await fetchCompanyById(companyId as string);
         } else {
           companyData = await fetchCompanyWithoutParentByProfileId(user?.id);
         }
@@ -156,12 +165,13 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
       </nav>
       <div className="mt-auto w-full">
       {isSuperAdmin && !isDashboardHome && <NavigationLink
-          href={`/dashboard/settings/${isProspect ? company?.company_id : company?.id}`}
+          href="#"
           icon={SlSettings}
           text="Paramètres"
-          onClick={() => setPage("settings")}
+          onClick={handleSettingsClick}  // Utilise handleSettingsClick pour gérer le clic
           active={currentPage === "settings"}
           isCollapsed={isCollapsed}
+          isLoading={isLoading}  // Passe l'état de chargement en prop
         />}
 
         <div className='flex ml-3 cursor-pointer' onClick={handleLogout}>
@@ -180,14 +190,24 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
   );
 };
 
-const NavigationLink: React.FC<NavigationLinkProps> = ({ href, icon: Icon, text, active = false, count, isCollapsed, onClick }) => {
+const NavigationLink: React.FC<NavigationLinkProps> = ({ href, icon: Icon, text, active = false, count, isCollapsed, onClick, isLoading }) => {
   return (
     <Link href={href} className={`flex items-center ${isCollapsed ? 'p-2' : 'p-3'} rounded-md w-full ${active ? 'bg-blue-100 text-blueCustom' : 'text-gray-400 hover:bg-gray-100'}`} onClick={onClick}>
       <div><Icon className="mr-3" size="30" /></div>
       {!isCollapsed && <span className="flex-1">{text}</span>}
+      {isLoading && !isCollapsed && <CircularProgress />}  {/* Affiche le loader si en cours */}
       {!isCollapsed && count && <span className={`text-sm ${active ? 'bg-blueCustom' : 'bg-gray-400'} rounded-md px-2 py-0.5 text-white`}>{count}</span>}
     </Link>
   );
 };
+
+const CircularProgress = () => {
+  return (
+    <div className="flex justify-center items-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-blue-500 border-opacity-75"></div>
+    </div>
+  );
+};
+
 
 export default Sidebar;
