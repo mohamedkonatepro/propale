@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from 'next/router';
 import { User } from '@supabase/supabase-js';
 import handleSessionAndRedirect from '@/services/authService';
+import Image from 'next/image';
 
 const Header = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -41,11 +42,11 @@ const Header = () => {
 
   return (
     <header className="fixed w-full bg-white shadow-lg z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo et nom de l'entreprise */}
           <div className="flex items-center">
-            <img src="/logo.svg" alt="Logo" className="h-8 w-auto" />
+            <Image src="/logo.svg" alt="Logo" width={40} height={40} />
             <span className="ml-3 text-xl font-bold text-gray-800">Propale</span>
           </div>
 

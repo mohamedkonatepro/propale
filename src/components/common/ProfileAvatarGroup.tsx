@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 import { Profile } from '@/types/models';
 import { MdOutlineArrowForwardIos } from "react-icons/md";
 import { getInitials } from '@/lib/utils';

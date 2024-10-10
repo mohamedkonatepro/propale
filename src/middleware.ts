@@ -17,6 +17,9 @@ export async function middleware(req: NextRequest) {
 
   if (req.nextUrl.pathname.startsWith('/dashboard') || req.nextUrl.pathname.startsWith('/client-portal')) {
     const user = await getUserDetails(token);
+    if (!user) {
+      await supabase.auth.signOut();
+    }
     if (user) {
       if (user?.blocked) {
         console.log('User is blocked');

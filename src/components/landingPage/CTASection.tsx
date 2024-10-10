@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const CTASection: React.FC = () => {
   return (
-    <section className="bg-white py-16">
+    <section className="bg-white pt-16">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="lg:flex lg:items-center">
           {/* Partie gauche : Texte et bouton */}
@@ -24,7 +24,7 @@ const CTASection: React.FC = () => {
 
           {/* Partie droite : SVG agrandi et collé à droite */}
           <div className="lg:w-1/2 mt-8 lg:mt-0 flex justify-center lg:justify-end">
-            <div className="relative w-full h-64 sm:h-72 md:h-80 lg:h-[500px]">
+            <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[570px] mt-6">
               <Image
                 src="/frame_263.svg"
                 alt="Illustration"
