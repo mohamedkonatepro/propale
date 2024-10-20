@@ -3,6 +3,7 @@ import { FaRegTrashAlt, FaPlus } from 'react-icons/fa';
 import Select from 'react-select';
 import QuestionMapping from './QuestionMapping';
 import { Product, Question, DropdownValue } from '@/types/models';
+import { v4 as uuidv4 } from 'uuid';
 
 interface QuestionListProps {
   questions?: Question[];
@@ -20,7 +21,8 @@ const responseTypeOptions = [
 
 const QuestionList: React.FC<QuestionListProps> = ({ questions = [], products = [], updateQuestions, errors = {} }) => {
   const addQuestion = () => {
-    const newQuestion: Question = { 
+    const newQuestion: Question = {
+      id: uuidv4(), 
       text: '', 
       type: 'YesNo', 
       mapping: { Yes: '', No: '' },

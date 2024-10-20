@@ -113,8 +113,8 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
           <div className="flex flex-col text-xs">
             <div className='text-sm'>{row.original.name}</div>
             <div className='text-stone-400'>
-              {row.original.activity_sector && row.original.activity_sector.length > 70
-                ? `${row.original.activity_sector.substring(0, 50)}...`
+              {row.original.activity_sector && row.original.activity_sector.length > 20
+                ? `${row.original.activity_sector.substring(0, 20)}...`
                 : row.original.activity_sector}
             </div>
             <div className='text-stone-400'>SIREN: {row.original.siren}</div>

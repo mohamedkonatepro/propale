@@ -4,6 +4,7 @@ import { getProposalById } from "@/services/proposalService";
 import { Proposal, Need, Paragraph } from "@/types/models";
 import { format } from 'date-fns';
 import { formatAmount } from '@/lib/utils';
+import Image from 'next/image';
 
 interface ProposalPageProps {
   proposalData: Proposal | null;
@@ -44,7 +45,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {proposalData.description && (
           <div className="mb-6 break-inside-avoid">
             {proposalData.show_title && <h2 className="text-xl font-bold text-blueCustom">{proposalData.title}</h2>}
-            <p className="text-gray-600 mt-2">{proposalData.description}</p>
+            <p className="text-gray-600 mt-2 text-left text-justify whitespace-pre-line">{proposalData.description}</p>
           </div>
         )}
 
@@ -57,7 +58,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
                 {need.showName && <h3 className="text-lg font-semibold text-gray-800">{need.name}</h3>}
                 {need.showPrice && <p className="text-gray-600">{formatAmount(need.price)} €</p>}
                 {need.showQuantity && <p className="text-gray-600">{`nombre de JH : ${need.quantity}`}</p>}
-                <p className="text-gray-500 mt-1">{need.description}</p>
+                <p className="text-gray-500 mt-1 text-left text-justify whitespace-pre-line">{need.description}</p>
               </div>
             ))}
           </div>
@@ -75,7 +76,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
             {paragraphs.map((paragraph, index) => (
               <div key={index} className="mb-4 break-inside-avoid">
                 {paragraph.showName && <h3 className="text-lg font-semibold text-gray-800">{paragraph.name}</h3>}
-                <p className="text-gray-500 mt-1">{paragraph.description}</p>
+                <p className="text-gray-500 mt-1 text-left text-justify whitespace-pre-line">{paragraph.description}</p>
               </div>
             ))}
           </div>
@@ -85,7 +86,11 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
       {/* Footer Section */}
       {proposalData.mention_realise ? (
         <footer className="max-w-3xl w-full bg-white mx-auto py-8 text-center text-gray-500 text-sm print:fixed print:bottom-0 print:left-0 print:right-0 print:py-4 print:bg-white">
-          <p>Réalisé avec <span className="font-semibold text-blueCustom">Propale</span></p>
+          <div className="flex items-center justify-center space-x-2">
+            <span>Réalisé avec</span>
+            <Image src="/logo.svg" alt="Propale" width={25} height={25} className="mr-2" />
+            <span className="font-semibold text-blueCustom">Propale</span>
+          </div>
         </footer>
       ) : (
         <footer className="max-w-3xl w-full bg-white mx-auto py-8 text-center text-gray-500 text-sm print:fixed print:bottom-0 print:left-0 print:right-0 print:py-4 print:bg-white"></footer>
