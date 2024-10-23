@@ -28,6 +28,7 @@ const ProspectList: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useUser();
+  const [loading, setLoading] = useState(true);
   const [company, setCompany] = useState<Company | null>(null);
   const [search, setSearch] = useState<string>('');
   const [csvData, setCsvData] = useState<any[]>([]);
@@ -69,13 +70,20 @@ const ProspectList: React.FC = () => {
 
   const getCompanyData = useCallback(async () => {
     if (!user?.id || !id) return;
-    const companyData = await fetchCompanyById(id as string);
-    const companyForSettings = await fetchTopMostParentCompanyCompanyById(id as string)
-    if (companyForSettings) {
-      const settings = await fetchCompanySettings(companyForSettings.id);
-      setSettings(settings)
+    setLoading(true);
+    try {
+      const companyData = await fetchCompanyById(id as string);
+      const companyForSettings = await fetchTopMostParentCompanyCompanyById(id as string);
+      if (companyForSettings) {
+        const settings = await fetchCompanySettings(companyForSettings.id);
+        setSettings(settings);
+      }
+      setCompany(companyData);
+    } catch (error) {
+      console.error('Error fetching company data:', error);
+    } finally {
+      setLoading(false);
     }
-    setCompany(companyData);
   }, [user, id]);
 
   useEffect(() => {
@@ -228,7 +236,7 @@ const ProspectList: React.FC = () => {
           </div>
         </div>
       </div>
-      <ProspectsTable
+      {loading || !prospects || !company || !settings ? <div>Chargement...</div> : <ProspectsTable
         ref={tableRef}
         prospects={prospects}
         handleSearch={setSearch}
@@ -240,7 +248,7 @@ const ProspectList: React.FC = () => {
         handleSendEmail={handleSendEmail}
         settings={settings}
         user={user}
-      />
+      />}
       <MailGroupModal
         isOpen={emailMultipleModalState.isModalOpen}
         onRequestClose={emailMultipleModalState.closeModal}

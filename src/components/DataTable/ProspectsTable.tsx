@@ -304,6 +304,7 @@ export default ProspectsTable;
 const WorkflowCell: React.FC<{ row: Row<Company>, settings: DbCompanySettings | null }> = ({ row, settings }) => {
   const [completionPercentage, setCompletionPercentage] = useState<number>(0);
   const [workflowStatus, setWorkflowStatus] = useState<string>("not_started");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchWorkflowData = async () => {
@@ -331,6 +332,8 @@ const WorkflowCell: React.FC<{ row: Row<Company>, settings: DbCompanySettings | 
         }
       } catch (error) {
         console.error('Failed to fetch workflow data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -353,6 +356,10 @@ const WorkflowCell: React.FC<{ row: Row<Company>, settings: DbCompanySettings | 
       ? `/client-portal/proposal/${row.original.id}/list`
       : `/client-portal/workflow/${row.original.id}`;
   };
+
+  if (loading) {
+    return <div className="text-sm text-center text-gray-500">Chargement...</div>;
+  }
 
   return (
     <div>
