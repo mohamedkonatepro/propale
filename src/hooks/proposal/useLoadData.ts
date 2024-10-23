@@ -1,11 +1,13 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Need, Paragraph, Item, ProposalStatus, Company } from '@/types/models';
+import { Need, Paragraph, Item, ProposalStatus, Company, DefaultDescription } from '@/types/models';
 import { getProposalById } from '@/services/proposalService';
 import NeedContent from '@/components/clientPortal/proposal/NeedContent';
 import ParagraphContent from '@/components/clientPortal/proposal/ParagraphContent';
 import { enforceRightColumnConstraints } from '@/hooks/proposal/useDragAndDrop';
 import { getStepperSession } from '@/services/stepperService';
+import { fetchDefaultDescription, fetchDefaultParagraph } from '@/services/proposalDefaultsService';
+import DescriptionContent from '@/components/clientPortal/proposal/DescriptionContent';
 
 export const loadProposalData = async (
   proposalId: string | undefined,
@@ -23,7 +25,7 @@ export const loadProposalData = async (
     const { proposal, needs, paragraphs } = await getProposalById(proposalId);
     setProposalStatus(proposal.status);
     setNameProposal(proposal.name);
-    if (proposal.title && proposal.description || proposal.description === 'Ceci est la description initiale du projet.' && proposal.title === 'Description du projet') {
+    if (proposal.title && proposal.description) {
       setLeftColumn([] as any);
       setRightColumn((prev) => [
         { id: 'header', type: 'header', content: 'En-tête' },
@@ -59,9 +61,42 @@ export const loadProposalData = async (
         { id: 'price', type: 'price', content: 'Prix' },
       ]);
     } else {
-      setLeftColumn((prev) => [
-        ...prev.filter((item: Item) => item.type === 'description'),
-      ]);
+      if (prospect?.company_id) {
+        const defaultDescription = await fetchDefaultDescription(prospect.company_id);
+        const defaultParagraphs = await fetchDefaultParagraph(prospect.company_id);
+
+        if (defaultDescription) {
+          setLeftColumn((prev) => [
+            ...prev.filter((item: Item) => item.type !== 'description'),
+            {
+              id: defaultDescription.id,
+              type: 'description',
+              name: defaultDescription?.name || 'Description du projet',
+              showName: true,
+              description: defaultDescription?.description || 'Ceci est la description initiale du projet.',
+              content: React.createElement(DescriptionContent, { data: { ...defaultDescription as DefaultDescription, showName: true, isDefault: true }, id: defaultDescription.id, onEdit: handleEditDescription }),
+            },
+          ]);
+        } else {
+          setLeftColumn((prev) => [
+            ...prev.filter((item: Item) => item.type === 'description'),
+          ]);
+        }
+
+        if (defaultParagraphs && defaultParagraphs.length > 0) {
+          setLeftColumn((prev) => [
+            ...prev.filter((item: Item) => item.type !== 'paragraph'),
+            ...defaultParagraphs.map((defaultParagraph): Item => ({
+              id: defaultParagraph.id,
+              type: 'paragraph', // Spécifier que le type est 'paragraph'
+              name: defaultParagraph?.name || 'Paragraphe par défaut',
+              showName: true,
+              description: defaultParagraph?.description || 'Ceci est le texte du paragraphe par défaut.',
+              content: React.createElement(ParagraphContent, { data: { ...defaultParagraph, showName: true, isDefault: true }, id: defaultParagraph.id, onEdit: handleEditParagraph }),
+            })),
+          ]);
+        }
+      }
     }
 
     if (needs.length > 0) {
@@ -95,13 +130,46 @@ export const loadProposalData = async (
             name: paragraph.name,
             description: paragraph.description,
             showName: paragraph.showName,
-            content: React.createElement(ParagraphContent, { data: paragraph, id: paragraph.id || uuidv4(), onEdit: handleEditParagraph }),
+            content: React.createElement(ParagraphContent, { data: { ...paragraph, isDefault: false }, id: paragraph.id || uuidv4(), onEdit: handleEditParagraph }),
           })),
         ];
         return enforceRightColumnConstraints(updatedRightColumn);
       });
     }
   } else if (company && prospect) {
+    if (prospect.company_id) {
+      const defaultDescription = await fetchDefaultDescription(prospect.company_id);
+      const defaultParagraphs = await fetchDefaultParagraph(prospect.company_id);
+
+      if (defaultDescription) {
+        setLeftColumn((prev) => [
+          ...prev.filter((item: Item) => item.type !== 'description'),
+          {
+            id: 'description',
+            type: 'description',
+            name: defaultDescription?.name || 'Description du projet',
+            showName: true,
+            isDefault: true,
+            description: defaultDescription?.description || 'Ceci est la description initiale du projet.',
+            content: React.createElement(DescriptionContent, { data: { ...defaultDescription as DefaultDescription, showName: true, isDefault: true }, id: defaultDescription.id || '', onEdit: handleEditDescription }),
+          },
+        ]);
+      }
+
+      if (defaultParagraphs && defaultParagraphs.length > 0) {
+        setLeftColumn((prev) => [
+          ...prev.filter((item: Item) => item.type !== 'paragraph'),
+          ...defaultParagraphs.map((defaultParagraph): Item => ({
+            id: defaultParagraph.id,
+            type: 'paragraph',
+            name: defaultParagraph?.name || 'Paragraphe par défaut',
+            showName: true,
+            description: defaultParagraph?.description || 'Ceci est le texte du paragraphe par défaut.',
+            content: React.createElement(ParagraphContent, { data: { ...defaultParagraph, showName: true, isDefault: true }, id: defaultParagraph.id, onEdit: handleEditParagraph }),
+          })),
+        ]);
+      }
+    }
     const savedSession = await getStepperSession(company.id, prospect.id);
     const combinedNeeds = savedSession?.responses
       ?.filter(response => response.product_id)

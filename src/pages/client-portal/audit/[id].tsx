@@ -72,8 +72,6 @@ const Audit: React.FC = () => {
     }
   };
 
-  console.log(settings)
-
   return (
       <div className="flex flex-1 items-center justify-center overflow-hidden">
         <main className="w-4/5 p-12 overflow-y-auto flex flex-col">

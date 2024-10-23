@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { FaTimes } from 'react-icons/fa';
 import { Switch } from '../common/Switch';
+import { Checkbox } from '../common/Checkbox';
 
 const customStyles = {
   content: {
@@ -23,19 +24,22 @@ type NewParagraphModalProps = {
   isOpen: boolean;
   onRequestClose: () => void;
   onSubmit: (data: any) => void;
+  onDelete?: () => void;  // Add delete handler prop
   initialData?: {
     id: string;
     name: string;
     showName: boolean;
     description: string;
+    isDefault: boolean;  // Add isDefault flag
   } | null;
 };
 
-const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequestClose, onSubmit, initialData }) => {
-  // Pre-fill form fields if initialData is provided (for editing)
+const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequestClose, onSubmit, onDelete, initialData }) => {
   const [name, setName] = useState(initialData?.name || '');
   const [showName, setShowName] = useState(initialData?.showName ?? true);
   const [description, setDescription] = useState(initialData?.description || '');
+  const [isDefault, setIsDefault] = useState(false); // State for the default checkbox
+  const [isDefaultLocked, setIsDefaultLocked] = useState(false); // State for locking the checkbox
 
   // Reset form when the modal is opened/closed
   useEffect(() => {
@@ -43,16 +47,25 @@ const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequest
       setName(initialData.name);
       setShowName(initialData.showName);
       setDescription(initialData.description);
+      setIsDefaultLocked(!!initialData.id);
+      setIsDefault(initialData.isDefault);
     } else {
       setName('');
       setShowName(true);
       setDescription('');
+      setIsDefault(false);
+      setIsDefaultLocked(false);
     }
   }, [initialData, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name, showName, description });
+    onSubmit({ name, showName, description, isDefault });
+    onRequestClose();
+  };
+
+  const handleClose = () => {
+    onDelete && onDelete();
     onRequestClose();
   };
 
@@ -99,8 +112,28 @@ const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequest
           />
         </div>
 
-        {/* Submit Button */}
+        {/* Default Checkbox */}
+        <div className="flex items-center">
+          <Checkbox
+            checked={isDefault}
+            disabled={isDefault === true ? isDefaultLocked : false}
+            onCheckedChange={() => setIsDefault(!isDefault)}
+          />
+          <label className="ml-2">Enregistrer par défaut</label>
+        </div>
+
+        {/* Submit and Delete Buttons */}
         <div className="flex justify-center">
+          {isDefault === true && initialData && onDelete && (
+            <button
+              type="button"
+              onClick={handleClose}
+              className="bg-red-500 text-white py-2 px-6 rounded shadow hover:bg-red-600 mr-3"
+            >
+              Supprimer
+            </button>
+          )}
+
           <button
             type="submit"
             className="bg-blueCustom text-white py-2 px-6 rounded shadow hover:bg-blueCustom"

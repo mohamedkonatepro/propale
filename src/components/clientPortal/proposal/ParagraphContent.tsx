@@ -1,12 +1,13 @@
 import React from 'react';
 import { GrFormEdit } from 'react-icons/gr';
-import { Item } from '@/types/models'; // Assurez-vous que ce chemin est correct
+import { Item } from '@/types/models'; 
 
 interface ParagraphContentProps {
   data: {
     name: string;
     description: string;
     showName: boolean;
+    isDefault: boolean;
   };
   id: string;
   onEdit: (item: Item) => void;

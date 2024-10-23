@@ -24,6 +24,7 @@ import { fetchProfilesWithUserDetails } from '@/services/profileService';
 import { generateProposalEmailContent } from '@/lib/emailUtils';
 import { sendEmailByContacts } from '@/services/emailService';
 import ConfirmPublishModal from '@/components/clientPortal/proposal/ConfirmPublishModal';
+import { deleteDefaultDescription, deleteDefaultParagraph, saveDefaultDescription, saveDefaultParagraph } from '@/services/proposalDefaultsService';
 
 
 const notifyContacts = async (prospectId: string, proposalId: string | null) => {
@@ -34,6 +35,10 @@ const notifyContacts = async (prospectId: string, proposalId: string | null) => 
   
   console.log('send Email')
   await sendEmailByContacts(contact, content, subject);
+};
+
+const isDescriptionNotDefault = (descriptionItem: Item | undefined) => {
+  return descriptionItem && !descriptionItem.isDefault;
 };
 
 const Proposal: React.FC = () => {
@@ -54,6 +59,7 @@ const Proposal: React.FC = () => {
   const [switchEnabled, setSwitchEnabled] = useState(true);
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [proposalStatus, setProposalStatus] = useState<ProposalStatus['status']>();
+  const [paragraphsDefaultToSave, setParagraphsDefaultToSave] = useState<Item[]>([]);
   const [leftColumn, setLeftColumn] = useState<Item[]>([
     {
       id: 'description',
@@ -91,7 +97,7 @@ const Proposal: React.FC = () => {
   ]);
 
   const { handleAddNeed, handleEditNeed, handleModalSubmitNeed, currentNeed } = useNeedManagement(setLeftColumn, newNeedModalState);
-  const { handleAddParagraph, handleModalSubmitParagraph, handleEditParagraph, currentParagraph } = useParagraphManagement(setLeftColumn, newParagraphModalState);
+  const { handleAddParagraph, handleModalSubmitParagraph, handleEditParagraph, currentParagraph } = useParagraphManagement(setLeftColumn, newParagraphModalState, setParagraphsDefaultToSave);
   const { handleEditDescription, handleModalSubmitDescription, currentDescription } = useDescriptionManagement(setLeftColumn, newDescriptionModalState);
 
   const handleSwitchChange = (value: boolean) => {
@@ -127,11 +133,31 @@ const Proposal: React.FC = () => {
         name: paragraph.name || '',
         description: paragraph.description || '',
         showName: paragraph.showName === true ? paragraph.showName : false,
+        isDefault: paragraph.isDefault === true ? paragraph.isDefault : false,
       }));
-  
+
+    if (paragraphsDefaultToSave.length > 0 && prospect?.company_id) {
+      for (const paragraphDefault of paragraphsDefaultToSave) {
+        await saveDefaultParagraph(
+          prospect.company_id,
+          paragraphDefault.name || '',
+          paragraphDefault.description || '',
+        );
+      }
+    }
     const descriptionItem = rightColumn.find(item => item.type === 'description');
+    const descriptionItemLeft = leftColumn.find(item => item.type === 'description');
     const totalPrice = needs.reduce((sum, need) => sum + (need.price * need.quantity), 0);
   
+    if (prospect?.company_id && (isDescriptionNotDefault(descriptionItem) || isDescriptionNotDefault(descriptionItemLeft))) {
+      await deleteDefaultDescription(prospect.company_id);
+    } else if (prospect?.company_id && (!isDescriptionNotDefault(descriptionItem) || !isDescriptionNotDefault(descriptionItemLeft))) {
+      const decriptionDefault = descriptionItem ? descriptionItem : descriptionItemLeft
+      if (decriptionDefault) {
+        await saveDefaultDescription(prospect.company_id, decriptionDefault?.description || '', decriptionDefault?.name || '')
+      }
+    }
+
     if (company && prospect && user) {
       const dataToSave: ProposalData = {
         name: nameProposal,
@@ -171,6 +197,7 @@ const Proposal: React.FC = () => {
         }
       }      
     }
+    setParagraphsDefaultToSave([]);
     setLoadingSave(false);
   };
   
@@ -218,6 +245,19 @@ const Proposal: React.FC = () => {
   const handlePreviewClick = () => {
     router.push(`/client-portal/proposal/${prospect?.id}/preview/${proposalId}`);
   };
+
+  const handleDeleteParagraph = async (paragraphId?: string) => {
+    try {
+      if (paragraphId && prospect?.company_id) {
+        await deleteDefaultParagraph(prospect?.company_id, paragraphId);
+        setLeftColumn((prev) => prev.filter(item => item.id !== paragraphId));
+        toast.success('Paragraphe supprimé avec succès.');
+      }
+    } catch (error) {
+      toast.error('Erreur lors de la suppression du paragraphe.');
+    }
+  };
+  
 
   if (loading) return <div>Chargement...</div>;
   if (error) return <div>Erreur : {error}</div>;
@@ -267,6 +307,7 @@ const Proposal: React.FC = () => {
         onRequestClose={newParagraphModalState.closeModal}
         onSubmit={handleModalSubmitParagraph}
         initialData={currentParagraph}
+        onDelete={() => handleDeleteParagraph(currentParagraph?.id)}
       />
       <NewDescriptionModal
         isOpen={newDescriptionModalState.isModalOpen}

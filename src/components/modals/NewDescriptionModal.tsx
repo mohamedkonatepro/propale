@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { FaTimes } from 'react-icons/fa';
 import { Switch } from '../common/Switch';
+import { Checkbox } from '../common/Checkbox';
 
 const customStyles = {
   content: {
@@ -28,14 +29,16 @@ type NewDescriptionModalProps = {
     name: string;
     showName: boolean;
     description: string;
+    isDefault: boolean;
   } | null;
 };
 
 const NewDescriptionModal: React.FC<NewDescriptionModalProps> = ({ isOpen, onRequestClose, onSubmit, initialData }) => {
-  // Pre-fill form fields if initialData is provided (for editing)
   const [name, setName] = useState(initialData?.name || '');
   const [showName, setShowName] = useState(initialData?.showName ?? true);
   const [description, setDescription] = useState(initialData?.description || '');
+  const [isDefault, setIsDefault] = useState(false); // State for the default checkbox
+  const [isDefaultLocked, setIsDefaultLocked] = useState(false); // State for locking the checkbox
 
   // Reset form when the modal is opened/closed
   useEffect(() => {
@@ -43,17 +46,24 @@ const NewDescriptionModal: React.FC<NewDescriptionModalProps> = ({ isOpen, onReq
       setName(initialData.name);
       setShowName(initialData.showName);
       setDescription(initialData.description);
+      setIsDefaultLocked(!!initialData.id); // Lock checkbox if there is an id (indicating an existing default)
+      setIsDefault(initialData.isDefault);
     } else {
       setName('');
       setShowName(true);
       setDescription('');
+      setIsDefault(false);
+      setIsDefaultLocked(false);
     }
   }, [initialData, isOpen]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name, showName, description });
+    onSubmit({ name, showName, description, isDefault });
     onRequestClose();
+  };
+
+  const handleReset = () => {
+    setIsDefault(false);
   };
 
   return (
@@ -99,8 +109,26 @@ const NewDescriptionModal: React.FC<NewDescriptionModalProps> = ({ isOpen, onReq
           />
         </div>
 
+        {/* Default Checkbox */}
+        <div className="flex items-center">
+          <Checkbox
+            checked={isDefault}
+            disabled={isDefault === true ? isDefaultLocked : false}
+            onCheckedChange={() => setIsDefault(!isDefault)}
+          />
+          <label className="ml-2">Enregistrer par défaut</label>
+        </div>
+
         {/* Submit Button */}
         <div className="flex justify-center">
+          <button
+            onClick={handleReset}
+            type="button"
+            className="bg-white text-blueCustom py-2 px-6 rounded shadow hover:bg-blue-100 border border-blueCustom mr-3"
+          >
+            {'Réinitialiser'}
+          </button>
+
           <button
             type="submit"
             className="bg-blueCustom text-white py-2 px-6 rounded shadow hover:bg-blueCustom"

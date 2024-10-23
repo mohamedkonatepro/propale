@@ -138,6 +138,7 @@ export interface Item {
   showPrice?: boolean;
   showQuantity?: boolean;
   showName?: boolean;
+  isDefault?: boolean;
   content: string | React.ReactNode;
 }
 
@@ -204,4 +205,23 @@ export interface Proposal {
 
 export interface ProposalStatus {
   status: 'draft' | 'accepted' | 'refused' | 'proposed';
+}
+
+
+export interface DefaultDescription {
+  id: string;
+  company_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DefaultParagraph {
+  id: string;
+  company_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
 }

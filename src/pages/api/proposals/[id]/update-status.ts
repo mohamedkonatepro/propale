@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { id: proposalId } = req.query;
     const { status }: { status: string } = req.body;
 
-    console.log(status, proposalId)
     if (!proposalId || typeof proposalId !== 'string') {
       return res.status(400).json({ error: 'Invalid or missing proposal ID' });
     }

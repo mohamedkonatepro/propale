@@ -8,7 +8,7 @@ export const useDescriptionManagement = (
   setLeftColumn: React.Dispatch<React.SetStateAction<Item[]>>, 
   newDescriptionModalState: any
 ) => {
-  const [currentDescription, setCurrentDescription] = useState<{ id: string; name: string; showName: boolean; description: string } | null>(null);
+  const [currentDescription, setCurrentDescription] = useState<{ id: string; name: string; showName: boolean; description: string, isDefault: boolean } | null>(null);
 
   const handleEditDescription = (description: Item) => {
     setCurrentDescription({
@@ -16,17 +16,19 @@ export const useDescriptionManagement = (
       name: description.name || '',
       showName: description.showName || false,
       description: description.description as string || '',
+      isDefault: description.isDefault || false,
     });
     newDescriptionModalState.openModal();
   };
 
-  const handleModalSubmitDescription = (data: { name: string; showName: boolean; description: string }) => {
+  const handleModalSubmitDescription = (data: { name: string; showName: boolean; description: string, isDefault: boolean }) => {
     const newDescription: Item = {
       id: currentDescription?.id ? currentDescription.id : uuidv4(),
       type: 'description',
       name: data.name,
       showName: data.showName,
       description: data.description,
+      isDefault: data.isDefault || false,
       content: React.createElement(DescriptionContent, {
         data,
         id: currentDescription?.id ? currentDescription.id : uuidv4(),

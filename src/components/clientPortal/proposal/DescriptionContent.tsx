@@ -7,6 +7,7 @@ interface DescriptionContentProps {
     name: string;
     description: string;
     showName: boolean;
+    isDefault: boolean;
   };
   id: string;
   onEdit: (item: Item) => void;
