@@ -8,6 +8,7 @@ import { Company } from '@/types/models';
 import { useUser } from '@/context/userContext';
 import { Option } from '@/constants';
 import { ProspectNavBarActive } from '@/types/types';
+import { HiMiniArrowLeftStartOnRectangle } from 'react-icons/hi2';
 
 type ClientPortalLayoutProps = {
   statusOption?: Option;
@@ -32,9 +33,16 @@ const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({ statusOption, p
             Retour
           </Link>
         ) : (
-          <button onClick={handleLogout} className="text-red-500 hover:text-red-700 transition-colors">
-            Se déconnecter
-          </button>
+          <div className='flex ml-3 cursor-pointer' onClick={handleLogout}>
+            <div className='flex mr-2'> 
+              <HiMiniArrowLeftStartOnRectangle className='text-red-500' size={25}/>
+            </div>
+            <div className='flex'>
+              <label className="block text-red-500 cursor-pointer">
+                Se déconnecter
+              </label>
+            </div>
+          </div>
         )}
       </header>
       <div className="flex justify-center mt-6">

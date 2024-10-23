@@ -100,13 +100,23 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
       cell: ({ row }) => {
         const currentStatus = row.getValue("status");
         const isProspect = user?.role === ROLES.PROSPECT;
-
+        const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
+      
         const filteredOptions = isProspect
-          ? statusOptions.filter(option => option.value === 'accepted' || option.value === 'selected' || option.value === 'refused')
-          : statusOptions.filter(option => option.value !== 'selected')
-
+          ? statusOptions.filter(option => 
+              option.value === 'accepted' || 
+              option.value === 'selected' || 
+              option.value === 'refused'
+            )
+          : statusOptions.filter(option => {
+              if (currentStatus === 'proposed' && option.value === 'draft' && !isSuperAdmin) {
+                return false; 
+              }
+              return option.value !== 'selected';
+            });
+      
         const isEditable = !isProspect || (currentStatus !== "accepted" && currentStatus !== "refused");
-
+      
         return (
           <CustomDropdown
             options={filteredOptions}
@@ -116,7 +126,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
             disabled={!isEditable}
           />
         );
-      },
+      },      
     },
     {
       accessorKey: "created_at",
