@@ -1,10 +1,9 @@
 export interface Company {
   id: string;
   company_id?: string;
-  prospect_id?: string;
   name: string;
-  siret: string;
-  siren?: string;
+  siret?: string;
+  siren: string;
   ape_code?: string;
   activity_sector?: string;
   address?: string;
@@ -43,31 +42,6 @@ export type Contact = {
   position?: string;
   phone?: string;
   role?: string;
-};
-
-export type CompanyModalData = {
-  id?: string;
-  companyId?: string;
-  name: string;
-  siret: string;
-  siren: string;
-  ape_code?: string;
-  activity_sector?: string;
-  description?: string;
-  address?: string;
-  city?: string;
-  postalcode?: string;
-  country?: string;
-  heat_level?: string;
-  status?: string;
-  type?: string;
-  email: string;
-  firstname?: string;
-  lastname?: string;
-  position?: string;
-  phone?: string;
-  role?: string;
-  additionalContacts?: Contact[];
 };
 
 export type QuestionType = 'YesNo' | 'Dropdown' | 'DateRange' | 'FreeText';

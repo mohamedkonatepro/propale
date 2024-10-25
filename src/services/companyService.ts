@@ -1,5 +1,6 @@
-import { Company, CompanyModalData, Profile } from '@/types/models';
+import { Company, Profile } from '@/types/models';
 import { fetchProfilesWithUserDetails } from './profileService';
+import { companyDetailsInputs, CompanyFormInputs } from '@/schemas/company';
 
 export const fetchCompanyById = async (companyId: string): Promise<Company | null> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/company/${companyId}`, {
@@ -84,7 +85,7 @@ export const fetchAllCompaniesWithoutParent = async (search?: string): Promise<C
 };
 
 // Create a new company
-export const createCompany = async (dataModal: CompanyModalData): Promise<Company | null> => {
+export const createCompany = async (dataModal: CompanyFormInputs | companyDetailsInputs): Promise<Company | null> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/company/create`, {
     method: 'POST',
     headers: {
@@ -128,7 +129,7 @@ export const deleteCompany = async (companyId: string): Promise<boolean> => {
   return true;
 };
 
-export const createProspect = async (dataModal: CompanyModalData): Promise<Company | null> => {
+export const createProspect = async (dataModal: CompanyFormInputs | companyDetailsInputs): Promise<Company | null> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/prospect/create`, {
     method: 'POST',
     headers: {

@@ -2,13 +2,13 @@ import React from 'react';
 import { UseFieldArrayAppend, UseFieldArrayRemove, UseFormRegister, FieldErrors } from 'react-hook-form';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { ROLES } from '@/constants/roles';
-import { FormInputs } from '../AddProspectModal';
+import { CompanyFormInputs } from '@/schemas/company';
 
 type AdditionalContactsSectionProps = {
   fields: any[];
-  register: UseFormRegister<FormInputs>;
-  errors: FieldErrors<FormInputs>;
-  append: UseFieldArrayAppend<FormInputs>;
+  register: UseFormRegister<CompanyFormInputs>;
+  errors: FieldErrors<CompanyFormInputs>;
+  append: UseFieldArrayAppend<CompanyFormInputs>;
   remove: UseFieldArrayRemove;
   messageAlertAdditionalEmails: string;
 };

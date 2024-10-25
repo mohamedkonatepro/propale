@@ -17,11 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .insert([{
           company_id: dataModal.companyId,
           name: dataModal.name,
-          siret: dataModal.siret,
           siren: dataModal.siren,
           ape_code: dataModal.ape_code,
           activity_sector: dataModal.activity_sector,
-          description: dataModal.description,
           address: dataModal.address,
           city: dataModal.city,
           postalcode: dataModal.postalcode,
@@ -33,15 +31,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .select('*')
         .single();
 
+      console.log('error ::: ', error)
       if (error) {
         throw new Error('Error creating prospect company');
       }
 
       // Step 2: Create the user and associate with company
-      const user = await createUser(dataModal.email);
-      if (!user) throw new Error('Failed to create primary contact user');
-      
-      await sendPasswordResetEmail(dataModal.email);
+      let user;
+      if (dataModal.password) {
+        user = await createUser(dataModal.email, dataModal.password);
+        if (!user) throw new Error('Failed to create primary contact user');
+      } else {
+        user = await createUser(dataModal.email);
+        if (!user) throw new Error('Failed to create primary contact user');
+        
+        await sendPasswordResetEmail(dataModal.email);
+      }
 
       const profileData = {
         userId: user.id,

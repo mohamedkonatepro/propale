@@ -7,7 +7,7 @@ import AddProspectModal from '@/components/modals/AddProspectModal';
 import ListContactsModal from '@/components/modals/ListContactsModal';
 import ContactModal from '@/components/modals/ContactModal';
 import ProspectsTable, { ProspectsTableRef } from '@/components/DataTable/ProspectsTable';
-import { Company, CompanyModalData, Profile } from '@/types/models';
+import { Company, Profile } from '@/types/models';
 import { toast } from 'react-toastify';
 import useProspects from '@/hooks/useProspects';
 import { fetchCompanyById, fetchTopMostParentCompanyCompanyById, updateCompany } from '@/services/companyService';
@@ -23,6 +23,8 @@ import { fetchCompanySettings } from '@/services/companySettingsService';
 import MailGroupModal, { MailGroupFormInputs } from '@/components/modals/MailGroupModal';
 import { fetchContactByCompanyId } from '@/services/profileService';
 import { sendEmailByContacts } from '@/services/emailService';
+import { CompanyFormInputs } from '@/schemas/company';
+import { FolderFormInputs } from '@/schemas/folder';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -91,7 +93,7 @@ const ProspectList: React.FC = () => {
     setIsMounted(true);
   }, [getCompanyData]);
 
-  const handleCreateProspect = async (data: CompanyModalData) => {
+  const handleCreateProspect = async (data: CompanyFormInputs) => {
     if (selectedProspect?.id) {
       await editProspect({ ...data, id: selectedProspect.id } as Company);
     } else {
@@ -271,7 +273,7 @@ const ProspectList: React.FC = () => {
           isOpen={folderModalState.isModalOpen}
           onRequestClose={folderModalState.closeModal}
           onSubmit={handleCreateFolder}
-          defaultValues={company}
+          defaultValues={company as FolderFormInputs}
           role={user?.role}
           companyId={id as string}
         />

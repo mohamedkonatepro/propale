@@ -11,7 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .from('company')
       .insert([{
         company_id: dataModal.companyId,
-        prospect_id: '',
         name: dataModal.name,
         siret: dataModal.siret,
         siren: dataModal.siren,

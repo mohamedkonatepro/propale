@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { Company, CompanyModalData, Profile } from '@/types/models';
+import { Company, Profile } from '@/types/models';
 import { fetchCompanyById } from '@/services/companyService';
 import { useUser } from '@/context/userContext';
 import { heatLevels, statuses, Option } from '@/constants';
@@ -13,6 +13,7 @@ import { GrFormEdit } from 'react-icons/gr';
 import { formatDate, getOption } from '@/lib/utils';
 import AddProspectModal from '@/components/modals/AddProspectModal';
 import useProspects from '@/hooks/useProspects';
+import { CompanyFormInputs } from '@/schemas/company';
 
 const Audit: React.FC = () => {
   const router = useRouter();
@@ -62,7 +63,7 @@ const Audit: React.FC = () => {
     addContactModalState.openModal();
   };
 
-  const handleCreateProspect = async (data: CompanyModalData) => {
+  const handleCreateProspect = async (data: CompanyFormInputs) => {
     if (company?.id) {
       await editProspect({ ...data, id: company.id } as Company);
     }

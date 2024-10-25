@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Company, CompanyModalData } from '@/types/models';
+import { Company } from '@/types/models';
 import { createProspect, deleteProspect, fetchProspects, updateCompany } from '@/services/companyService';
+import { CompanyFormInputs } from '@/schemas/company';
 
 const useProspects = (companyId?: string, search?: string) => {
   const [prospects, setProspects] = useState<Company[]>([]);
@@ -25,7 +26,7 @@ const useProspects = (companyId?: string, search?: string) => {
     fetchData();
   }, [companyId, search]);
 
-  const addProspect = async (prospect: CompanyModalData) => {
+  const addProspect = async (prospect: CompanyFormInputs) => {
     try {
       const newProspect = await createProspect(prospect);
       if (newProspect) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { companySchema } from '@/schemas/company';
+import { CompanyFormInputs, companySchema } from '@/schemas/company';
 import axios from 'axios';
 import { ROLES } from '@/constants/roles';
 import dataApeCode from '../../data/codes-ape.json';
@@ -27,17 +27,6 @@ type AddProspectModalProps = {
   defaultValues?: Company;
 };
 
-export type FormInputs = z.infer<typeof companySchema> & {
-  additionalContacts: {
-    firstname: string;
-    lastname: string;
-    position?: string;
-    role?: string;
-    email: string;
-    phone?: string;
-  }[];
-};
-
 const customStyles = {
   top: '50%',
   left: '50%',
@@ -50,17 +39,8 @@ const customStyles = {
 
 const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestClose, onSubmit, company, companyId, defaultValues }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = useForm<FormInputs>({
-    resolver: zodResolver(defaultValues?.id ? prospectSchema : companySchema.extend({
-      additionalContacts: z.array(z.object({
-        firstname: z.string().min(1, "Prénom est requis"),
-        lastname: z.string().min(1, "Nom est requis"),
-        position: z.string().optional(),
-        role: z.string().default(ROLES.PROSPECT),
-        email: z.string().email("Email invalide").min(1, "Email est requis"),
-        phone: z.string().optional(),
-      })).default([])
-    })),
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch, control } = useForm<CompanyFormInputs>({
+    resolver: zodResolver(defaultValues?.id ? prospectSchema : companySchema),
     defaultValues: {
       name: '',
       siren: '',
@@ -124,7 +104,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
     }
   };
 
-  const onSubmitHandler = async (data: FormInputs) => {
+  const onSubmitHandler = async (data: CompanyFormInputs) => {
     setIsLoading(true);
     const currentCompanyId = company?.id ? company.id : companyId
     if (!defaultValues?.id && currentCompanyId) {
@@ -148,24 +128,26 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
       }
 
       // Vérification des emails des contacts supplémentaires
-      const additionalContactEmails = additionalContacts.map(contact => contact.email);
-      const uniqueAdditionalContactEmails = new Set(additionalContactEmails);
-
-      if (uniqueAdditionalContactEmails.size !== additionalContactEmails.length) {
-        setMessageAlertAdditionalEmails('Des emails en double existent parmi les contacts supplémentaires.');
-        setIsLoading(false);
-        return;
-      }
-
-      const { data: additionalProfileData } = await supabase
-        .from('profiles')
-        .select('email')
-        .in('email', additionalContactEmails);
-
-      if (additionalProfileData && additionalProfileData.length > 0) {
-        setMessageAlertAdditionalEmails('Certains contacts supplémentaires ont déjà des comptes utilisateurs.');
-        setIsLoading(false);
-        return;
+      if (additionalContacts) {
+        const additionalContactEmails = additionalContacts.map(contact => contact.email);
+        const uniqueAdditionalContactEmails = new Set(additionalContactEmails);
+  
+        if (uniqueAdditionalContactEmails.size !== additionalContactEmails.length) {
+          setMessageAlertAdditionalEmails('Des emails en double existent parmi les contacts supplémentaires.');
+          setIsLoading(false);
+          return;
+        }
+  
+        const { data: additionalProfileData } = await supabase
+          .from('profiles')
+          .select('email')
+          .in('email', additionalContactEmails);
+  
+        if (additionalProfileData && additionalProfileData.length > 0) {
+          setMessageAlertAdditionalEmails('Certains contacts supplémentaires ont déjà des comptes utilisateurs.');
+          setIsLoading(false);
+          return;
+        }
       }
     }
     
@@ -240,7 +222,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
           messageAlertSiren={messageAlertSiren}
         />
         {!defaultValues?.id && (
-          <PrimaryContactSection<FormInputs>
+          <PrimaryContactSection<CompanyFormInputs>
             register={register}
             errors={errors}
             messageAlertEmail={messageAlertEmail}

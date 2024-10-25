@@ -84,6 +84,11 @@ export function DataTable<T>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     ...(externalTable?.options || {}),
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
   }), [data, columns, sorting, columnFilters, columnVisibility, rowSelection, externalTable]);
 
   const table = useReactTable(tableOptions);

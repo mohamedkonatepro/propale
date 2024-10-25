@@ -5,40 +5,48 @@ import Document, {
   NextScript,
   DocumentContext,
   DocumentInitialProps,
-} from 'next/document'
- 
-class MyDocument extends Document {
+} from 'next/document';
+
+// Étendre le type DocumentInitialProps pour inclure isCreateProspectPage
+interface CustomDocumentProps extends DocumentInitialProps {
+  isCreateProspectPage?: boolean;
+}
+
+class MyDocument extends Document<CustomDocumentProps> {
   static async getInitialProps(
     ctx: DocumentContext
-  ): Promise<DocumentInitialProps> {
-    const originalRenderPage = ctx.renderPage
- 
-    // Run the React rendering logic synchronously
+  ): Promise<CustomDocumentProps> {
+    const originalRenderPage = ctx.renderPage;
+
     ctx.renderPage = () =>
       originalRenderPage({
-        // Useful for wrapping the whole react tree
         enhanceApp: (App) => App,
-        // Useful for wrapping in a per-page basis
         enhanceComponent: (Component) => Component,
-      })
- 
-    // Run the parent `getInitialProps`, it now includes the custom `renderPage`
-    const initialProps = await Document.getInitialProps(ctx)
- 
-    return initialProps
+      });
+
+    const initialProps = await Document.getInitialProps(ctx);
+
+    // Vérifiez si l'URL commence par /create-prospect/
+    const isCreateProspectPage = ctx.req?.url?.startsWith('/create-prospect/');
+
+    return { ...initialProps, isCreateProspectPage };
   }
- 
+
   render() {
+    // Utiliser la valeur isCreateProspectPage pour changer la classe de body
+    const { isCreateProspectPage } = this.props;
+    const bodyClass = isCreateProspectPage ? 'bg-white' : 'bg-backgroundGray';
+
     return (
       <Html lang="fr">
         <Head />
-        <body className="bg-backgroundGray">
+        <body className={bodyClass}>
           <Main />
           <NextScript />
         </body>
       </Html>
-    )
+    );
   }
 }
- 
-export default MyDocument
+
+export default MyDocument;

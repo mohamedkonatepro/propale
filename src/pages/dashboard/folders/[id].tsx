@@ -6,12 +6,13 @@ import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
 import AddFolderModal from '@/components/modals/AddFolderModal';
 import AddProspectModal from '@/components/modals/AddProspectModal';
 import FoldersTable from '@/components/DataTable/FoldersTable';
-import { Company, CompanyModalData } from '@/types/models';
+import { Company } from '@/types/models';
 import { FolderFormInputs } from '@/schemas/folder';
 import useCompanies from '@/hooks/useCompanies';
 import useCompanyData from '@/hooks/useCompanyData';
 import useProspects from '@/hooks/useProspects';
 import useModalState from '@/hooks/useModalState';
+import { CompanyFormInputs } from '@/schemas/company';
 
 const Folders: React.FC = () => {
   const router = useRouter();
@@ -66,7 +67,7 @@ const Folders: React.FC = () => {
     }
   };
 
-  const handleCreateProspect = async (data: CompanyModalData) => {
+  const handleCreateProspect = async (data: CompanyFormInputs) => {
     await addProspect(data);
     closeProspectModal();
   };
