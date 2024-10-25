@@ -14,13 +14,14 @@ import PrimaryContactSection from '@/components/modals/section/PrimaryContactSec
 import { useRouter } from 'next/router';
 import { checkSirenAndCompanyId, createProspect, fetchCompanyById } from '@/services/companyService';
 import { supabase } from '@/lib/supabaseClient';
-
+import CompanyNotFound from '@/components/common/CompanyNotFound';
 
 const AddProspectPage: React.FC = () => {
   const router = useRouter();
   const companyId = Array.isArray(router.query.companyId) ? router.query.companyId[0] : router.query.companyId;
 
   const [company, setCompany] = useState<Company | null>(null); 
+  const [isCompanyLoading, setIsCompanyLoading] = useState(true); // Nouvel état pour le chargement de l'entreprise
   const [isLoading, setIsLoading] = useState(false);
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
   const [messageAlertSiren, setMessageAlertSiren] = useState('');
@@ -47,15 +48,23 @@ const AddProspectPage: React.FC = () => {
 
   useEffect(() => {
     const getCompany = async () => {
-      let result;
-      result = await fetchCompanyById(companyId as string);
-      setCompany(result)
+      setIsCompanyLoading(true); // Démarrer le chargement
+      try {
+        const result = await fetchCompanyById(companyId as string);
+        setCompany(result);
+      } catch (error) {
+        console.error('Erreur lors de la récupération de l’entreprise :', error);
+        setCompany(null); // Définir company à null en cas d'erreur
+      } finally {
+        setIsCompanyLoading(false); // Terminer le chargement
+      }
     };
-
+  
     if (companyId) {
       getCompany();
     }
   }, [companyId]);
+  
   
   const fetchCompanyDetails = async (siren: string) => {
     try {
@@ -125,6 +134,14 @@ const AddProspectPage: React.FC = () => {
     }
   }, [sirenValue, setValue]);
 
+  if (isCompanyLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!isCompanyLoading && !company) {
+    return <CompanyNotFound />;
+  }
+  
   return (
     <div className="mx-auto px-4">
       <div className="flex flex-col justify-center items-center border-b pb-2 mb-4">
