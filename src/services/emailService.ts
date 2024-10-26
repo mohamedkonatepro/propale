@@ -6,8 +6,12 @@ export const sendEmailByContacts = async (contacts: Profile[], content: string, 
     return;
   }
 
-  const emails = contacts.map(contact => contact.email).filter(Boolean); // Extract emails and remove any falsy values
-  if (emails.length === 0) {
+  const emailObjects = contacts
+    .map(contact => contact.email)  // Extract emails
+    .filter(Boolean)                // Remove any falsy values
+    .map(email => ({ email }));     // Transform each email into an object
+
+  if (emailObjects.length === 0) {
     console.error('No valid emails found in contacts');
     return;
   }
@@ -15,13 +19,13 @@ export const sendEmailByContacts = async (contacts: Profile[], content: string, 
   const formattedContent = content.replace(/\n/g, '<br>');
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}//api/sendEmail`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sendEmail`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        to: emails,
+        to: emailObjects,
         subject,
         html: formattedContent,
       }),

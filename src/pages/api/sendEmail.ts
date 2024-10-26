@@ -1,8 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import sgMail from '@sendgrid/mail';
 import corsMiddleware, { cors } from '@/lib/corsMiddleware';
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 export default async function sendEmail(req: NextApiRequest, res: NextApiResponse) {
   await corsMiddleware(req, res, cors);
@@ -17,14 +14,30 @@ export default async function sendEmail(req: NextApiRequest, res: NextApiRespons
   }
 
   const msg = {
-    to, // Array of emails or single email
-    from: process.env.NEXT_PUBLIC_SENDGRID_FROM_EMAIL || '',
+    sender: {
+      name: "Propale",
+      email: process.env.NEXT_PUBLIC_BREVO_FROM_EMAIL || 'ahmed.kante@katech-web.com',
+    },
+    to,  // Array of { email: string } objects
     subject,
-    html,
+    htmlContent: html,
   };
 
   try {
-    await sgMail.sendMultiple(msg); // sendMultiple supports arrays of recipients
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': process.env.NEXT_PUBLIC_BREVO_API_KEY || '',
+      },
+      body: JSON.stringify(msg),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to send email');
+    }
+
     res.status(200).json({ message: 'Emails sent successfully' });
   } catch (error) {
     console.error('Error sending email:', error);
