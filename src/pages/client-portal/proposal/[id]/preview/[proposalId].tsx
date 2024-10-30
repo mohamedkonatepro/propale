@@ -16,14 +16,20 @@ import { fetchProfilesWithUserDetails } from '@/services/profileService';
 import { generateProposalEmailContent } from '@/lib/emailUtils';
 import { sendEmailByContacts } from '@/services/emailService';
 
-const notifyContacts = async (prospectId: string, proposalId: string | null) => {
-  const contact = await fetchProfilesWithUserDetails(prospectId);
+const notifyContacts = async (prospectId: string, proposalId: string | null, companyName: string) => {
+  const contacts = await fetchProfilesWithUserDetails(prospectId);
   const proposalUrl = `${process.env.NEXT_PUBLIC_URL}/client-portal/proposal/${prospectId}/preview/${proposalId}`;
-  const content = generateProposalEmailContent(proposalUrl);
   const subject = "Nouvelle proposition commerciale";
-  
-  console.log('send Email')
-  await sendEmailByContacts(contact, content, subject);
+
+  if (!contacts || contacts.length === 0) {
+    console.error("Aucun contact trouvé pour notifier");
+    return;
+  }
+
+  for (const contact of contacts) {
+    const content = generateProposalEmailContent(proposalUrl, companyName, contact.firstname, contact.lastname);
+    await sendEmailByContacts([contact], content, subject, false);
+  }
 };
 
 const ProposalPreview: NextPage = () => {
@@ -40,7 +46,7 @@ const ProposalPreview: NextPage = () => {
   const handlePublishClick = async (proposal: Proposal) => {
     setPublishLoading(true);
     const proposalUpdated = await updateProposalStatus(proposal.id, 'proposed');
-    await notifyContacts(proposal.prospect_id, proposal.id)
+    await notifyContacts(proposal.prospect_id, proposal.id, proposal.company_name);
     setProposalData(proposalUpdated);
     setPublishLoading(false);
   };

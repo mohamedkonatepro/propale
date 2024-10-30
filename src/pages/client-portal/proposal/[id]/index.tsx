@@ -27,14 +27,20 @@ import ConfirmPublishModal from '@/components/clientPortal/proposal/ConfirmPubli
 import { deleteDefaultDescription, deleteDefaultParagraph, saveDefaultDescription, saveDefaultParagraph } from '@/services/proposalDefaultsService';
 
 
-const notifyContacts = async (prospectId: string, proposalId: string | null) => {
-  const contact = await fetchProfilesWithUserDetails(prospectId);
+const notifyContacts = async (prospectId: string, proposalId: string | null, companyName: string) => {
+  const contacts = await fetchProfilesWithUserDetails(prospectId);
   const proposalUrl = `${process.env.NEXT_PUBLIC_URL}/client-portal/proposal/${prospectId}/preview/${proposalId}`;
-  const content = generateProposalEmailContent(proposalUrl);
   const subject = "Nouvelle proposition commerciale";
-  
-  console.log('send Email')
-  await sendEmailByContacts(contact, content, subject);
+
+  if (!contacts || contacts.length === 0) {
+    console.error("Aucun contact trouvé pour notifier");
+    return;
+  }
+
+  for (const contact of contacts) {
+    const content = generateProposalEmailContent(proposalUrl, companyName, contact.firstname, contact.lastname);
+    await sendEmailByContacts([contact], content, subject, false);
+  }
 };
 
 const isDescriptionNotDefault = (descriptionItem: Item | undefined) => {
@@ -181,7 +187,7 @@ const Proposal: React.FC = () => {
       if (proposalId) {
         await updateProposal(proposalId as string, dataToSave);
         if (status === "proposed") {
-          await notifyContacts(prospect.id, proposalId as string);
+          await notifyContacts(prospect.id, proposalId as string, company.name);
           toast.success('La proposition a bien été publiée.');
         } else {
           toast.success('La proposition a bien été mise à jour.');
@@ -189,7 +195,7 @@ const Proposal: React.FC = () => {
       } else {
         const { proposal } = await createProposal(dataToSave);
         if (status === "proposed") {
-          await notifyContacts(prospect.id, proposal.id);
+          await notifyContacts(prospect.id, proposal.id, company.name);
           toast.success('La proposition a bien été publiée.');
         } else {
           router.push(`/client-portal/proposal/${proposal.prospect_id}?proposalId=${proposal.id}`);

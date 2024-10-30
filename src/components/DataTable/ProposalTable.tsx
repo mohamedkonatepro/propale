@@ -9,20 +9,13 @@ import { format } from 'date-fns';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../common/DropdownMenu';
 import { MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/router';
-import { Option } from '@/constants';
+import { proposalStatusOptions } from '@/constants';
 import { formatAmount } from '@/lib/utils';
 import { generatePdf } from '@/services/pdfService';
 import { useUser } from '@/context/userContext';
 import { ROLES } from '@/constants/roles';
 import CustomDropdown from '../common/CustomDropdown';
 
-const statusOptions: Option[] = [
-  { label: 'En cours', value: 'draft', color: 'blue' },
-  { label: 'Sélectionner', value: 'selected', color: 'gray' },
-  { label: 'Accepté', value: 'accepted', color: 'green' },
-  { label: 'Refusé', value: 'refused', color: 'red' },
-  { label: 'Proposé', value: 'proposed', color: 'orange' },
-];
 
 type ProposalTableProps = {
   proposals: Proposal[];
@@ -103,12 +96,12 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
         const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
       
         const filteredOptions = isProspect
-          ? statusOptions.filter(option => 
+          ? proposalStatusOptions.filter(option => 
               option.value === 'accepted' || 
               option.value === 'selected' || 
               option.value === 'refused'
             )
-          : statusOptions.filter(option => {
+          : proposalStatusOptions.filter(option => {
               if (currentStatus === 'proposed' && option.value === 'draft' && !isSuperAdmin) {
                 return false; 
               }

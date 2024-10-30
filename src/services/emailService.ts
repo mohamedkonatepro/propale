@@ -1,6 +1,6 @@
 import { Profile } from "@/types/models";
 
-export const sendEmailByContacts = async (contacts: Profile[], content: string, subject: string) => {
+export const sendEmailByContacts = async (contacts: Profile[], content: string, subject: string, space: boolean = true) => {
   if (!contacts || contacts.length === 0) {
     console.error('No contacts provided for sending email');
     return;
@@ -16,7 +16,7 @@ export const sendEmailByContacts = async (contacts: Profile[], content: string, 
     return;
   }
 
-  const formattedContent = content.replace(/\n/g, '<br>');
+  const formattedContent = content.replace(/\n/g, `${space ? "<br>" : ""}`);
 
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sendEmail`, {

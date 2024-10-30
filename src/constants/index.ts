@@ -22,3 +22,11 @@ export const statuses: Option[] = [
   { label: 'Conclu', value: 'concluded', color: 'green' },
   { label: 'Perdu', value: 'lost', color: 'gray' },
 ];
+
+export const proposalStatusOptions: Option[] = [
+  { label: 'En cours', value: 'draft', color: 'blue' },
+  { label: 'Sélectionner', value: 'selected', color: 'gray' },
+  { label: 'Accepté', value: 'accepted', color: 'green' },
+  { label: 'Refusé', value: 'refused', color: 'red' },
+  { label: 'Proposé', value: 'proposed', color: 'orange' },
+];

@@ -21,10 +21,14 @@ import useProfileManagement from '@/hooks/useProfileManagement';
 import { DbCompanySettings } from '@/types/dbTypes';
 import { fetchCompanySettings } from '@/services/companySettingsService';
 import MailGroupModal, { MailGroupFormInputs } from '@/components/modals/MailGroupModal';
-import { fetchContactByCompanyId } from '@/services/profileService';
+import { fetchContactByCompanyId, fetchPrimaryContactByCompanyId } from '@/services/profileService';
 import { sendEmailByContacts } from '@/services/emailService';
 import { CompanyFormInputs } from '@/schemas/company';
 import { FolderFormInputs } from '@/schemas/folder';
+import { formatAmount, formatDate, getOption } from '@/lib/utils';
+import { heatLevels, proposalStatusOptions, statuses } from '@/constants';
+import { getStepperSession } from '@/services/stepperService';
+import { getProposalsByProspectId } from '@/services/proposalService';
 
 const ProspectList: React.FC = () => {
   const router = useRouter();
@@ -32,6 +36,8 @@ const ProspectList: React.FC = () => {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
   const [company, setCompany] = useState<Company | null>(null);
+  const [companyForSettings, setCompanyForSettings] = useState<Company | null>(null);
+
   const [search, setSearch] = useState<string>('');
   const [csvData, setCsvData] = useState<any[]>([]);
   const csvLinkRef = useRef<CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }>(null);
@@ -79,6 +85,7 @@ const ProspectList: React.FC = () => {
       if (companyForSettings) {
         const settings = await fetchCompanySettings(companyForSettings.id);
         setSettings(settings);
+        setCompanyForSettings(companyForSettings);
       }
       setCompany(companyData);
     } catch (error) {
@@ -141,18 +148,82 @@ const ProspectList: React.FC = () => {
     }
   };
 
-  const handleExportCsv = (selectedRows: Company[]) => {
+  const handleExportCsv = async (selectedRows: Company[]) => {
     if (selectedRows.length === 0) return;
-    const csvData = selectedRows.map(row => ({
-      Name: row.name,
-      Siren: row.siren,
-      ActivitySector: row.activity_sector,
-      Status: row.status,
-      HeatLevel: row.heat_level,
+  
+    const csvData = await Promise.all(selectedRows.map(async (row) => {
+      const statusOption = getOption(row.status, statuses);
+      const heatLevelOption = getOption(row.heat_level, heatLevels);
+      const fetchedProfile = await fetchPrimaryContactByCompanyId(row.id);
+      const contact = await fetchContactByCompanyId(row.id);
+      if (!companyForSettings) {
+        return {};
+      }
+      const session = await getStepperSession(companyForSettings.id, row.id);
+      const statusWorkflow = session?.session.status === 'in_progress' || session?.session.status === 'saved' 
+        ? "En cours" 
+        : session?.session.status === 'completed' 
+        ? "Terminé" 
+        : "";
+  
+      const { proposals } = await getProposalsByProspectId(row.id);
+      const proposal = proposals[0];
+      const option = proposalStatusOptions.find(option => option.value === proposal?.status);
+  
+      const totalAmount = proposal?.total_price !== undefined && proposal?.total_price !== null 
+        ? formatAmount(proposal.total_price) 
+        : "";
+  
+      return {
+        'entreprise': companyForSettings.name,
+        'siren entreprise': companyForSettings.siren,
+        'Dossier': company?.name,
+        'siret dossier': company?.siret,
+        'raison sociale prospect': row.name,
+        'siren prospect': row.siren,
+        'statut prospect': statusOption.label,
+        'chaleur prospect': heatLevelOption.label,
+        'prénom contact principal': fetchedProfile?.firstname,
+        'nom contact principal': fetchedProfile?.lastname,
+        'fonction contact principal': fetchedProfile?.position,
+        'email contact principal': fetchedProfile?.email,
+        'téléphone contact principal': fetchedProfile?.phone,
+        'prénom contact 2': contact?.[0]?.firstname,
+        'nom contact 2': contact?.[0]?.lastname,
+        'fonction contact 2': contact?.[0]?.position,
+        'email contact 2': contact?.[0]?.email,
+        'téléphone contact 2': contact?.[0]?.phone,
+        'prénom contact 3': contact?.[1]?.firstname,
+        'nom contact 3': contact?.[1]?.lastname,
+        'fonction contact 3': contact?.[1]?.position,
+        'email contact 3': contact?.[1]?.email,
+        'téléphone contact 3': contact?.[1]?.phone,
+        'prénom contact 4': contact?.[2]?.firstname,
+        'nom contact 4': contact?.[2]?.lastname,
+        'fonction contact 4': contact?.[2]?.position,
+        'email contact 4': contact?.[2]?.email,
+        'téléphone contact 4': contact?.[2]?.phone,
+        'prénom contact 5': contact?.[3]?.firstname,
+        'nom contact 5': contact?.[3]?.lastname,
+        'fonction contact 5': contact?.[3]?.position,
+        'email contact 5': contact?.[3]?.email,
+        'téléphone contact 5': contact?.[3]?.phone,
+        'workflow': statusWorkflow,
+        'proposition commerciale': proposal?.name ? "Oui" : "Non",
+        'nom de la proposition commerciale': proposal?.name,
+        'montant total (HT)': totalAmount,
+        'date de création de la proposition commerciale': proposal?.created_at ? formatDate(new Date(proposal?.created_at)) : '',
+        'date de modification de la proposition commerciale': proposal?.updated_at ? formatDate(new Date(proposal?.updated_at)) : '',
+        'statut de la proposition commerciale': option?.label,
+      };
     }));
+  
     setCsvData(csvData);
     setIsCsvLinkVisible(true);
   };
+  
+  
+  
 
   const handleSendEmail = async (selectedRows: Company[]) => {
     if (selectedRows.length === 0) return;
