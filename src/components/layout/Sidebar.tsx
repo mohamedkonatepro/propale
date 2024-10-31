@@ -81,7 +81,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
 
   const handleSettingsClick = async () => {
     setIsLoading(true);  // Active le loader
-    setPage("settings");
     await router.push(`/dashboard/settings/${isProspect ? company?.company_id : company?.id}`);
     setIsLoading(false);  // Désactive le loader après redirection
   };

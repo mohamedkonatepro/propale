@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Header from '@/components/layout/Header';
 import Link from "next/link";
 import { IoEyeOutline } from 'react-icons/io5';
-import { countAllProspectsByCompanyId, countCompaniesByParentId, fetchCompanyById } from '@/services/companyService';
+import { countAllProspectsByCompanyId, countCompaniesByParentId, deleteCompany, fetchCompanyById } from '@/services/companyService';
 import { toast } from 'react-toastify';
 import { Switch } from '@/components/common/Switch';
 import { TbSitemap } from "react-icons/tb";
@@ -20,6 +20,9 @@ import { Button } from '@/components/common/Button';
 import { companySettingsSchema } from '@/schemas/workflowAndSettingsSchema'; // Import du schéma Zod
 import { z } from 'zod';
 import { countStepperSessionByCompanyId } from '@/services/stepperService';
+import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
+import useModalState from '@/hooks/useModalState';
+import { CgSpinner } from "react-icons/cg";
 
 const Select = dynamic(() => import('react-select'), { ssr: false });
 
@@ -39,12 +42,18 @@ const Settings: React.FC = () => {
     products: [],
     questions: []
   });
+  const [isDeleting, setIsDeleting] = useState(false);
   const [userCount, setUserCount] = useState(0);
   const [folderCount, setFolderCount] = useState(0);
   const [prospectCount, setProspectCount] = useState(0);
   const [countWorkflow, setCountWorkflow] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const { 
+    isModalOpen: isDeleteModalOpen, 
+    openModal: openDeleteModal, 
+    closeModal: closeDeleteModal 
+  } = useModalState();
+  
   useEffect(() => {
     const loadData = async () => {
       if (id) {
@@ -79,6 +88,13 @@ const Settings: React.FC = () => {
   const handleLicenseChange = (selectedOption: any) => {
     setSettings(prev => prev ? { ...prev, license_type: selectedOption.value } : null);
   };
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    closeDeleteModal();
+    await deleteCompany(id as string);
+    router.push(`/dashboard`);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,7 +133,19 @@ const Settings: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 p-6">
+    <div className="relative flex-1 p-6">
+      {isDeleting && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 z-50">
+          <div className="text-center absolute top-60">
+            <div className="loader mb-4">
+              <div className="flex justify-center items-center">
+                <div className="animate-spin rounded-full h-52 w-52 border-t-4 border-blue-500 border-opacity-95"></div>
+              </div>
+            </div>
+            <p className="text-3xl font-semibold">Suppression en cours...</p>
+          </div>
+        </div>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="flex justify-between items-center mb-6">
           <Header title={company.name} badgeName={settings.license_type} siren={company.siren} />
@@ -228,7 +256,7 @@ const Settings: React.FC = () => {
             <div className='flex w-full mt-5'>
               <div className='w-5/12'>
                 <div className="flex items-center justify-between">
-                  <label className="ml-2 mr-5 block text-sm font-medium text-red-500 cursor-pointer" onClick={() => console.log('delete WIP')}>
+                  <label className="ml-2 mr-5 block text-sm font-medium text-red-500 cursor-pointer" onClick={openDeleteModal}>
                     Supprimer le compte client
                   </label>
                 </div>
@@ -250,6 +278,12 @@ const Settings: React.FC = () => {
           </Button>
         </div>
       </form>
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={handleDeleteAccount}
+        message={"Êtes-vous sûr de vouloir supprimer le client ?"}
+      />
     </div>
   );
 };

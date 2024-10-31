@@ -33,11 +33,7 @@ const useCompanies = (companyId: string, search: string) => {
 
   const removeCompany = async (companyId: string) => {
     try {
-      const profiles = await fetchProfilesWithUserDetails(companyId);
       await deleteCompany(companyId);
-      for (const profile of profiles) {
-        await deleteUserAuth(profile.id);
-      }
       setCompanies(companies.filter(company => company.id !== companyId));
       toast.success("Le dossier a bien été supprimé !");
     } catch (err) {
