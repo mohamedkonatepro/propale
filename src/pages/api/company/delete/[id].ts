@@ -18,7 +18,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .select('id')
         .eq('company_id', companyId);
 
-      console.log('childError :: ', childError);
       if (childError) {
         throw new Error('Error fetching child companies');
       }
@@ -40,13 +39,83 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // For each company (including the main one), delete associated data
     for (const companyId of allCompanyIds) {
+      // Retrieve workflows associated with the company
+      const { data: workflows, error: workflowError } = await supabase
+        .from('workflows')
+        .select('id')
+        .eq('company_id', companyId);
+
+      if (workflowError) {
+        throw new Error(`Error fetching workflows for company ID ${companyId}`);
+      }
+
+      // Delete associations for each workflow
+      for (const workflow of workflows || []) {
+        const { id: workflowId } = workflow;
+
+        // Retrieve product and question IDs for this workflow
+        const { data: products } = await supabase
+          .from('products')
+          .select('id')
+          .eq('workflow_id', workflowId);
+
+        const { data: questions } = await supabase
+          .from('questions')
+          .select('id')
+          .eq('workflow_id', workflowId);
+
+        const productIds = products?.map(p => p.id) || [];
+        const questionIds = questions?.map(q => q.id) || [];
+
+        // Delete entries in question_product_mapping related to these products and questions
+        const { error: deleteMappingError } = await supabase
+          .from('question_product_mapping')
+          .delete()
+          .or(`product_id.in.(${productIds.join(',')}),question_id.in.(${questionIds.join(',')})`);
+
+        if (deleteMappingError) {
+          throw new Error(`Error deleting question-product mappings for workflow ID ${workflowId}`);
+        }
+
+        // Delete associated products
+        const { error: productError } = await supabase
+          .from('products')
+          .delete()
+          .eq('workflow_id', workflowId);
+
+        // Delete associated questions
+        const { error: questionError } = await supabase
+          .from('questions')
+          .delete()
+          .eq('workflow_id', workflowId);
+
+        // Delete associated dropdown values
+        const { error: dropdownError } = await supabase
+          .from('dropdown_values')
+          .delete()
+          .in('question_id', questionIds);
+
+        if (productError || questionError || dropdownError) {
+          throw new Error(`Error deleting workflow associations for workflow ID ${workflowId}`);
+        }
+      }
+
+      // Delete workflows
+      const { error: deleteWorkflowError } = await supabase
+        .from('workflows')
+        .delete()
+        .eq('company_id', companyId);
+
+      if (deleteWorkflowError) {
+        throw new Error(`Error deleting workflows for company ID ${companyId}`);
+      }
+
       // Retrieve associated profiles
       const { data: profileData, error: profileError } = await supabase
         .from('companies_profiles')
         .select('profile_id')
         .eq('company_id', companyId);
 
-      console.log('profileError :: ', profileError, profileData);
       if (profileError || !profileData) {
         throw new Error('Error fetching profile data');
       }
@@ -62,27 +131,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .delete()
         .eq('prospect_id', companyId);
 
-      console.log('stepperSessionError :: ', stepperSessionError, proposalError);
-
       if (stepperSessionError || proposalError) {
         throw new Error('Error deleting related data');
-      }
-
-      // Delete related workflows referencing the company
-      const { error: workflowError } = await supabase
-        .from('workflows')
-        .delete()
-        .eq('company_id', companyId);
-
-      if (workflowError) {
-        throw new Error(`Error deleting workflows for company ID ${companyId}`);
       }
 
       // Delete each corresponding user via Supabase Admin
       for (const profile of profileData) {
         const result = await supabaseAdmin.auth.admin.deleteUser(profile.profile_id);
-        console.log('profile :: ', result.error);
-
         if (result.error) {
           throw new Error(`Error deleting user with profile id ${profile.profile_id}`);
         }
@@ -94,7 +149,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .delete()
         .eq('id', companyId);
 
-      console.log('companyError end ::: ', companyError)
       if (companyError) {
         throw new Error('Error deleting company');
       }
