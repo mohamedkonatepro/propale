@@ -153,7 +153,7 @@ const Proposal: React.FC = () => {
     }
     const descriptionItem = rightColumn.find(item => item.type === 'description');
     const descriptionItemLeft = leftColumn.find(item => item.type === 'description');
-    const totalPrice = needs.reduce((sum, need) => sum + (need.price * need.quantity), 0);
+    const totalPrice = needs.reduce((sum, need) => sum + need.price, 0);
   
     if (prospect?.company_id && (isDescriptionNotDefault(descriptionItem) || isDescriptionNotDefault(descriptionItemLeft))) {
       await deleteDefaultDescription(prospect.company_id);
