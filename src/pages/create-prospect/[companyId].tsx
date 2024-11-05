@@ -118,7 +118,6 @@ const AddProspectPage: React.FC = () => {
     }
   
     await createProspect({ ...data, status, heat_level: heatLevel, companyId });
-    console.log({ ...data, status, heat_level: heatLevel, companyId });
     setIsLoading(false);
     reset();
     router.push('/auth/login');

@@ -30,8 +30,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }])
         .select('*')
         .single();
-
-      console.log('error ::: ', error)
       if (error) {
         throw new Error('Error creating prospect company');
       }
