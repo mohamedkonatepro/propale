@@ -82,7 +82,7 @@ const Header = () => {
                   onClick={handleDashboardRedirect}
                   className="px-4 py-3 ml-5 bg-blueCustom text-white rounded-md text-sm font-medium hover:bg-blue-700 border border-blueCustom cursor-pointer"
                 >
-                  Dashboard
+                  Tableau de bord
                 </a>
               </div>
 
