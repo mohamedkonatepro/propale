@@ -19,7 +19,7 @@ const Audit: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [workflowStatus, setWorkflowStatus] = useState<string>('not_started');
   const [completionPercentage, setCompletionPercentage] = useState<number>(0);
-  const [settings, setSettings] = useState<DbCompanySettings | null>(null);
+  const [companySettings, setCompanySettings] = useState<DbCompanySettings | null>(null);
 
   const loadData = useCallback(async () => {
     if (typeof id !== 'string' || !user?.id) return;
@@ -29,10 +29,10 @@ const Audit: React.FC = () => {
       const companyForSettings = await fetchTopMostParentCompanyCompanyById(id)
       if (companyForSettings) {
         const session = await getStepperSession(companyForSettings.id, id);
+        const settings = await fetchCompanySettings(companyForSettings.id);
+        setCompanySettings(settings);
         if (session) {
           setWorkflowStatus(session.session.status);
-          const settings = await fetchCompanySettings(companyForSettings.id);
-          setSettings(settings);
           if (session.session.status === 'saved') {
             if (settings && settings.workflow) {
               const totalQuestions = settings.workflow.questions.length;
@@ -72,6 +72,8 @@ const Audit: React.FC = () => {
     }
   };
 
+  console.log(companySettings)
+
   return (
       <div className="flex flex-1 items-center justify-center overflow-hidden">
         <main className="w-4/5 p-12 overflow-y-auto flex flex-col">
@@ -79,9 +81,9 @@ const Audit: React.FC = () => {
             <div className="bg-white px-4 rounded-t-2xl flex justify-between min-h-36">
               <div className='flex flex-col justify-start mt-5'>
                 <h4 className="text-black text-2xl font-semibold mb-2">Workflow</h4>
-                <h6 className="text-gray-400 text-base font-normal">{settings?.workflow.name}</h6>
+                <h6 className="text-gray-400 text-base font-normal">{companySettings?.workflow.name}</h6>
               </div>
-              {settings?.composition_workflow && <div className='flex flex-col justify-start mt-5'>
+              {companySettings?.composition_workflow && <div className='flex flex-col justify-start mt-5'>
                 {(
                   <h4 className="text-blueCustom text-2xl text-center font-semibold mb-5">{completionPercentage}%</h4>
                 )}

@@ -23,8 +23,8 @@ export function DatePickerWithRange({
   setDate: propSetDate,
 }: DatePickerWithRangeProps) {
   const [localDate, setLocalDate] = React.useState<DateRange | undefined>(propDate || {
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
+    from: new Date(),
+    to: addDays(new Date(), 7),
   })
 
   const date = propDate || localDate;
