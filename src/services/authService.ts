@@ -10,6 +10,10 @@ async function handleSessionAndRedirect(user: User | null, session: Session | nu
     setCookie('supabase-token', session.access_token);
     if (user) {
       const userDetails = await getUserDetails();
+      if (userDetails?.blocked) {
+        router.push('/restricted');
+        return;
+      }
       if (userDetails?.role === ROLES.SUPER_ADMIN) {
         router.push('/dashboard');
         return;
