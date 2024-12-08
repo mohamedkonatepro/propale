@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DbQuestion } from '@/types/dbTypes';
+import { truncateString } from '@/lib/utils';
 
 interface Step {
   id: string;
@@ -136,9 +137,10 @@ const Stepper: React.FC<StepperProps> = ({
                           isAnsweredQuestion ? 'bg-yellow-500' :
                           'bg-gray-300'
                         }`}>
-                          <span className="text-xs text-white">{questionIndex + 1}</span>
+                          {/* <span className="text-xs text-white">{questionIndex + 1}</span> */}
                         </div>
-                        {isActiveQuestion ? <span className="text-sm ml-4">{`${question.text?.slice(0, 50)}${question.text && question.text.length > 50 ? '...' : ''}`}</span> : ''}
+                        <span className="text-sm ml-4">Étape {questionIndex + 1}</span>
+                        {/* {isActiveQuestion ? <span className="text-sm ml-4">{truncateString(question.text, 50)}</span> : ''} */}
                       </div>
                     </div>
                   );

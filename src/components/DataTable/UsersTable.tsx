@@ -78,17 +78,24 @@ const UsersTable: React.FC<UsersTableProps> = ({
       header: ({ column }) => (
         <Button
           variant="ghost"
+          className="flex items-center justify-center w-full h-full"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Nb de dossiers
-          <LiaSortSolid className="ml-2 h-4 w-4" />
+          <div className="text-center">
+            Nb de dossiers
+            <LiaSortSolid className="ml-2 h-4 w-4 inline-block" />
+          </div>
         </Button>
       ),
       cell: ({ row }) => {
         const folderCount = foldersCount[row.original.id];
-        return <div className="lowercase text-center">{folderCount !== undefined ? folderCount : 0}</div>;
+        return (
+          <div className="text-center flex items-center justify-center h-full">
+            {folderCount !== undefined ? folderCount : 0}
+          </div>
+        );
       },
-    },
+    },    
     ...(user?.role !== ROLES.SALES
       ? [
           {

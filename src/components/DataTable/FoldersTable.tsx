@@ -11,6 +11,7 @@ import { Company } from '@/types/models';
 import Link from 'next/link';
 import { ROLES } from '@/constants/roles';
 import { useUser } from '@/context/userContext';
+import { toast } from 'react-toastify';
 
 type FoldersTableProps = {
   companies: Company[];
@@ -24,7 +25,21 @@ const FoldersTable: React.FC<FoldersTableProps> = ({
   companies, handleOpenModal, handleSearch, openProspectModal, openDeleteModal,
 }) => {
   const { user } = useUser();
+  const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
+  const handleCopyToClipboard = (url: string) => {
+    const fullUrl = `${BASE_URL}/${url}`;
+
+    navigator.clipboard.writeText(fullUrl)
+      .then(() => {
+        toast.success("L'URL a bien été copiée dans le presse-papier !");
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la copie dans le presse-papier :", error);
+        toast.error("Une erreur s'est produite lors de la copie.");
+      });
+  };
+  
   const columns: ColumnDef<Company>[] = [
     {
       accessorKey: "name",
@@ -113,6 +128,11 @@ const FoldersTable: React.FC<FoldersTableProps> = ({
                   <DropdownMenuItem onClick={() => openDeleteModal(row.original.id)}>
                     Supprimer
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleCopyToClipboard(`create-prospect/${row.original.id}`)}
+                  >
+                    {"Copier l'URL de création de prospect"}
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ),
@@ -127,7 +147,7 @@ const FoldersTable: React.FC<FoldersTableProps> = ({
       columns={columns}
       placeholder="Recherche"
       addButtonLabel="Ajouter un dossier"
-      onAddButtonClick={() => handleOpenModal()}
+      onAddButtonClick={user?.role === ROLES.SALES || !user ? undefined : () => handleOpenModal()}
       onChangeSearch={handleSearch}
     />
   );

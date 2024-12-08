@@ -10,6 +10,7 @@ interface ListContactsModalProps {
   onAddContact: () => void;
   onEditContact: (contactId: string) => void;
   onDeleteContact: (contactId: string) => void;
+  user: Profile;
 }
 
 const ListContactsModal: React.FC<ListContactsModalProps> = ({ 
@@ -18,7 +19,8 @@ const ListContactsModal: React.FC<ListContactsModalProps> = ({
   contacts, 
   onAddContact, 
   onEditContact, 
-  onDeleteContact 
+  onDeleteContact,
+  user
 }) => {
   return (
     <BaseModal isOpen={isOpen} onRequestClose={onClose} title="Contact">
@@ -27,6 +29,7 @@ const ListContactsModal: React.FC<ListContactsModalProps> = ({
         onAddContact={onAddContact}
         onEditContact={onEditContact}
         onDeleteContact={onDeleteContact}
+        user={user}
       />
     </BaseModal>
   );

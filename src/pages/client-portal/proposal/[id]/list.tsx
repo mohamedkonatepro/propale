@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Proposal as IProposal, ProposalStatus } from '@/types/models';
+import { Proposal as IProposal, Profile, ProposalStatus } from '@/types/models';
 import { FaPlus } from "react-icons/fa";
 import { deleteProposal, getProposalsByProspectId, updateProposalStatus } from '@/services/proposalService';
 import ProposalTable from '@/components/DataTable/ProposalTable';
@@ -22,9 +22,9 @@ const Proposal: React.FC = () => {
     router.push(`/client-portal/proposal/${id}`);
   };
 
-  const fetchProposals = async () => {
+  const fetchProposals = async (user: Profile) => {
     try {
-      const { proposals } = await getProposalsByProspectId(id as string);
+      const { proposals } = await getProposalsByProspectId(id as string, user);
       setProposals(proposals);
     } catch (error) {
       if (error instanceof Error) {
@@ -38,15 +38,19 @@ const Proposal: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProposals();
-  }, [id]);
+    if (user) {
+      fetchProposals(user);
+    }
+  }, [id, user]);
 
   const handleDeleteClick = async (proposalId: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer cette proposition ?")) {
       try {
         await deleteProposal(proposalId);
         toast.success("Proposition supprimée avec succès !");
-        await fetchProposals();
+        if (user) {
+          await fetchProposals(user);
+        }      
       } catch (error) {
         toast.error("Erreur lors de la suppression de la proposition.");
         console.error(error);
@@ -56,7 +60,9 @@ const Proposal: React.FC = () => {
 
   const handleStatusChange = async (proposalId: string, newStatus: ProposalStatus['status']) => {
     await updateProposalStatus(proposalId, newStatus);
-    await fetchProposals();
+    if (user) {
+      await fetchProposals(user);
+    }
   };
 
   if (loading) return <div>Chargement...</div>;

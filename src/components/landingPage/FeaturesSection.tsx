@@ -10,8 +10,7 @@ const FeaturesSection: React.FC = () => {
           Convertissez plus <span className="text-blueCustom">rapidement</span> les prospects les plus <span className="text-blueCustom">pertinents</span>.
         </h2>
         <p className="text-gray-600 mb-12">
-          Nous vous fournissons tous les outils nécessaires pour réussir votre
-          prospection en équipe.
+          Optimisez chaque étape pour mieux comprendre et cibler vos prospects. 
         </p>
 
         {/* Features Grid */}
@@ -20,11 +19,10 @@ const FeaturesSection: React.FC = () => {
           <div className="flex flex-col items-center p-0 w-full lg:w-5/12 bg-[#FBFDFE] border border-[#E2E8F0] rounded-2xl">
             <div className="flex flex-col items-start px-6 pt-6 w-full">
               <h3 className="text-sm font-medium text-[#364152]">
-                Ceci est une fonctionnalité exemple
+                Tunnel de vente paramétré
               </h3>
               <p className="text-xs text-[#64748B] text-left mt-2 w-full">
-                Ceci est une description de fonctionnalité lorem ipsum dolor sit
-                amet, consectetur adipiscing elit, sed do eiusmod tempor.
+                Grâce à des questions paramétrées, vous identifiez les vrais besoins de vos clients et leur proposez des solutions sur-mesure.
               </p>
             </div>
             <div className="w-full h-[180px] sm:h-[245px] lg:h-[245px] relative">
@@ -36,11 +34,10 @@ const FeaturesSection: React.FC = () => {
           <div className="flex flex-col items-center p-0 w-full lg:w-7/12 bg-[#FBFDFE] border border-[#E2E8F0] rounded-2xl">
             <div className="flex flex-col items-start px-6 pt-6 w-full">
               <h3 className="text-sm font-medium text-[#364152]">
-                Ceci est une fonctionnalité exemple
+                Propositions commerciales personnalisées
               </h3>
               <p className="text-xs text-[#64748B] text-left mt-2">
-                Ceci est une description de fonctionnalité lorem ipsum dolor sit
-                amet, consectetur adipiscing elit, sed do eiusmod tempor.
+                Tunnel de vente qui connecte vos services aux besoins de vos prospects et génère des propositions commerciales
               </p>
             </div>
             <div className="w-full h-[180px] sm:h-[245px] lg:h-[260px] relative">
@@ -55,11 +52,10 @@ const FeaturesSection: React.FC = () => {
           <div className="flex flex-col items-center p-0 w-full lg:w-7/12 bg-[#FBFDFE] border border-[#E2E8F0] rounded-2xl">
             <div className="flex flex-col items-start px-6 pt-6 w-full">
               <h3 className="text-sm font-medium text-[#364152]">
-                Ceci est une fonctionnalité exemple
+                Collaboratif pour optimiser le taux de conversion
               </h3>
               <p className="text-xs text-[#64748B] text-left mt-2">
-                Ceci est une description de fonctionnalité lorem ipsum dolor sit
-                amet, consectetur adipiscing elit, sed do eiusmod tempor.
+                Maximisez la collaboration de vos clients, avec les options de partage de dossiers, de notes, de rappels et d’alertes.
               </p>
             </div>
             <div className="w-full h-[180px] sm:h-[245px] lg:h-[260px] relative">
@@ -71,11 +67,10 @@ const FeaturesSection: React.FC = () => {
           <div className="flex flex-col items-center p-0 w-full lg:w-5/12 bg-[#FBFDFE] border border-[#E2E8F0] rounded-2xl">
             <div className="flex flex-col items-start px-6 pt-6 w-full">
               <h3 className="text-sm font-medium text-[#364152]">
-                Ceci est une fonctionnalité exemple
+                Planning et parcours de la relation client
               </h3>
               <p className="text-xs text-[#64748B] text-left mt-2">
-                Ceci est une description de fonctionnalité lorem ipsum dolor sit
-                amet, consectetur adipiscing elit, sed do eiusmod tempor.
+                Un algorithme analyse les résultats du tunnel de vente et réalise la planification de vos prestations de service.
               </p>
             </div>
             <div className="w-full h-[180px] sm:h-[245px] lg:h-[245px] relative">

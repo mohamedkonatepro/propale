@@ -1,7 +1,7 @@
 import React from 'react';
 import { GrFormEdit } from 'react-icons/gr';
 import { Need, Item } from '@/types/models';
-import { formatAmount } from '@/lib/utils';
+import { formatAmount, truncateString } from '@/lib/utils';
 
 interface NeedContentProps {
   data: Need;
@@ -15,7 +15,7 @@ const NeedContent: React.FC<NeedContentProps> = ({ data, id, onEdit }) => {
       {data.showName && <div className="font-bold">{data.name}</div>}
       {data.showPrice && <div className="font-bold">{`${formatAmount(data.price)} €`}</div>}
       {data.showQuantity && <div>{`Nombre de J/H : ${data.quantity}`}</div>}
-      <div>{`${data.description?.slice(0, 100)}${data.description && data.description.length > 100 ? '...' : ''}`}</div>
+      <div>{truncateString(data.description, 100)}</div>
       <button
         onClick={() => onEdit({ ...data, id, type: 'need' } as unknown as Item)}
         className="absolute top-0 right-0 p-2 text-gray-500 hover:text-gray-700"

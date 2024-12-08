@@ -1,6 +1,6 @@
 import { Profile } from "@/types/models";
 
-export const sendEmailByContacts = async (contacts: Profile[], content: string, subject: string, space: boolean = true) => {
+export const sendEmailByContacts = async (contacts: Profile[], content: string, subject: string, space: boolean = true, user?: Profile) => {
   if (!contacts || contacts.length === 0) {
     console.error('No contacts provided for sending email');
     return;
@@ -26,6 +26,7 @@ export const sendEmailByContacts = async (contacts: Profile[], content: string, 
       },
       body: JSON.stringify({
         to: emailObjects,
+        cc: user?.email ? [{ email: user.email }] : [],
         subject,
         html: formattedContent,
       }),

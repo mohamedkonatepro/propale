@@ -2,6 +2,8 @@ import React from 'react';
 import { UseFormRegister, FieldErrors, FieldValues, Path } from 'react-hook-form';
 import { heatLevels, statuses } from '@/constants';
 import CustomDropdown from '@/components/common/CustomDropdown';
+import { useUser } from '@/context/userContext';
+import { ROLES } from '@/constants/roles';
 
 type MainInfoSectionProps<T extends FieldValues> = {
   register: UseFormRegister<T>;
@@ -16,6 +18,8 @@ type MainInfoSectionProps<T extends FieldValues> = {
 };
 
 const MainInfoSection = <T extends FieldValues>({ register, errors, watch, status, heatLevel, setStatus, setHeatLevel, messageAlertSiren, disableStatusAndHeat = false }: MainInfoSectionProps<T>) => {
+  const { user } = useUser()
+  const isProspect = user?.role === ROLES.PROSPECT ? true : false;
   return (
     <div>
       <h3 className="text-lg font-medium">Informations principales</h3>
@@ -30,10 +34,10 @@ const MainInfoSection = <T extends FieldValues>({ register, errors, watch, statu
           {errors.name && <p className="text-red-500 text-xs">{(errors.name as any).message}</p>}
         </div>
         <div className="col-span-2">
-          <CustomDropdown disabled={disableStatusAndHeat} options={statuses} label="Statut" selected={status} onChange={setStatus} />
+          <CustomDropdown disabled={disableStatusAndHeat || isProspect} options={statuses} label="Statut" selected={status} onChange={setStatus} />
         </div>
         <div className="col-span-2">
-          <CustomDropdown disabled={disableStatusAndHeat} options={heatLevels} label="Chaleur" selected={heatLevel} onChange={setHeatLevel} />
+          <CustomDropdown disabled={disableStatusAndHeat || isProspect} options={heatLevels} label="Chaleur" selected={heatLevel} onChange={setHeatLevel} />
         </div>
         <div className="col-span-3">
           <label className="block text-sm font-medium text-labelGray">Numéro SIREN</label>
@@ -43,6 +47,7 @@ const MainInfoSection = <T extends FieldValues>({ register, errors, watch, statu
             })}
             className={`mt-1 block w-full bg-backgroundGray rounded p-2 ${errors.siren || messageAlertSiren ? 'border border-red-500' : ''}`}
             placeholder="123456789"
+            disabled={isProspect}
           />
           {errors.siren && <p className="text-red-500 text-xs">{(errors.siren as any).message}</p>}
           {messageAlertSiren && <p className="text-red-500 text-xs">{messageAlertSiren}</p>}

@@ -9,10 +9,14 @@ const CTASection: React.FC = () => {
           {/* Partie gauche : Texte et bouton */}
           <div className="lg:w-1/2">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Promesse percutante simple et <span className="text-blueCustom">concise</span>.
+              <span className="text-blueCustom">Propale</span>: l’outil essentiel pour booster votre business
             </h2>
             <p className="text-gray-600 mb-6">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ipsum dolor sit amet.
+              Plus qu’un CRM, c’est un tunnel de vente intelligent qui transforme votre façon de vendre
+            </p>
+            <p className="text-gray-600 mt-6 pb-6">
+              Gagner du temps grâce à un parcours de ventre rapide, simple et fluide qui augmente votre connaissance de vos prospects et améliore votre taux de conversion
+              Maximiser vos ventes avec des propositions précises de services, tarifs et services additionnels adaptés aux besoins de chaque prospect
             </p>
             <a
               href="#contact"

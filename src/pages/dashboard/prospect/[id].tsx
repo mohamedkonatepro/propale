@@ -141,6 +141,7 @@ const ProspectList: React.FC = () => {
       if (tableRef.current) {
         tableRef.current.toggleAllRowsSelected(false);
       }
+      console.log('selectedProspects ::: ', selectedProspects)
       await handleMultipleDelete(selectedProspects);
       deleteMultipleModalState.closeModal();
       
@@ -156,7 +157,7 @@ const ProspectList: React.FC = () => {
       const heatLevelOption = getOption(row.heat_level, heatLevels);
       const fetchedProfile = await fetchPrimaryContactByCompanyId(row.id);
       const contact = await fetchContactByCompanyId(row.id);
-      if (!companyForSettings) {
+      if (!companyForSettings || !user) {
         return {};
       }
       const session = await getStepperSession(companyForSettings.id, row.id);
@@ -166,7 +167,7 @@ const ProspectList: React.FC = () => {
         ? "Terminé" 
         : "";
   
-      const { proposals } = await getProposalsByProspectId(row.id);
+      const { proposals } = await getProposalsByProspectId(row.id, user);
       const proposal = proposals[0];
       const option = proposalStatusOptions.find(option => option.value === proposal?.status);
   
@@ -233,7 +234,7 @@ const ProspectList: React.FC = () => {
 
   const handleSendEmailToProspect = async (data: MailGroupFormInputs) => {
     try {
-      if (!selectedProspects || selectedProspects.length === 0) {
+      if (!selectedProspects || selectedProspects.length === 0 || !user) {
         console.error('No prospects selected');
         return;
       }
@@ -246,7 +247,7 @@ const ProspectList: React.FC = () => {
           allProfiles.push(...profiles);
         }
       }
-      await sendEmailByContacts(allProfiles, data.message, data.subject);
+      await sendEmailByContacts(allProfiles, data.message, data.subject, true, user);
       toast.success('Email envoyé avec succès')
     } catch (error) {
       console.error('Error fetching profiles or sending emails:', error);
@@ -365,14 +366,15 @@ const ProspectList: React.FC = () => {
         onRequestBack={handleRequestBack}
         defaultValues={selectedContact}
       />
-      <ListContactsModal
+      {user && <ListContactsModal
         isOpen={contactsModalState.isModalOpen}
         onClose={contactsModalState.closeModal}
         contacts={contactsByProspect}
         onAddContact={handleAddContact}
         onEditContact={handleEditContact}
         onDeleteContact={deleteContact}
-      />
+        user={user}
+      />}
       <ShareFolderModal
         isOpen={shareFolderModalState.isModalOpen}
         onClose={() => { shareFolderModalState.closeModal(); fetchContacts(); }}
@@ -388,6 +390,7 @@ const ProspectList: React.FC = () => {
           className="hidden"
           ref={csvLinkRef}
           target="_blank"
+          separator={";"}
         >
           Télécharger CSV
         </CSVLink>

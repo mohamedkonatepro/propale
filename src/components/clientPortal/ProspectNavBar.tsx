@@ -27,7 +27,7 @@ interface ProspectNavBarProps {
 
 const ProspectNavBar: React.FC<ProspectNavBarProps> = ({ active, prospectId }) => {
   return (
-    <div className="bg-white p-2 rounded-full w-2/5 flex justify-around items-center">
+    <div className="bg-white p-2 rounded-full flex flex-wrap justify-around items-center w-full md:w-3/5 lg:w-2/5 mx-auto space-y-2 md:space-y-0">
       <NavItem href={`/client-portal/infos/${prospectId}`} isActive={active === 'infos'}>
         Infos
       </NavItem>

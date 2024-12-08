@@ -66,6 +66,7 @@ const Proposal: React.FC = () => {
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [proposalStatus, setProposalStatus] = useState<ProposalStatus['status']>();
   const [paragraphsDefaultToSave, setParagraphsDefaultToSave] = useState<Item[]>([]);
+  const [redirect, setRedirect] = useState(false);
   const [leftColumn, setLeftColumn] = useState<Item[]>([
     {
       id: 'description',
@@ -175,7 +176,7 @@ const Proposal: React.FC = () => {
         prospectSiren: prospect?.siren || '',
         createdBy: user?.id,
         title: descriptionItem?.name || '',
-        showTitle: descriptionItem?.showName || true,
+        showTitle: descriptionItem?.showName === true ? descriptionItem?.showName : false,
         description: descriptionItem?.description || '',
         totalPrice,
         needs,
@@ -198,6 +199,7 @@ const Proposal: React.FC = () => {
           await notifyContacts(prospect.id, proposal.id, company.name);
           toast.success('La proposition a bien été publiée.');
         } else {
+          setRedirect(true);
           router.push(`/client-portal/proposal/${proposal.prospect_id}?proposalId=${proposal.id}`);
           toast.success('La proposition a bien été créée.');
         }
@@ -265,7 +267,7 @@ const Proposal: React.FC = () => {
   };
   
 
-  if (loading) return <div>Chargement...</div>;
+  if (redirect && !proposalId) return <div>Chargement...</div>;
   if (error) return <div>Erreur : {error}</div>;
 
   return (

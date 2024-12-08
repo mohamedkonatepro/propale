@@ -13,24 +13,29 @@ export default function PricingSection() {
     {
       title: "Individuel",
       monthlyPrice: 25,
-      description: "Pour les petites équipes",
+      description: "",
       features: [
-        "Accès complet",
+        "Tunnel de vente personnalisé",
+        "Propositions personnalisées",
+        "Extranet client",
         "Support 24/7",
-        "Analytics avancés",
-        "Sécurité renforcée",
+        "Emailing",
       ],
     },
     {
-      title: "Équipe",
+      title: "Pro",
       monthlyPrice: 45,
-      description: "Pour les équipes de taille moyenne",
+      description: "Pour les petites équipes.",
       features: [
-        "Accès complet",
+        "Tunnel de vente personnalisé",
+        "Recherche de prospects qualifiés",
+        "Propositions personnalisées",
+        "Notes de suivi client",
+        "Rappel de tâches",
+        "Extranet client",
         "Support 24/7",
-        "Analytics avancés",
-        "Sécurité renforcée",
-        "Gestion des utilisateurs",
+        "API Propale",
+        "Emailing",
       ],
     },
     {
@@ -38,13 +43,17 @@ export default function PricingSection() {
       monthlyPrice: 75,
       description: "Pour les grandes équipes",
       features: [
-        "Accès complet",
+        "Tunnel de vente personnalisé multiple",
+        "Recherche de prospects qualifiés",
+        "Extranet client personnalisé",
+        "Propositions personnalisées",
+        "Signature électronique",
+        "Notes de suivi client",
+        "Rappel de tâches",
         "Support 24/7",
-        "Analytics avancés",
-        "Sécurité renforcée",
-        "Gestion des utilisateurs",
-        "Assistance dédiée",
-      ],
+        "API Propale",
+        "Emailing",
+      ],      
     },
   ];
 
@@ -56,7 +65,7 @@ export default function PricingSection() {
           Des tarifs clairs, transparents et <span className="text-blueCustom">accessibles</span>.
         </h2>
         <p className="text-gray-600 mb-12 text-center mx-auto w-full sm:w-2/3 lg:w-1/2">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.
+        Investissez dans un outil innovant qui fait grimper vos ventes.
         </p>
 
         {/* Toggle Button */}
@@ -68,15 +77,15 @@ export default function PricingSection() {
         <div className="grid grid-cols-1 gap-8 px-6 md:px-12 lg:px-24 sm:grid-cols-2 lg:grid-cols-3">
           {pricingData.map((plan, index) => (
             <div key={index} className="bg-white border border-blueCustom rounded-2xl p-6 md:p-8">
-              <h3 className="text-2xl md:text-3xl font-semibold text-blueCustom mb-4">{plan.title}</h3>
-              <p className="text-3xl font-bold text-gray-900 text-left pl-4">
+              <h3 className="text-2xl md:text-3xl font-semibold text-blueCustom mb-4">{plan.title} <span className="text-black text-xl">(Sur devis)</span></h3>
+              {/* <p className="text-3xl font-bold text-gray-900 text-left pl-4">
                 {isAnnual
                   ? `${(plan.monthlyPrice * 12 * 0.9).toFixed(2)} €`
                   : `${plan.monthlyPrice.toFixed(2)} €`}
               </p>
               <p className="text-gray-400 mb-6 text-left pl-4">
                 {isAnnual ? "par utilisateur / an" : "par utilisateur / mois"}
-              </p>
+              </p> */}
               <button className="px-4 py-3 bg-blueCustom text-white rounded-md text-base font-medium hover:bg-blue-700 w-full">
                 {"Démarrer l'essai"}
               </button>

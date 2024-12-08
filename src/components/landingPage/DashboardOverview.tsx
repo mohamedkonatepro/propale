@@ -10,7 +10,7 @@ const DashboardOverview: React.FC = () => {
           La meilleure solution pour <span className="text-blueCustom">prospecter</span>, <span className="text-blueCustom">auditer</span> et <span className="text-blueCustom">gérer</span> tous vos futurs clients, dans un seul outil.
         </h2>
         <p className="text-gray-600 mb-12 text-center mx-auto w-full sm:w-2/3 lg:w-1/3">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.
+        Faites monter en gamme votre processus de ventes en synchronisant vos vitrines digitales à un annuaire de prospection dynamique.
         </p>
 
         {/* Dashboard Image with Overlays */}

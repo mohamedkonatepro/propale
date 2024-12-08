@@ -7,13 +7,15 @@ import { MdOutlineEmail } from 'react-icons/md';
 import { FiPhone } from 'react-icons/fi';
 import { AiOutlineUserAdd } from "react-icons/ai";
 import ConfirmDeleteModal from '../modals/ConfirmDeleteModal';
+import { ROLES } from '@/constants/roles';
 
 interface ContactListContentProps {
   contacts: Profile[];
   onAddContact: () => void;
   onEditContact: (contactId: string) => void;
   onDeleteContact: (contactId: string) => void;
-  title?: string
+  title?: string;
+  user: Profile;
 }
 
 const ContactListContent: React.FC<ContactListContentProps> = ({ 
@@ -21,7 +23,8 @@ const ContactListContent: React.FC<ContactListContentProps> = ({
   onAddContact, 
   onEditContact, 
   onDeleteContact,
-  title
+  title,
+  user
 }) => {
   const [search, setSearch] = useState('');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -100,7 +103,7 @@ const ContactListContent: React.FC<ContactListContentProps> = ({
             </div>
             <div className="flex items-center">
               <FaPen className="text-blueCustom cursor-pointer mr-2" onClick={() => onEditContact(contact.id)} />
-              <FaRegTrashAlt className="text-red-500 cursor-pointer ml-2" onClick={() => handleDeleteClick(contact)} />
+              {user.role !== ROLES.PROSPECT && <FaRegTrashAlt className="text-red-500 cursor-pointer ml-2" onClick={() => handleDeleteClick(contact)} />}
             </div>
           </div>
         ))}

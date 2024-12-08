@@ -20,7 +20,7 @@ interface StepperPageProps {
 
 const StepperPage: React.FC = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, origin } = router.query;
   const { user } = useUser();
   const [companySettings, setCompanySettings] = useState<DbCompanySettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -296,8 +296,8 @@ const StepperPage: React.FC = () => {
           <h1 className='text-2xl text-blueCustom font-bold mr-5'>{companySettings.workflow.name}</h1>  
           <h5 className='text-black text-lg mt-2'>{prospect?.name}</h5>
         </div>
-        {!finish && <div>
-          <span className='text-red-500 cursor-pointer' onClick={handleSaveForLater}>Reprendre plus tard</span>
+        {(!finish && origin !== "ext") && <div>
+          <span className='text-red-500 cursor-pointer border border-2 border-red-500 p-3 rounded-lg hover:bg-red-500 hover:text-white transition-colors duration-200' onClick={handleSaveForLater}>Reprendre plus tard</span>
         </div>}
       </header>      
       <div className="flex flex-1 overflow-hidden">
@@ -316,7 +316,7 @@ const StepperPage: React.FC = () => {
           <div className="flex-grow">
             {currentQuestion && (
               <div className="mb-0">
-                <h3 className="text-2xl font-semibold text-gray-400">{finish ? 'Finalisation' : currentQuestion.text}</h3>
+                <h3 className="text-2xl font-semibold text-gray-400">{finish ? 'Finalisation' : ''}</h3>
               </div>
             )}
             <div className="h-full">

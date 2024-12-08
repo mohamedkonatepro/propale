@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { Item } from '@/types/models';
 import { DropResult } from 'react-beautiful-dnd';
+import { toast } from 'react-toastify';
 
 export const useDragAndDrop = (
   leftColumn: Item[], 
@@ -11,7 +12,10 @@ export const useDragAndDrop = (
   const onDragEnd = useCallback((result: DropResult) => {
     const { source, destination } = result;
 
-    if (!destination) return;
+    if (!destination) {
+      toast.error("L'élément ne peut pas être placé à cette position.");
+      return;
+    }
 
     const sourceColumn = source.droppableId === 'leftColumn' ? leftColumn : rightColumn;
     const destColumn = destination.droppableId === 'leftColumn' ? leftColumn : rightColumn;
@@ -37,6 +41,7 @@ export const useDragAndDrop = (
           const updatedRightColumn = rightColumn.filter(item => item.id !== movedItem.id);
           setRightColumn(enforceRightColumnConstraints(updatedRightColumn));
         } else {
+          toast.error("L'élément ne peut pas être placé à cette position.");
           return;
         }
       } else {
@@ -45,6 +50,7 @@ export const useDragAndDrop = (
           setLeftColumn(newSourceColumn);
           setRightColumn(enforceRightColumnConstraints(newDestColumn));
         } else {
+          toast.error("L'élément ne peut pas être placé à cette position.");
           return;
         }
       }

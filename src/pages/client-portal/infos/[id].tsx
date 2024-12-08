@@ -103,7 +103,7 @@ const Audit: React.FC = () => {
     <div className="flex-grow p-12 overflow-y-auto pb-10">
       <div className="flex h-full justify-center">
 
-        <div className='w-2/5 mr-8 flex flex-col'>
+        <div className='w-1/2 mr-8 flex flex-col'>
           <div className="bg-white p-8 rounded-2xl">
             <div className='flex items-center justify-between pb-6'>
               <h3 className='text-2xl font-semibold'>Informations générales</h3>
@@ -161,14 +161,15 @@ const Audit: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="w-2/5">
-          <ContactListContent
+        <div className="w-1/2">
+          {user && <ContactListContent
             contacts={contacts}
             onAddContact={handleAddContact}
             onEditContact={handleEditContact}
             onDeleteContact={deleteContact}
             title='Contact'
-          />
+            user={user}
+          />}
           <ContactModal 
             isOpen={addContactModalState.isModalOpen}
             onRequestClose={addContactModalState.closeModal}

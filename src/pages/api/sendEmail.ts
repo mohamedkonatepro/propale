@@ -7,7 +7,7 @@ export default async function sendEmail(req: NextApiRequest, res: NextApiRespons
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { to, subject, html } = req.body;
+  const { to, subject, html, cc } = req.body;
 
   if (!to || !subject || !html) {
     return res.status(400).json({ error: 'Missing required fields: to, subject, html' });
@@ -20,6 +20,7 @@ export default async function sendEmail(req: NextApiRequest, res: NextApiRespons
     },
     to,  // Array of { email: string } objects
     subject,
+    cc,
     htmlContent: html,
   };
 

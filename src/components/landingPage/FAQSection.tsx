@@ -6,29 +6,29 @@ export default function FAQSection() {
 
   const questionsAnswers = [
     {
-      question: "Qu'est-ce que votre service propose ?",
+      question: "Est-ce que Propale peut être personnalisé pour répondre aux besoins spécifiques de votre offre de service ?",
       answer:
-        "Notre service vous permet de gérer, prospecter et auditer vos clients de manière efficace, avec tous les outils nécessaires en un seul endroit.",
+        "L’objectif principal est de fournir un tunnel de vente qui expose et personnalise les interactions pour une expérience client améliorée. Nos consultants analysent en profondeur vos propositions commerciales et proposent des questions de qualification hautement personnalisées à votre offre. Ils travaillent en étroite collaboration avec votre équipe pour cartographier le parcours idéal pour s’assurer que vos propositions commerciales sont alignées avec les attentes de vos prospects.",
     },
     {
-      question: "Quels sont les tarifs proposés ?",
+      question: "Qui sont les utilisateurs de Propale ?",
       answer:
-        "Nous proposons des tarifs adaptés à différentes tailles d'équipes, avec des options mensuelles et annuelles.",
+        "En intégrant les perspectives des prospects dans le processus, nous créons un dialogue plus riche pour une compréhension approfondie de leurs besoins. La collaboration active des prospects et des commerciaux est optimisée par l’algorithme Propale qui orchestre intelligemment le processus par une communication fluide. Cette approche collaborative permet également d’inclure les experts produits, les techniciens et les managers pour apporter des informations cruciales sur leurs besoins et étudier des perspectives complémentaires. ",
     },
     {
-      question: "Est-il possible d'essayer avant de s'engager ?",
+      question: "Y a-t-il un accompagnement à la mise en place d’un parcours de vente personnalisé ?",
       answer:
-        "Oui, nous offrons une période d'essai gratuite pour que vous puissiez tester notre service avant de souscrire.",
+        "Notre équipe vous accompagne dans la création d’un tunnel de vente à la progression facile en veillant à ce que chaque question soit stratégiquement placée dans le parcours. Propale offre un environnement commercial avec des processus dynamiques et adaptatifs simples à faire évoluer à chaque étape du parcours client. Nous garantissons la bonne conception d’un parcours qui inspire confiance aux prospects, améliore vos taux de conversion tout en jetant les bases de la relation client. ",
     },
     {
-      question: "Quelle est la durée de l'engagement ?",
+      question: "La génération de la proposition commerciale est-elle automatisée ?",
       answer:
-        "Il n'y a pas de durée minimale d'engagement. Vous pouvez annuler à tout moment.",
+        "Propale révolutionne le processus de vente en offrant une solution efficace et rapide qui permet la génération de propositions en quelques clics. La solution s'intègre harmonieusement dans l'écosystème technologique existant des entreprises, tel que (site web, outils analytiques, ERP, logiciel comptable, … ). Le logiciel SaaS offre une flexibilité remarquable qui permet l’ajustement automatique des contenus, ce qui accélérera votre cycle de vente par la réaction rapide à chaque demande des clients.",
     },
     {
-      question: "Quel type de support est disponible ?",
+      question: "La solution Propale propose-t-elle un extranet client ?",
       answer:
-        "Nous offrons un support 24/7 via chat et email pour répondre à toutes vos questions.",
+        "Propale propose un extranet client à l’interface intuitive avec des fonctionnalités avancées assurant une expérience utilisateur de haute qualité. Les prospects peuvent s'inscrire de manière autonome directement depuis votre site web ou vos réseaux sociaux. Lors de l'inscription, les utilisateurs remplissent un profil détaillé, permettant une première compréhension de leurs besoins et attentes. Une fois inscrits, les utilisateurs obtiennent immédiatement accès à leur espace personnel sécurisé, où ils peuvent commencer à interagir avec la plateforme.",
     },
   ];
 
@@ -45,7 +45,7 @@ export default function FAQSection() {
           Nous avons la <span className="text-blueCustom">réponse</span>.
         </h2>
         <p className="text-gray-600 mb-12 text-center mx-auto w-full sm:w-2/3 lg:w-1/3">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun.
+          Nos experts en parcours commerciaux vous accompagnent à identifier le parcours sur-mesure et répondent à vos questions :
         </p>
 
         {/* FAQ Section */}

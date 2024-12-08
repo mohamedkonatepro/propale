@@ -121,18 +121,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Delete related data in tables without cascade
-      const { error: stepperSessionError } = await supabase
-        .from('stepper_sessions')
-        .delete()
-        .eq('prospect_id', companyId);
+      const { data: sessionIds, error: sessionError } = await supabase
+        .from("stepper_sessions")
+        .select("id")
+        .eq("prospect_id", companyId);
 
+      if (sessionError) {
+        throw new Error("Error fetching stepper session IDs");
+      }
+
+      const sessionIdList = sessionIds?.map((session) => session.id) || [];
+
+      // Delete stepper responses
+      if (sessionIdList.length > 0) {
+        const { error: responseError } = await supabase
+          .from("stepper_responses")
+          .delete()
+          .in("session_id", sessionIdList);
+
+        if (responseError) {
+          throw new Error("Error deleting stepper responses");
+        }
+      }
+
+      // Delete stepper sessions
+      const { error: sessionDeleteError } = await supabase
+        .from("stepper_sessions")
+        .delete()
+        .eq("prospect_id", companyId);
+
+      if (sessionDeleteError) {
+        throw new Error("Error deleting stepper sessions");
+      }
+
+      // Delete proposals associated with the prospect
       const { error: proposalError } = await supabase
-        .from('proposals')
+        .from("proposals")
         .delete()
-        .eq('prospect_id', companyId);
+        .eq("prospect_id", companyId);
 
-      if (stepperSessionError || proposalError) {
-        throw new Error('Error deleting related data');
+      if (proposalError) {
+        throw new Error("Error deleting proposals");
       }
 
       // Delete each corresponding user via Supabase Admin

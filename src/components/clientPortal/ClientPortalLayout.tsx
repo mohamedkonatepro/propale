@@ -48,7 +48,7 @@ const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({ statusOption, p
       <div className="flex justify-center mt-6">
         {prospect && <ProspectNavBar active={prospectNavBarActive} prospectId={prospect?.id} />}
       </div>
-      <main className="flex-grow p-8 mx-16 mt-4 bg-backgroundGray rounded-2xl">
+      <main className="flex-grow p-8 mx-2 xl:mx-16 mt-4 bg-backgroundGray rounded-2xl">
         {children}
       </main>
     </div>

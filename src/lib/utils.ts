@@ -48,3 +48,8 @@ export const formatAmount = (amount: number | string): string => {
   // Retourner le montant formaté
   return `${formattedIntegerPart}.${decimalPart}`;
 }
+
+export function truncateString(str: string | undefined, maxLength: number): string {
+  if (!str) return ''; // Handle undefined or empty strings
+  return str.length > maxLength ? `${str.slice(0, maxLength)}...` : str;
+}

@@ -75,13 +75,13 @@ const Folders: React.FC = () => {
   return (
     <div className="flex-1 p-6">
       <Header title={company?.name} subtitle="Mes dossiers" siren={company?.siren} />
-      <FoldersTable
+      {companies && <FoldersTable
         companies={companies}
         handleOpenModal={handleOpenModal}
         handleSearch={setSearch}
         openProspectModal={(company) => { setSelectedCompany(company); openProspectModal(); }}
         openDeleteModal={(folderId) => { setSelectedFolder({ id: folderId } as FolderFormInputs); openDeleteModal(); }}
-      />
+      />}
       <AddFolderModal
         isOpen={isFolderModalOpen}
         onRequestClose={closeFolderModal}

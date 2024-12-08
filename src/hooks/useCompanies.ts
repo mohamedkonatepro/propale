@@ -28,7 +28,9 @@ const useCompanies = (companyId: string, search: string) => {
   };
 
   useEffect(() => {
-    fetchData();
+    if (user) {
+      fetchData();
+    }
   }, [companyId, search, user]);
 
   const removeCompany = async (companyId: string) => {

@@ -6,6 +6,7 @@ import { ROLES } from '@/constants/roles';
 import CustomAlert from '../common/Alert';
 import { supabase } from '@/lib/supabaseClient';
 import BaseModal from './BaseModal';
+import { useUser } from '@/context/userContext';
 
 type AddUserModalProps = {
   isOpen: boolean;
@@ -16,6 +17,7 @@ type AddUserModalProps = {
 
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onSubmit, page }) => {
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
+  const { user } = useUser();
   const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<UserFormInputs>({
     resolver: zodResolver(userSchema),
   });
@@ -83,10 +85,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
               onChange={(e) => setValue('role', e.target.value)}
               disabled={page === ROLES.SUPER_ADMIN}
             >
-                {page !== ROLES.SUPER_ADMIN && (
+                {user?.role !== ROLES.SALES && (
                   <>
                     <option value={ROLES.ADMIN}>Admin</option>
-                    <option value={ROLES.SALES}>Utilisateur</option>
                   </>
                 )}
                 {page === ROLES.SUPER_ADMIN && (
@@ -94,6 +95,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onRequestClose, onS
                     <option value={ROLES.SUPER_ADMIN}>Super admin</option>
                   </>
                 )}
+                <>
+                  <option value={ROLES.SALES}>Utilisateur</option>
+                </>
             </select>
             {errors.role && <p className="text-red-500 text-xs">{errors.role.message}</p>}
           </div>

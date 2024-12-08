@@ -1,4 +1,4 @@
-import { Need, Paragraph, Proposal, ProposalData } from "@/types/models";
+import { Need, Paragraph, Profile, Proposal, ProposalData } from "@/types/models";
 
 export const createProposal = async (data: ProposalData): Promise<{
   proposal: Proposal;
@@ -73,9 +73,9 @@ export const updateProposal = async (proposalId: string, proposalData: ProposalD
   return response.json();
 };
 
-export const getProposalsByProspectId = async (prospectId: string): Promise<{proposals: Proposal[]}> => {
+export const getProposalsByProspectId = async (prospectId: string, user: Profile): Promise<{proposals: Proposal[]}> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/proposals?prospectId=${prospectId}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/proposals?prospectId=${prospectId}&role=${user.role}`, {
       method: 'GET',
     });
 

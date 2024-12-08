@@ -3,7 +3,7 @@ import { Company, Profile } from '@/types/models';
 import { createContact, updateContact, fetchProfilesWithUserDetails, countProfilesByCompanyId } from '@/services/profileService';
 import { toast } from 'react-toastify';
 import { deleteUserAuth } from '@/services/userService';
-import { fetchCompanyById } from '@/services/companyService';
+import { fetchCompanyById, findTopMostParentCompany } from '@/services/companyService';
 import { fetchCompanySettings } from '@/services/companySettingsService';
 
 const useContacts = (companyId: string) => {
@@ -38,8 +38,9 @@ const useContacts = (companyId: string) => {
         toast.success('Le contact a bien été modifié');
       } else {
         const currentContactCount = await countProfilesByCompanyId(selectedCompany.id);
-        if (company?.company_id) {
-          const settings = await fetchCompanySettings(company.company_id);
+        const companyParent = await findTopMostParentCompany(selectedCompany)
+        if (companyParent?.id) {
+          const settings = await fetchCompanySettings(companyParent.id);
           
           if (!settings) {
             throw new Error("Impossible de récupérer les paramètres de l'entreprise parente");

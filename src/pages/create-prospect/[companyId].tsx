@@ -117,10 +117,13 @@ const AddProspectPage: React.FC = () => {
       return;
     }
   
-    await createProspect({ ...data, status, heat_level: heatLevel, companyId });
+    const prospect = await createProspect({ ...data, status, heat_level: heatLevel, companyId });
     setIsLoading(false);
     reset();
-    router.push('/auth/login');
+    if (prospect) {
+      const { data: { user, session }, error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password || '' });
+      router.push(`/client-portal/workflow/${prospect.id}?origin=ext`);
+    }
   };
   
 

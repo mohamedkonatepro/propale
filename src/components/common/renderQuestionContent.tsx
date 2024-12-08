@@ -8,6 +8,7 @@ import { DatePickerWithRange } from './DatePickerWithRange';
 import { Button } from './Button';
 import Link from 'next/link';
 import { FaArrowRight } from "react-icons/fa";
+import { DateRangePicker } from './DateRangePicker';
 
 const Select = dynamic(() => import('react-select'), { ssr: false });
 
@@ -67,7 +68,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
       case 'YesNo':
         return (
           <div className='flex flex-col'>
-            <div className="pl-10 text-sm mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
             <div className='pl-10'>
               <Select 
                 options={responses}
@@ -85,7 +86,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
         }));
         return (
           <div className='flex flex-col'>
-            <div className="text-sm pl-10 mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
             <div className='pl-10'>
               <Select
                 isMulti
@@ -103,23 +104,46 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
             </div>
           </div>
         );  
-      case 'DateRange':
-        return (
-          <div className='flex flex-col items-center'>
-            <div className="text-sm text-left pl-10 mb-4">{question.text}</div>
-            <div className='pl-10'>
-              <DatePickerWithRange
-                className="w-full"
-                date={dateRange}
-                setDate={handleDateRangeChange}
-              />
+        case 'DateRange':
+          return (
+            <div className="flex flex-col justify-center items-center">
+              <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
+              <div className="pl-10 mt-5 w-full">
+                <DateRangePicker
+                  startDate={dateRange?.from}
+                  endDate={dateRange?.to}
+                  onStartDateChange={(newStartDate) => {
+                    const updatedRange: DateRange | undefined = newStartDate
+                      ? { from: newStartDate, to: dateRange?.to }
+                      : undefined;
+                  
+                    setDateRange(updatedRange);
+                    if (updatedRange?.from && updatedRange?.to) {
+                      handleDateRangeChange(updatedRange);
+                    } else {
+                      handleChange(''); // Reset if incomplete
+                    }
+                  }}
+                  onEndDateChange={(newEndDate) => {
+                    const updatedRange: DateRange | undefined = newEndDate
+                      ? { from: dateRange?.from, to: newEndDate }
+                      : undefined;
+                  
+                    setDateRange(updatedRange);
+                    if (updatedRange?.from && updatedRange?.to) {
+                      handleDateRangeChange(updatedRange);
+                    } else {
+                      handleChange(''); // Reset if incomplete
+                    }
+                  }}                  
+                />
+              </div>
             </div>
-          </div>
-        );
+          );        
       case 'FreeText':
         return (
           <div className='flex flex-col'>
-            <div className="text-sm pl-10 text-left mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
             <div className='w-full pl-10 flex items-center'>
               <textarea 
                 value={currentAnswer as string || ''}
@@ -145,9 +169,9 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
           <div className='flex flex-col justify-center items-center'>
             <h4 className="text-xl font-semibold mb-4">{'Félicitations, vous avez terminé l’audit !'}</h4>
             <div className='pl-10'>
-              <Link href={`/client-portal/audit/${companyId}`}>
+              <Link href={`/client-portal/proposal/${companyId}`}>
                 <Button className="flex items-center text-white border border-2 bg-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blueCustom">
-                  Consulter le résultat
+                  Consulter la proposition
                   <FaArrowRight className="ml-2" />
                 </Button>
               </Link>

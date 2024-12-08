@@ -48,6 +48,7 @@ const useProspects = (companyId?: string, search?: string) => {
 
   const removeProspect = async (prospectId: string) => {
     try {
+      console.log("prospectId :: ", prospectId)
       await deleteProspect(prospectId);
       setProspects(prospects.filter(p => p.id !== prospectId));
     } catch (err) {
