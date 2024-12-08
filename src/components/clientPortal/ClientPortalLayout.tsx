@@ -9,6 +9,8 @@ import { useUser } from '@/context/userContext';
 import { Option } from '@/constants';
 import { ProspectNavBarActive } from '@/types/types';
 import { HiMiniArrowLeftStartOnRectangle } from 'react-icons/hi2';
+import ActionModal from '../modals/ActionModal';
+import useModalState from '@/hooks/useModalState';
 
 type ClientPortalLayoutProps = {
   statusOption?: Option;
@@ -19,9 +21,11 @@ type ClientPortalLayoutProps = {
 
 const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({ statusOption, prospect, children, prospectNavBarActive }) => {
   const { user } = useUser();
+  const logoutModalState = useModalState();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    logoutModalState.closeModal();
   };
 
   return (
@@ -33,7 +37,7 @@ const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({ statusOption, p
             Retour
           </Link>
         ) : (
-          <div className='flex ml-3 cursor-pointer' onClick={handleLogout}>
+          <div className='flex ml-3 cursor-pointer' onClick={logoutModalState.openModal}>
             <div className='flex mr-2'> 
               <HiMiniArrowLeftStartOnRectangle className='text-red-500' size={25}/>
             </div>
@@ -51,6 +55,16 @@ const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({ statusOption, p
       <main className="flex-grow p-8 mx-2 xl:mx-16 mt-4 bg-backgroundGray rounded-2xl">
         {children}
       </main>
+      <ActionModal
+        isOpen={logoutModalState.isModalOpen}
+        onClose={logoutModalState.closeModal}
+        onConfirm={handleLogout}
+        title="Confirmer la déconnexion ?"
+        message="Vous allez être déconnecté de cet appareil."
+        cancelButtonText="Annuler"
+        confirmButtonText="Se déconnecter"
+        icon="/uil-sign-out-alt.svg"
+      />
     </div>
   );
 };

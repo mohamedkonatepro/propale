@@ -12,6 +12,8 @@ import { fetchCompanyById, fetchTopMostParentCompanyCompanyById, updateProspectS
 import { IoIosArrowBack } from "react-icons/io";
 import { useUser } from '@/context/userContext';
 import { hasAccessToAudit } from '@/constants/permissions';
+import ActionModal from '@/components/modals/ActionModal';
+import useModalState from '@/hooks/useModalState';
 
 interface StepperPageProps {
   companySettings: DbCompanySettings | null;
@@ -42,7 +44,8 @@ const StepperPage: React.FC = () => {
     currentQuestionId?: string;
     answers?: Record<string, string | string[]>;
   } | undefined>(undefined);
-
+  const leaveModalState = useModalState();
+  const answerModalState = useModalState();
 
   const loadData = useCallback(async () => {
     if (typeof id !== 'string' || !user?.id) return;
@@ -256,6 +259,7 @@ const StepperPage: React.FC = () => {
           storedAnswers,
         );
         await updateProspectStatus(prospect?.id, 'audit');
+        leaveModalState.closeModal();
         router.push(`/client-portal/audit/${id}`);
       } catch (error) {
         console.error('Error saving session:', error);
@@ -297,7 +301,7 @@ const StepperPage: React.FC = () => {
           <h5 className='text-black text-lg mt-2'>{prospect?.name}</h5>
         </div>
         {(!finish && origin !== "ext") && <div>
-          <span className='text-red-500 cursor-pointer border border-2 border-red-500 p-3 rounded-lg hover:bg-red-500 hover:text-white transition-colors duration-200' onClick={handleSaveForLater}>Reprendre plus tard</span>
+          <span className='text-red-500 cursor-pointer border border-2 border-red-500 p-3 rounded-lg hover:bg-red-500 hover:text-white transition-colors duration-200' onClick={leaveModalState.openModal}>Reprendre plus tard</span>
         </div>}
       </header>      
       <div className="flex flex-1 overflow-hidden">
@@ -353,8 +357,13 @@ const StepperPage: React.FC = () => {
                 Répondre plus tard
               </button>
               <button 
-                onClick={handleNextClick}
-                disabled={isLastQuestion && !canFinish}
+                onClick={() => {
+                  if (isLastQuestion && !canFinish) {
+                    answerModalState.openModal()
+                  } else {
+                    handleNextClick()
+                  }
+                }}
                 className="px-4 py-2 bg-blueCustom text-white rounded disabled:opacity-50 hover:bg-blueCustom"
               >
                 {currentStep && currentQuestion && currentStep.questions[currentStep.questions.length - 1].id === currentQuestion.id ? "Terminer" : "Suivant"}
@@ -363,6 +372,24 @@ const StepperPage: React.FC = () => {
           </div>}
         </main>
       </div>
+      <ActionModal
+        isOpen={leaveModalState.isModalOpen}
+        onClose={leaveModalState.closeModal}
+        onConfirm={handleSaveForLater}
+        title="Quitter le workflow ?"
+        message="Vos réponses seront sauvegardées. Vous pourrez reprendre l’audit à tout moment."
+        cancelButtonText="Continuer l'audit"
+        confirmButtonText="Quitter"
+        icon="/uil-sign-out-alt.svg"
+      />
+      <ActionModal
+        isOpen={answerModalState.isModalOpen}
+        onConfirm={answerModalState.closeModal}
+        title="Réponses manquantes"
+        message="Il est nécessaire de répondre à toutes les questions d’une étape pour passer à la suivante."
+        confirmButtonText="Répondre"
+        icon="/exclamation-triangle.svg"
+      />
     </div>
   );
 };

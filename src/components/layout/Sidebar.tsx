@@ -17,6 +17,8 @@ import EditUserModal from '../modals/EditUserModal';
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
 import { supabase } from '@/lib/supabaseClient';
 import { HiMiniArrowLeftStartOnRectangle } from "react-icons/hi2";
+import ActionModal from '../modals/ActionModal';
+import useModalState from '@/hooks/useModalState';
 
 interface SidebarProps {
   currentPage: string;
@@ -46,11 +48,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
   const companyId = router.query.id;
   const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
   const [isModalOpenEdit, setIsModalOpenEdit] = useState(false);
-
+  const logoutModalState = useModalState();
   const isProspect = router.pathname.startsWith('/dashboard/prospect');
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    logoutModalState.closeModal();
   };
   
   const toggleSidebar = () => {
@@ -173,7 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
           isLoading={isLoading}  // Passe l'état de chargement en prop
         />}
 
-        <div className='flex ml-3 cursor-pointer' onClick={handleLogout}>
+        <div className='flex ml-3 cursor-pointer' onClick={logoutModalState.openModal}>
           <div className='flex pt-5 mr-2'> 
             <HiMiniArrowLeftStartOnRectangle className='text-red-500' size={25}/>
           </div>
@@ -184,7 +187,16 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
           </div>}
         </div>
       </div>
-
+      <ActionModal
+        isOpen={logoutModalState.isModalOpen}
+        onClose={logoutModalState.closeModal}
+        onConfirm={handleLogout}
+        title="Confirmer la déconnexion ?"
+        message="Vous allez être déconnecté de cet appareil."
+        cancelButtonText="Annuler"
+        confirmButtonText="Se déconnecter"
+        icon="/uil-sign-out-alt.svg"
+      />
     </div>
   );
 };
