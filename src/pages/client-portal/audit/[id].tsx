@@ -66,7 +66,7 @@ const Audit: React.FC = () => {
       case 'saved':
         return "Continuer l'audit";
       case 'completed':
-        return "Voir la propal";
+        return "Voir la proposition";
       default:
         return "Démarrer l'audit";
     }
