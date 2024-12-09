@@ -66,13 +66,11 @@ const Audit: React.FC = () => {
       case 'saved':
         return "Continuer l'audit";
       case 'completed':
-        return "Voir les résultats";
+        return "Voir la propal";
       default:
         return "Démarrer l'audit";
     }
   };
-
-  console.log(companySettings)
 
   return (
       <div className="flex flex-1 items-center justify-center overflow-hidden">
@@ -88,7 +86,7 @@ const Audit: React.FC = () => {
                   <h4 className="text-blueCustom text-2xl text-center font-semibold mb-5">{completionPercentage}%</h4>
                 )}
                 <Link 
-                  href={`/client-portal/workflow/${id}`}
+                  href={workflowStatus === 'completed' ? `/client-portal/proposal/${id}` : `/client-portal/workflow/${id}`}
                   className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
                   rel="noopener noreferrer"
                 >
