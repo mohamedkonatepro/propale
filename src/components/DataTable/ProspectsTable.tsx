@@ -1,5 +1,5 @@
-import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
-import { ColumnDef, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, Row, useReactTable } from "@tanstack/react-table";
+import React, { useEffect, useState, forwardRef, useImperativeHandle, useMemo } from 'react';
+import { CellContext, ColumnDef, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, HeaderContext, Row, useReactTable } from "@tanstack/react-table";
 import { LiaSortSolid } from "react-icons/lia";
 import { MoreVertical } from "lucide-react";
 import { DataTable } from '@/components/DataTable/DataTable';
@@ -33,6 +33,9 @@ interface ProspectsTableProps {
   openContactModal: (data?: Company) => void;
   settings: DbCompanySettings | null;
   user: Profile | null;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 export interface ProspectsTableRef {
@@ -52,6 +55,9 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
     handleSendEmail,
     settings,
     user,
+    currentPage,
+    totalPages,
+    onPageChange
   } = props;
 
   const [contacts, setContacts] = useState<{ [key: string]: Profile[] }>({});
@@ -71,11 +77,51 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
 
     fetchContacts();
   }, [prospects]);
+
+  const contactColumn = useMemo<ColumnDef<Company>>(() => ({
+    accessorKey: "contact",
+    id: "contact",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        className="flex items-center justify-start w-full p-0"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Contact principal
+        <LiaSortSolid className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <Link href={`/client-portal/infos/${row.original.id}`}>
+        <PrimaryContact companyId={row.original.id} />
+      </Link>
+    ),
+  }), []);
   
-  const columns: ColumnDef<Company>[] = [
+  const workflowColumn = useMemo(() => {
+    if (!hasAccessToAudit(user, settings)) return [];
+    return [
+      {
+        id: "workflow",
+        enableHiding: false,
+        header: ({ column }: any) => (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Workflow
+            <LiaSortSolid className="ml-2 h-4 w-4" />
+          </Button>
+        ),
+        cell: ({ row }: any) => <WorkflowCell row={row} settings={settings} />,
+      },
+    ];
+  }, [user, settings]);
+
+  const columns: ColumnDef<Company>[] = useMemo(() => [
     {
       id: "select",
-      header: ({ table }) => (
+      header: ({ table }: HeaderContext<Company, unknown>) => (
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -85,7 +131,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
           aria-label="Select all"
         />
       ),
-      cell: ({ row }) => (
+      cell: ({ row }: CellContext<Company, unknown>) => (
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -122,24 +168,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         </Link>
       ),
     },
-    {
-      accessorKey: "contact",
-      id: "contact",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          className="flex items-center justify-start w-full p-0"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Contact principal
-          <LiaSortSolid className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }) => (
-      <Link href={`/client-portal/infos/${row.original.id}`}>
-        <PrimaryContact companyId={row.original.id} />
-      </Link>),
-    },
+    contactColumn,
     {
       accessorKey: "contacts_others",
       id: "contacts_others",
@@ -206,22 +235,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         ) : null;
       },
     },
-    ...(hasAccessToAudit(user, settings) ? [{
-      id: "workflow",
-      enableHiding: false,
-      header: ({ column }: any) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Workflow
-          <LiaSortSolid className="ml-2 h-4 w-4" />
-        </Button>
-      ),
-      cell: ({ row }: any) => (
-        <WorkflowCell row={row} settings={settings} />
-      ),
-    }] : []),
+    ...workflowColumn,
     {
       id: "menuProspect",
       enableHiding: false,
@@ -243,7 +257,7 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
         </DropdownMenu>
       ),
     },
-  ];
+  ], [contacts, rowSelection])
 
 
   const table = useReactTable({
@@ -253,18 +267,19 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onRowSelectionChange: setRowSelection,
     state: {
       rowSelection,
     },
+    onRowSelectionChange: setRowSelection,
   });
-
+  
   useImperativeHandle(ref, () => ({
-    toggleAllRowsSelected: (value: boolean) => table.toggleAllRowsSelected(value),
+    toggleAllRowsSelected: (value: boolean) => table.toggleAllPageRowsSelected(value),
     getSelectedRows: () => {
-      return table.getFilteredSelectedRowModel().rows.map((row: Row<Company>) => row.original);
+      return table.getSelectedRowModel().rows.map((row: Row<Company>) => row.original);
     },
   }));
+  
 
   const handleDeleteClick = () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows.map((row: Row<Company>) => row.original);
@@ -293,6 +308,9 @@ const ProspectsTable = forwardRef<ProspectsTableRef, ProspectsTableProps>((props
       handleDownloadClick={handleDownloadClick}
       handleEmailClick={handleEmailClick}
       table={table}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={onPageChange}
     />
   );
 });

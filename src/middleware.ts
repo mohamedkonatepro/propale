@@ -27,19 +27,21 @@ export async function middleware(req: NextRequest) {
       }
 
       // Check if the company is disabled
-      const company = await fetchCompanyWithoutParentByProfileId(user.id);
-      if (company) {
-        const companySettings = await fetchCompanySettings(company.id);
-        if (companySettings?.is_account_disabled && user.role !== ROLES.SUPER_ADMIN) {
-          console.log('Company account is disabled');
-          return NextResponse.redirect(new URL(`/restricted`, req.url));
+      if (user.role !== ROLES.SUPER_ADMIN) {
+        const company = await fetchCompanyWithoutParentByProfileId(user.id);
+        if (company) {
+          const companySettings = await fetchCompanySettings(company.id);
+          if (companySettings?.is_account_disabled && user.role !== ROLES.SUPER_ADMIN) {
+            console.log('Company account is disabled');
+            return NextResponse.redirect(new URL(`/restricted`, req.url));
+          }
         }
-      }
 
-      if (user.role === ROLES.PROSPECT && req.nextUrl.pathname.startsWith('/dashboard')) {
-        const prospect = await fetchProspectByUserId(user.id);
-        if (prospect) {
-          return NextResponse.redirect(new URL(`/client-portal/infos/${prospect.id}`, req.url)); // Redirect to client-portal
+        if (user.role === ROLES.PROSPECT && req.nextUrl.pathname.startsWith('/dashboard')) {
+          const prospect = await fetchProspectByUserId(user.id);
+          if (prospect) {
+            return NextResponse.redirect(new URL(`/client-portal/infos/${prospect.id}`, req.url)); // Redirect to client-portal
+          }
         }
       }
     }

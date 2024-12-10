@@ -145,17 +145,41 @@ export const createProspect = async (dataModal: CompanyFormInputs | companyDetai
   return await response.json();
 };
 
-export const fetchProspects = async (companyId: string, search?: string): Promise<Company[]> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/prospect/fetch?companyId=${companyId}&search=${encodeURIComponent(search || '')}`, {
-    method: 'GET',
-  });
+export const fetchProspects = async (
+  companyId: string,
+  search: string = "",
+  page: number = 1,
+  pageSize: number = 10
+): Promise<{ data: Company[]; count: number }> => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_URL}/api/prospect/fetch?companyId=${companyId}&search=${encodeURIComponent(search)}&page=${page}&pageSize=${pageSize}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-  if (!response.ok) {
-    throw new Error('Error fetching prospects');
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      throw new Error(errorResponse?.message || 'Error fetching prospects');
+    }
+
+    const result = await response.json();
+
+    if (!result.data || !Array.isArray(result.data) || typeof result.count !== 'number') {
+      throw new Error('Invalid response format from the API');
+    }
+
+    return result;
+  } catch (error) {
+    console.error('fetchProspects error:', error);
+    throw new Error(error instanceof Error ? error.message : 'An unknown error occurred');
   }
-
-  return await response.json();
 };
+
 
 export const deleteProspect = async (companyId: string): Promise<boolean> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/prospect/delete/${companyId}`, {

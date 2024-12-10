@@ -28,7 +28,6 @@ import {
 } from "@/components/common/Table"
 import { InputSearch } from "../common/InputSearch"
 import { FaPlus } from "react-icons/fa"
-import { useUser } from "@/context/userContext"
 import { FaRegTrashAlt } from "react-icons/fa";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { RxDividerVertical } from "react-icons/rx";
@@ -45,6 +44,9 @@ type DataTableProps<T> = {
   handleDownloadClick?: (selectedRows: T[]) => void;
   handleEmailClick?: (selectedRows: T[]) => void;
   table?: TableTanstack<T>;  // Ajout de cette ligne
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export function DataTable<T>({ 
@@ -57,13 +59,15 @@ export function DataTable<T>({
   handleDeleteClick, 
   handleDownloadClick,
   handleEmailClick,
-  table: externalTable 
+  table: externalTable,
+  currentPage,
+  totalPages = 0,
+  onPageChange,
 }: DataTableProps<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const { user } = useUser();
 
   const tableOptions = React.useMemo(() => ({
     data,
@@ -111,6 +115,55 @@ export function DataTable<T>({
     if (handleEmailClick) {
       handleEmailClick(selectedRows);
     }
+  };
+
+  const renderPagination = () => {
+    if (!currentPage) {
+      return (
+        <div className="space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Précédent
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Suivant
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange?.(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Précédent
+        </Button>
+        <span>
+          Page {currentPage} sur {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange?.(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Suivant
+        </Button>
+      </div>
+    );
   };
 
   return (
@@ -215,29 +268,11 @@ export function DataTable<T>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} sur {" "}
-          {table.getFilteredRowModel().rows.length} ligne(s) sélectionnées.
+          {selectedRows.length} sur {table.getFilteredRowModel().rows.length} ligne(s) sélectionnées.
         </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Précédent
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Suivant
-          </Button>
-        </div>
+        {renderPagination()}
       </div>
     </div>
   )

@@ -48,7 +48,7 @@ const ProspectList: React.FC = () => {
   const tableRef = useRef<ProspectsTableRef>(null);
   const [settings, setSettings] = useState<DbCompanySettings | null>(null);
 
-  const { prospects, fetchData, addProspect, editProspect, removeProspect } = useProspects(id as string, search);
+  const { prospects, fetchData, addProspect, editProspect, removeProspect, totalPages, currentPage, setPage } = useProspects(id as string, search);
   const {
     contacts,
     selectedContact,
@@ -99,6 +99,10 @@ const ProspectList: React.FC = () => {
     getCompanyData();
     setIsMounted(true);
   }, [getCompanyData]);
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   const handleCreateProspect = async (data: CompanyFormInputs) => {
     if (selectedProspect?.id) {
@@ -322,6 +326,9 @@ const ProspectList: React.FC = () => {
         handleSendEmail={handleSendEmail}
         settings={settings}
         user={user}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
       />}
       <MailGroupModal
         isOpen={emailMultipleModalState.isModalOpen}
