@@ -20,7 +20,6 @@ const useProspects = (
 
     setLoading(true);
     setError(null);
-
     try {
       if (companyId) {
         const response = await fetchProspects(companyId, search, currentPage, pageSize);
@@ -37,7 +36,7 @@ const useProspects = (
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage, search]);
 
   const addProspect = async (prospect: CompanyFormInputs) => {
     try {
