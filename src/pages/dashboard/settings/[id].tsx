@@ -307,7 +307,7 @@ const StatCard: React.FC<{ icon: React.ReactNode; title: string; value: string; 
   <div className="bg-white p-4 rounded-3xl flex justify-around items-center">
     <div className="text-2xl mr-3 bg-blue-200 rounded-full p-5">{icon}</div>
     <div>
-      <div className="text-2xl font-bold text-blueCustom">
+      <div className="text-2xl font-medium text-blueCustom">
         {value}{total && <span className="text-labelGray font-normal">/{total}</span>}
       </div>
       <div className="text-sm text-blueCustom">{title}</div>

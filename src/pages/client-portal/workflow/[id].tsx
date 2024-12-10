@@ -297,7 +297,7 @@ const StepperPage: React.FC = () => {
     <div className="flex flex-col h-screen">
       <header className='flex justify-between p-8 bg-white'>
         <div>
-          <h1 className='text-2xl text-blueCustom font-bold mr-5'>{companySettings.workflow.name}</h1>  
+          <h1 className='text-2xl text-blueCustom font-medium mr-5'>{companySettings.workflow.name}</h1>  
           <h5 className='text-black text-lg mt-2'>{prospect?.name}</h5>
         </div>
         {(!finish && origin !== "ext") && <div>

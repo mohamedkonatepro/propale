@@ -302,7 +302,7 @@ const ProspectList: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <div className='flex flex-col'>
             <div className='flex items-center'>
-              <h2 className="text-3xl font-bold mb-2 mr-2">{company?.name}</h2>
+              <h2 className="text-3xl font-medium mb-2 mr-2">{company?.name}</h2>
               {company && <GrFormEdit onClick={folderModalState.openModal} className="text-2xl cursor-pointer text-stone-400" />}
             </div>
             <p className='text-black'>{company?.activity_sector}</p>

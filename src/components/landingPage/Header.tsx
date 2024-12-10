@@ -42,12 +42,12 @@ const Header = () => {
 
   return (
     <header className="fixed w-full bg-white shadow-lg z-50">
-      <div className="w-full px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-20">
         <div className="flex justify-between items-center h-16">
           {/* Logo et nom de l'entreprise */}
           <div className="flex items-center">
             <Image src="/logo.svg" alt="Logo" width={40} height={40} />
-            <span className="ml-3 text-xl font-bold text-gray-800">Propale</span>
+            <span className="ml-3 text-xl font-medium text-gray-800">Propale</span>
           </div>
 
           {/* Navigation */}

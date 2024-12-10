@@ -12,8 +12,8 @@ interface NeedContentProps {
 const NeedContent: React.FC<NeedContentProps> = ({ data, id, onEdit }) => {
   return (
     <div className="relative">
-      {data.showName && <div className="font-bold">{data.name}</div>}
-      {data.showPrice && <div className="font-bold">{`${formatAmount(data.price)} €`}</div>}
+      {data.showName && <div className="font-medium">{data.name}</div>}
+      {data.showPrice && <div className="font-medium">{`${formatAmount(data.price)} €`}</div>}
       {data.showQuantity && <div>{`Nombre de J/H : ${data.quantity}`}</div>}
       <div>{truncateString(data.description, 100)}</div>
       <button

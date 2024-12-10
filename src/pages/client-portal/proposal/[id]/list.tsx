@@ -71,7 +71,7 @@ const Proposal: React.FC = () => {
   return (
     <div className="">
       <div className="flex justify-between px-16 mt-12">
-        <h2 className='text-black font-bold text-2xl'>Vos propales</h2>
+        <h2 className='text-black font-medium text-2xl'>Vos propales</h2>
         {user?.role !== ROLES.PROSPECT && <Button onClick={handleAddClick} className="bg-blueCustom text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center">Nouvelle propale <FaPlus className='ml-2'/></Button>}
       </div>
       <div className="flex-grow mx-16 rounded-2xl">

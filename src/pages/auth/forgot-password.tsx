@@ -34,16 +34,16 @@ const ForgotPassword = () => {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md flex flex-col justify-between" style={{ minHeight: '650px' }}>
         <div className="flex flex-col items-center">
           <LoginHeader />
-          <h3 className="text-xl font-bold mb-5">{messageSent ? 'Vérifiez votre boîte mail' : 'Entrer votre identifiant'}</h3>
+          <h3 className="text-xl font-medium mb-5 mt-6">{messageSent ? 'Vérifiez votre boîte mail' : 'Entrer votre identifiant'}</h3>
           {!messageSent ? (
             <form className="w-full" onSubmit={handleSubmit(handleForgotPassword)}>
               <p className='text-center text-sm'>Renseignez l’adresse email utilisée à l’enregistrement de votre compte.</p>
               <div className="mb-4 mt-5">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                <label className="block text-gray-700 text-sm font-medium mb-2">Email</label>
                 <input
                   type="email"
                   placeholder="tonadress@mail.com"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="bg-backgroundGray border border-none rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   {...register('email')}
                 />
                 {errors.email && <p className="text-red-500 text-xs italic">{errors.email.message}</p>}

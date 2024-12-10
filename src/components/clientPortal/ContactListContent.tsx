@@ -85,7 +85,7 @@ const ContactListContent: React.FC<ContactListContentProps> = ({
               <div>
                 {contact.is_primary_contact && <div className="ml-4 w-fit px-2 py-1 text-xs bg-blue-100 text-black border border-blueCustom rounded-full">Contact principal</div>}
                 <div className="ml-4 flex items-center ">
-                  <p className="font-bold">{contact.firstname} {contact.lastname}</p>
+                  <p className="font-medium">{contact.firstname} {contact.lastname}</p>
                   <RxDividerVertical className="h-full" />
                   <p className="text-gray-500 text-sm">{contact.position}</p>
                 </div>

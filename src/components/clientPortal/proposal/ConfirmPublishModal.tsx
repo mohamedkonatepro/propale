@@ -15,13 +15,13 @@ const ConfirmPublishModal: React.FC<ConfirmPublishModalProps> = ({ isOpen, onClo
         <p>{message}</p>
         <div className="mt-6 flex justify-end">
           <button
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2"
+            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded mr-2"
             onClick={onClose}
           >
             Annuler
           </button>
           <button
-            className="bg-blueCustom hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-blueCustom hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
             onClick={onConfirm}
           >
             Confirmer

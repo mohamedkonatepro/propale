@@ -38,9 +38,9 @@ export default function FAQSection() {
 
   return (
     <section className="bg-gray-50 py-8">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="mx-auto px-4 sm:px-6 lg:px-20 text-center">
         {/* Heading and Subheading */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">
+        <h2 className="text-2xl sm:text-3xl font-medium text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">
           Une <span className="text-blueCustom">question</span> ? <br />
           Nous avons la <span className="text-blueCustom">réponse</span>.
         </h2>

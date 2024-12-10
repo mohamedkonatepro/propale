@@ -23,12 +23,12 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {/* Header Section */}
         <div className="flex justify-between items-center mb-6 break-inside-avoid">
           <div className="mt-7">
-            <h1 className="text-3xl font-bold text-blueCustom">Proposition commerciale</h1>
+            <h1 className="text-3xl font-medium text-blueCustom">Proposition commerciale</h1>
             <div className="mt-10">
               <p className="text-sm text-gray-500">Destinée à</p>
               <div className="flex items-center space-x-2">
                 <div>
-                  <p className="font-bold text-lg">{proposalData.prospect_name}</p>
+                  <p className="font-medium text-lg">{proposalData.prospect_name}</p>
                   <p className="text-sm text-gray-500">SIREN : {proposalData.prospect_siren}</p>
                 </div>
               </div>
@@ -43,7 +43,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {/* Description Section */}
         {proposalData.description && (
           <div className="mb-6 break-inside-avoid">
-            {proposalData.show_title && <h2 className="text-xl font-bold text-blueCustom">{proposalData.title}</h2>}
+            {proposalData.show_title && <h2 className="text-xl font-medium text-blueCustom">{proposalData.title}</h2>}
             <p className="text-gray-600 mt-2 text-left text-justify whitespace-pre-line">{proposalData.description}</p>
           </div>
         )}
@@ -51,7 +51,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {/* Needs Section */}
         {needs.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-blueCustom">Besoins</h2>
+            <h2 className="text-xl font-medium text-blueCustom">Besoins</h2>
             {needs.map((need, index) => (
               <div key={index} className="mb-4 break-inside-avoid">
                 {need.showName && <h3 className="text-lg font-semibold text-gray-800">{need.name}</h3>}
@@ -66,7 +66,7 @@ const ProposalPage: NextPage<ProposalPageProps> = ({ proposalData, needs, paragr
         {/* Total Section */}
         <div className="flex justify-between items-center mt-8 border-t pt-4 break-inside-avoid">
           <p className="text-gray-600 font-semibold">Total :</p>
-          <p className="text-gray-800 font-bold text-lg">{formatAmount(proposalData.total_price)} € HT</p>
+          <p className="text-gray-800 font-medium text-lg">{formatAmount(proposalData.total_price)} € HT</p>
         </div>
 
         {/* Additional Content - Paragraphs */}

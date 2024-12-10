@@ -17,7 +17,7 @@ interface ParagraphContentProps {
 const ParagraphContent: React.FC<ParagraphContentProps> = ({ data, id, onEdit }) => {
   return (
     <div className="relative">
-      {data.showName && <div className="font-bold">{data.name}</div>}
+      {data.showName && <div className="font-medium">{data.name}</div>}
       <div>{truncateString(data.description, 100)}</div>
       <button
         onClick={() => onEdit({ id, ...data, type: 'paragraph', content: '' })}

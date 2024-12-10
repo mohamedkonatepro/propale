@@ -14,7 +14,7 @@ const CustomAlert: FC<AlertProps> = ({ message, title }) => {
           <FaExclamationCircle className="h-5 w-5 text-red-400" />
         </div>
         <div className="ml-3">
-          { title && <div className="mt-2 text-sm text-red-700 font-bold">
+          { title && <div className="mt-2 text-sm text-red-700 font-medium">
             <p>{title}</p>
           </div>}
           <div className="mt-2 text-sm text-red-700">

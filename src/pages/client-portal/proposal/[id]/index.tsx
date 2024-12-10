@@ -76,7 +76,7 @@ const Proposal: React.FC = () => {
       description: 'Ceci est la description initiale du projet.',
       content: (
         <div className="relative">
-          <div className="font-bold">Description du projet</div>
+          <div className="font-medium">Description du projet</div>
           <div>Ceci est la description initiale du projet.</div>
           <button
             onClick={() =>

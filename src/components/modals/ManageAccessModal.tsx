@@ -63,7 +63,7 @@ const ManageAccessModal: React.FC<ManageAccessModalProps> = ({ isOpen, onClose, 
           {filteredFolders.map((folder) => (
             <div key={folder.id} className="flex items-center justify-between p-3 border-b bg-white border rounded-lg mt-1">
               <div className='flex items-center'>
-                <p className="font-bold">{folder.name}</p>
+                <p className="font-medium">{folder.name}</p>
                 <PiLineVerticalThin />
                 <p className="text-gray-500 text-sm">SIRET {folder.siret}</p>
               </div>

@@ -102,7 +102,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               <GrFormEdit className="text-blueCustom" size={30} />
             </button>}
           </div>
-          <h3 className="text-lg font-bold mt-4">{defaultValues.firstname} {defaultValues.lastname}</h3>
+          <h3 className="text-lg font-medium mt-4">{defaultValues.firstname} {defaultValues.lastname}</h3>
           <div className='flex'><label className="text-sm font-medium text-black">ID : </label><p className="text-sm text-gray-500 ml-1">ID67304093</p></div>
           {!edit && <span className={`text-sm border px-5 py-1 rounded-full mt-5 ${defaultValues.blocked ? 'bg-red-100 text-red-600 border-red-600' : 'bg-green-100 text-green-600 border-green-600'}`}>
             {defaultValues.blocked ? 'Inactif' : 'Actif'}

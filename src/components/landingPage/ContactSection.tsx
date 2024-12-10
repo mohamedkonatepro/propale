@@ -11,11 +11,11 @@ export default function ContactSection() {
 
   return (
     <section className="bg-white py-8" id="contact">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-20">
         <div className="lg:flex lg:items-center lg:justify-between">
           {/* Partie gauche : Texte */}
           <div className="lg:w-1/2 mb-12 lg:mb-0">
-            <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl lg:text-4xl font-medium text-gray-900 mb-4">
               Comment pouvons-nous vous <span className="text-blueCustom">aider</span> ?
             </h2>
             <p className="text-gray-600">

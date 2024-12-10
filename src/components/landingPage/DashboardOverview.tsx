@@ -4,9 +4,9 @@ import Image from 'next/image';
 const DashboardOverview: React.FC = () => {
   return (
     <section className="bg-white py-16">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="mx-auto px-4 sm:px-6 lg:px-20 text-center">
         {/* Heading and Subheading */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">
+        <h2 className="text-2xl sm:text-3xl font-medium text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">
           La meilleure solution pour <span className="text-blueCustom">prospecter</span>, <span className="text-blueCustom">auditer</span> et <span className="text-blueCustom">gérer</span> tous vos futurs clients, dans un seul outil.
         </h2>
         <p className="text-gray-600 mb-12 text-center mx-auto w-full sm:w-2/3 lg:w-1/3">
