@@ -81,7 +81,7 @@ const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequest
           <FaTimes />
         </button>
       </div>
-      <h2 className="text-2xl font-semibold text-center mb-2">
+      <h2 className="text-2xl font-medium text-center mb-2">
         {initialData ? 'Modifier paragraphe' : 'Nouveau paragraphe'}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,7 +93,7 @@ const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequest
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Titre du paragraphe"
-            className="mt-1 block w-full p-2 rounded bg-gray-100"
+            className="mt-1 block w-full p-2 rounded bg-backgroundGray"
           />
           <div className="flex items-center mt-2">
             <span className="mr-2">Afficher le titre</span>
@@ -108,7 +108,7 @@ const NewParagraphModal: React.FC<NewParagraphModalProps> = ({ isOpen, onRequest
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Écrivez ici votre paragraphe"
-            className="mt-1 block w-full p-2 rounded bg-gray-100"
+            className="mt-1 block w-full p-2 rounded bg-backgroundGray"
           />
         </div>
 

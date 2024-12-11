@@ -45,7 +45,7 @@ const ManageAccessModal: React.FC<ManageAccessModalProps> = ({ isOpen, onClose, 
     <BaseModal isOpen={isOpen} onRequestClose={onClose} title={'Gérer l’accès aux dossiers'}>
       <div className="flex flex-col items-center mb-4">
         <Image src="/avatar.svg" alt="avatar" width={96} height={96} className="w-24 h-24 rounded-full mb-4" />
-        <h2 className="text-xl font-semibold">{user.firstname} {user.lastname}</h2>
+        <h2 className="text-xl font-medium">{user.firstname} {user.lastname}</h2>
         <p className="text-gray-500">{user.position}</p>
       </div>
       <p className="text-center text-sm mb-4">Sélectionnez les dossiers à partager avec cet utilisateur</p>

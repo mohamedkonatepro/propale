@@ -381,7 +381,7 @@ const WorkflowCell: React.FC<{ row: Row<Company>, settings: DbCompanySettings | 
 
   return (
     <div>
-      <Link href={getHref()} className={`text-sm flex items-center justify-center text-white bg-blueCustom ${workflowStatus === 'saved' ? 'rounded-t-lg pt-2 pb-1' : 'rounded-lg py-2'} px-2 text-center`} rel="noopener noreferrer">
+      <Link href={getHref()} className={`whitespace-nowrap text-sm flex items-center justify-center text-white bg-blueCustom ${workflowStatus === 'saved' ? 'rounded-t-lg pt-2 pb-1' : 'rounded-lg py-2'} px-2 text-center`} rel="noopener noreferrer">
         {getButtonText()}
       </Link>
       {workflowStatus === 'saved' && (

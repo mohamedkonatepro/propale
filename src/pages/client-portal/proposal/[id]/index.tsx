@@ -77,7 +77,7 @@ const Proposal: React.FC = () => {
       content: (
         <div className="relative">
           <div className="font-medium">Description du projet</div>
-          <div>Ceci est la description initiale du projet.</div>
+          <div className='text-labelGray'>Ceci est la description initiale du projet.</div>
           <button
             onClick={() =>
               handleEditDescription({

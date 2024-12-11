@@ -88,7 +88,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         </button>
       </div>
       <div className="flex justify-center items-center pb-2 mb-4">
-        <h2 className="text-xl font-semibold">Informations utilisateur</h2> 
+        <h2 className="text-xl font-medium">Informations utilisateur</h2> 
         {!edit && <button type="button" className="text-sm text-blueCustom flex ml-2" onClick={() => setEdit(true)}><GrFormEdit className="text-blueCustom" size={25} /> <div className='mt-1'>Modifier</div></button> }
       </div>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">

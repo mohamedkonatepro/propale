@@ -18,7 +18,7 @@ const ParagraphContent: React.FC<ParagraphContentProps> = ({ data, id, onEdit })
   return (
     <div className="relative">
       {data.showName && <div className="font-medium">{data.name}</div>}
-      <div>{truncateString(data.description, 100)}</div>
+      <div className='text-labelGray'>{truncateString(data.description, 100)}</div>
       <button
         onClick={() => onEdit({ id, ...data, type: 'paragraph', content: '' })}
         className="absolute top-0 right-0 p-2 text-gray-500 hover:text-gray-700"

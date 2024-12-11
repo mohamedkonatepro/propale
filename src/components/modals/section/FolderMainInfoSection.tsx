@@ -34,11 +34,11 @@ const FolderMainInfoSection: React.FC<FolderMainInfoSectionProps> = ({ register,
         {messageAlertSiret && <p className="text-red-500 text-xs">{messageAlertSiret}</p>}
       </div>
       <div>
-        <label className="block text-sm font-medium">Secteur d’activité</label>
+        <label className="block text-sm font-medium text-labelGray">Secteur d’activité</label>
         <div className="flex items-center">
           <input
             {...register('activity_sector')}
-            className="mt-1 block w-full bg-white rounded py-1"
+            className="mt-1 block w-full bg-gray-50 rounded p-2"
             placeholder="Conception d’interfaces"
             disabled
           />

@@ -78,7 +78,7 @@ const NewDescriptionModal: React.FC<NewDescriptionModalProps> = ({ isOpen, onReq
           <FaTimes />
         </button>
       </div>
-      <h2 className="text-2xl font-semibold text-center mb-2">
+      <h2 className="text-2xl font-medium text-center mb-2">
         {initialData ? 'Modifier la description' : 'Nouvelle description'}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -90,7 +90,7 @@ const NewDescriptionModal: React.FC<NewDescriptionModalProps> = ({ isOpen, onReq
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Titre du description"
-            className="mt-1 block w-full p-2 rounded bg-gray-100"
+            className="mt-1 block w-full p-2 rounded bg-backgroundGray"
           />
           <div className="flex items-center mt-2">
             <span className="mr-2">Afficher le titre</span>
@@ -105,7 +105,7 @@ const NewDescriptionModal: React.FC<NewDescriptionModalProps> = ({ isOpen, onReq
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Écrivez ici votre description"
-            className="mt-1 block w-full p-2 rounded bg-gray-100"
+            className="mt-1 block w-full p-2 rounded bg-backgroundGray"
           />
         </div>
 

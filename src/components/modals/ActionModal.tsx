@@ -38,7 +38,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
             />
           )}
         </div>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">{title}</h2>
+        <h2 className="text-2xl font-medium text-gray-800 mb-2">{title}</h2>
         <p className="text-gray-500 mb-10 text-sm">{message}</p>
         <div className={`flex ${onClose ? "justify-between" : "justify-center"} gap-4`}>
           {onClose && <button
