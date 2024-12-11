@@ -101,7 +101,7 @@ const FoldersTable: React.FC<FoldersTableProps> = ({
       enableHiding: false,
       cell: ({ row }) => (
         <button 
-          className="flex items-center text-blueCustom border border-2 border-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blue-100"
+          className="whitespace-nowrap flex items-center text-blueCustom border border-2 border-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blue-100"
           onClick={() => openProspectModal(row.original)}
         >
           Nouveau prospect
