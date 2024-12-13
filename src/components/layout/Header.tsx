@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Badge from '../common/Badge';
-import { Color } from '@/constants';
+import { Option } from '@/constants';
 
-const Header = ({ title, subtitle, siren, badgeName, badgeColor = 'blue' }: { title?: string, badgeName?: string, badgeColor?: Color, subtitle?: string, siren?: string }) => {
+const Header = ({ title, subtitle, siren, badge, badgeName }: { badgeName?: string, title?: string, badge?: Option, subtitle?: string, siren?: string }) => {
   return (
     <div className='flex flex-col'>
       <div className="flex items-center mb-6">
@@ -12,10 +12,18 @@ const Header = ({ title, subtitle, siren, badgeName, badgeColor = 'blue' }: { ti
         <div className='flex flex-col'>
           <h2 className="text-3xl font-medium">{title}</h2>
           <p className='text-stone-400'>SIREN : {siren}</p>
+          {badge?.label && <div className='w-1/2 mt-1'>
+            <Badge
+              label={badge?.label}
+              color={badge?.color}
+              icon={badge?.icon ? <badge.icon /> : null}
+            />
+          </div>}
           {badgeName && <div className='w-1/2 mt-1'>
             <Badge
               label={badgeName}
-              color={badgeColor}
+              color={"blue"}
+              icon={null}
             />
           </div>}
         </div>

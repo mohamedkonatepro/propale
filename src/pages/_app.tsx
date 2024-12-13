@@ -1,16 +1,15 @@
-// src/pages/_app.tsx
 import App, { AppContext, AppInitialProps, AppProps } from 'next/app';
 import "../app/globals.css";
 import { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useRouter } from 'next/router';
-import { UserProvider, useUser } from '@/context/userContext';
+import { UserProvider } from '@/context/userContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AuthListener from '@/components/auth/AuthListener';
 import { fetchCompanyById } from '@/services/companyService';
-import { Option, statuses } from '@/constants';
+import { Option, statuses, heatLevels } from '@/constants';
 import { getOption } from '@/lib/utils';
 import { Company } from '@/types/models';
 import ClientPortalLayout from '@/components/clientPortal/ClientPortalLayout';
@@ -20,6 +19,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [page, setPage] = useState('folders');
   const [statusOption, setStatusOption] = useState<Option>();
+  const [heatLevelOption, setHeatLevelOption] = useState<Option>();
   const [prospect, setProspect] = useState<Company>();
   const [loading, setLoading] = useState(true);
   const [prospectNavBarActive, setProspectNavBarActive] = useState<ProspectNavBarActive>('infos');
@@ -48,6 +48,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           const prospectData = await fetchCompanyById(router.query.id as string);
           if (prospectData?.status) {
             setStatusOption(getOption(prospectData.status, statuses));
+          }
+          if (prospectData?.heat_level) {
+            setHeatLevelOption(getOption(prospectData.heat_level, heatLevels));
           }
           if (prospectData) {
             setProspect(prospectData);
@@ -78,7 +81,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             <Component {...pageProps} page={page} />
           </DashboardLayout>
         ) : isClientPortal ? (
-          <ClientPortalLayout statusOption={statusOption} prospect={prospect} prospectNavBarActive={prospectNavBarActive}>
+          <ClientPortalLayout statusOption={statusOption} heatLevelOption={heatLevelOption} prospect={prospect} prospectNavBarActive={prospectNavBarActive}>
             <Component {...pageProps} />
           </ClientPortalLayout>
         ) : (
