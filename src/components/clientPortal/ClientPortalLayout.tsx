@@ -72,13 +72,12 @@ const ClientPortalLayout: React.FC<ClientPortalLayoutProps> = ({ statusOption, h
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="flex px-8 py-5 bg-white justify-between items-center shadow-md">
-        {heatLevelOption && (
-          <Header
-            title={prospect?.name}
-            badge={heatLevelOption}
-            siren={prospect?.siren}
-          />
-        )}
+
+        <Header
+          title={prospect?.name}
+          badge={heatLevelOption}
+          siren={prospect?.siren}
+        />
 
         <div className={`hidden ${user?.role === ROLES.PROSPECT ? 'lg-only:flex' : 'lg:flex'} justify-center items-center`}>
           <StepperStatus steps={steps} />
