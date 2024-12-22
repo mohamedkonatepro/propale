@@ -14,6 +14,7 @@ import { useUser } from '@/context/userContext';
 import { hasAccessToAudit } from '@/constants/permissions';
 import ActionModal from '@/components/modals/ActionModal';
 import useModalState from '@/hooks/useModalState';
+import { sendEmail } from '@/services/emailService';
 
 interface StepperPageProps {
   companySettings: DbCompanySettings | null;
@@ -184,7 +185,27 @@ const StepperPage: React.FC = () => {
             );
             setFinish(true);
             await updateProspectStatus(prospect?.id, 'proposal');
-
+            if (origin === "ext") {
+              const emailContent = `
+                Cher ${prospect?.name},
+            
+                Je vous remercie d'avoir pris le temps de nous faire part de vos besoins et attentes concernant les services ${company?.name}.
+            
+                J'ai le plaisir de vous confirmer que nous avons bien enregistré toutes les informations que vous nous avez communiquées sur notre questionnaire.
+                Nos équipes travaillent actuellement sur l'élaboration d'une proposition commerciale personnalisée, tenant compte de tous les aspects que nous avons abordés ensemble.
+                
+                Vous recevrez cette proposition détaillée par e-mail dans les prochains jours.
+            
+                Cordialement,
+              `;
+            
+              await sendEmail(
+                [user?.email],
+                emailContent,
+                "Propale : Confirmation de la collecte de vos besoins"
+              );
+            }
+            
             setCompletedSteps([currentStep.name]);
           } catch (error) {
             console.error('Error saving session:', error);
