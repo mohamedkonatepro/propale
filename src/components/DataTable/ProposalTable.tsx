@@ -20,7 +20,7 @@ import CustomDropdown from '../common/CustomDropdown';
 type ProposalTableProps = {
   proposals: Proposal[];
   handleDeleteClick: (proposalId: string) => void;
-  handleStatusChange: (proposalId: string, newStatus: ProposalStatus['status']) => void;
+  handleStatusChange: (proposalId: Proposal, newStatus: ProposalStatus['status']) => void;
 };
 
 const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteClick, handleStatusChange }) => {
@@ -115,7 +115,7 @@ const ProposalTable: React.FC<ProposalTableProps> = ({ proposals, handleDeleteCl
             options={filteredOptions}
             label=""
             selected={row.getValue("status")}
-            onChange={(newStatus) => handleStatusChange(row.original.id, newStatus as ProposalStatus['status'])}
+            onChange={(newStatus) => handleStatusChange(row.original, newStatus as ProposalStatus['status'])}
             disabled={!isEditable}
           />
         );

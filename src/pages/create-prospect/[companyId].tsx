@@ -145,11 +145,11 @@ const AddProspectPage: React.FC = () => {
   }
   
   return (
-    <div className="mx-auto px-4">
+    <div className="mx-auto px-4 w-[850px] bg-white py-5">
+      <h1 className="text-2xl font-medium text-center mb-6">Ajouter un prospect</h1>
       <div className="flex flex-col justify-center items-center border-b pb-2 mb-4">
         {company && <div className='flex items-center justify-center text-labelGray mt-3'><CiFolderOn /> <p className='ml-2'>{company.name}</p></div>}
       </div>
-      <h1 className="text-2xl font-medium text-center mb-6">Ajouter un prospect</h1>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
         <MainInfoSection 
           register={register} 

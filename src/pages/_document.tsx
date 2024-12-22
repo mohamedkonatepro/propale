@@ -33,10 +33,6 @@ class MyDocument extends Document<CustomDocumentProps> {
   }
 
   render() {
-    // Utiliser la valeur isCreateProspectPage pour changer la classe de body
-    const { isCreateProspectPage } = this.props;
-    const bodyClass = isCreateProspectPage ? 'bg-white' : 'bg-backgroundGray';
-
     return (
       <Html lang="fr">
         <Head>
@@ -45,7 +41,7 @@ class MyDocument extends Document<CustomDocumentProps> {
             rel="stylesheet"
           />
         </Head>
-          <body className={bodyClass}>
+          <body className="bg-backgroundGray">
           <Main />
           <NextScript />
         </body>

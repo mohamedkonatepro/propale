@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { ROLES } from '@/constants/roles';
 import { Button } from '@/components/common/Button';
 import { useUser } from '@/context/userContext';
+import { updateProspectStatus } from '@/services/companyService';
 
 
 const Proposal: React.FC = () => {
@@ -58,8 +59,14 @@ const Proposal: React.FC = () => {
     }
   };
 
-  const handleStatusChange = async (proposalId: string, newStatus: ProposalStatus['status']) => {
-    await updateProposalStatus(proposalId, newStatus);
+  const handleStatusChange = async (proposal: IProposal, newStatus: ProposalStatus['status']) => {
+    await updateProposalStatus(proposal.id, newStatus);
+    if (newStatus === 'refused') {
+      await updateProspectStatus(proposal.prospect_id, 'lost');
+    }
+    if (newStatus === 'accepted') {
+      await updateProspectStatus(proposal.prospect_id, 'concluded');
+    }
     if (user) {
       await fetchProposals(user);
     }

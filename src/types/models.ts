@@ -2,6 +2,7 @@ export interface Company {
   id: string;
   company_id?: string;
   name: string;
+  code?: string;
   siret?: string;
   siren: string;
   ape_code?: string;
@@ -21,6 +22,7 @@ export interface Company {
 
 export interface Profile {
   id: string;
+  code?: string;
   firstname: string;
   lastname: string;
   email: string;

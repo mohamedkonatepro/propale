@@ -86,7 +86,7 @@ const Audit: React.FC = () => {
                   <h4 className="text-blueCustom text-2xl text-center font-semibold mb-5">{completionPercentage}%</h4>
                 )}
                 <Link 
-                  href={workflowStatus === 'completed' ? `/client-portal/proposal/${id}` : `/client-portal/workflow/${id}`}
+                  href={workflowStatus === 'completed' ? `/client-portal/proposal/${id}/list` : `/client-portal/workflow/${id}`}
                   className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
                   rel="noopener noreferrer"
                 >
