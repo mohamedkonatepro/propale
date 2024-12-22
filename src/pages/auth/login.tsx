@@ -29,6 +29,7 @@ const Login = () => {
 
   const handleLogin = async (data: LoginFormInputs) => {
     setIsLoading(true);
+    return true;
     const { email, password } = data;
     try {
       const { data: { user, session }, error } = await supabase.auth.signInWithPassword({ email, password });
