@@ -68,7 +68,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
       case 'YesNo':
         return (
           <div className='flex flex-col'>
-            <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
             <div className='pl-10'>
               <Select 
                 options={responses}
@@ -86,7 +86,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
         }));
         return (
           <div className='flex flex-col'>
-            <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
             <div className='pl-10'>
               <Select
                 isMulti
@@ -107,7 +107,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
         case 'DateRange':
           return (
             <div className="flex flex-col justify-center items-center">
-              <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
+              <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
               <div className="pl-10 mt-5 w-full">
                 <DateRangePicker
                   startDate={dateRange?.from}
@@ -143,7 +143,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
       case 'FreeText':
         return (
           <div className='flex flex-col'>
-            <div className="text-3xl text-left text-gray-700 font-semibold pl-10 mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
             <div className='w-full pl-10 flex items-center'>
               <textarea 
                 value={currentAnswer as string || ''}
@@ -169,7 +169,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
           <div className='flex flex-col justify-center items-center'>
             <h4 className="text-xl font-semibold mb-4">{'Félicitations, vous avez terminé l’audit !'}</h4>
             <div className='pl-10'>
-              <Link href={`/client-portal/proposal/${companyId}`}>
+              <Link href={`/client-portal/proposal/${companyId}/list`}>
                 <Button className="flex items-center text-white border border-2 bg-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blueCustom">
                   Consulter la proposition
                   <FaArrowRight className="ml-2" />

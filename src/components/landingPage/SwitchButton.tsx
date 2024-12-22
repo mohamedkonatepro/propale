@@ -24,7 +24,7 @@ const SwitchButton: React.FC<SwitchButtonProps> = ({ onChange }) => {
           isAnnual ? "left-[125px] w-[150px]" : "left-0 w-[125px]"
         } bg-gray-900 rounded-full transition-all duration-300 ease-in-out flex items-center justify-center`}
       >
-        <span className="text-white font-bold">
+        <span className="text-white font-medium">
           {isAnnual ? "Annuel (-10%)" : "Mensuel"}
         </span>
       </div>

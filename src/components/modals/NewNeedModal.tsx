@@ -74,7 +74,7 @@ const NewNeedModal: React.FC<NewNeedModalProps> = ({ isOpen, onRequestClose, onS
       <div className="flex justify-end mb-4">
         <button onClick={onRequestClose}><FaTimes /></button>
       </div>
-      <h2 className="text-2xl font-semibold text-center mb-2">
+      <h2 className="text-2xl font-medium text-center mb-2">
         {initialData ? 'Modifier besoin' : 'Nouveau besoin'}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -105,7 +105,7 @@ const NewNeedModal: React.FC<NewNeedModalProps> = ({ isOpen, onRequestClose, onS
               placeholder="Prix"
               className="mt-1 block w-full p-2 rounded bg-backgroundGray w-1/3"
             />
-            <span className="ml-2">€ EUR</span>
+            <span className="ml-2 whitespace-nowrap">€ EUR</span>
           </div>
           <div className="flex items-center mt-2">
             <span className="mr-2">Afficher le prix</span>

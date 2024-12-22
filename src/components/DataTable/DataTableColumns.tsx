@@ -93,9 +93,9 @@ export const folderColumns = (handleEditCompany: (company: Company) => void, ope
     enableHiding: false,
     cell: ({ row }) => (
       <Link href={`/dashboard/folders/${row.original.id}`}>
-      <button className="flex items-center text-blueCustom border border-2 border-blueCustom py-2 px-4 rounded-lg shadow-md hover:bg-blue-100">
+      <button className="flex whitespace-nowrap items-center text-blueCustom border border-2 border-blueCustom py-2 px-2 rounded-lg shadow-md hover:bg-blue-100">
         Ouvrir l’espace client
-        <IoEyeOutline className="ml-2" />
+        <IoEyeOutline className="ml-1" />
       </button>
       </Link>
     ),

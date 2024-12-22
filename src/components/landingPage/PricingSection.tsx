@@ -59,9 +59,9 @@ export default function PricingSection() {
 
   return (
     <section className="bg-white py-16" id="pricing">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div className="mx-auto px-4 sm:px-6 lg:px-20 text-center">
         {/* Heading and Subheading */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">
+        <h2 className="text-2xl sm:text-3xl font-medium text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">
           Des tarifs clairs, transparents et <span className="text-blueCustom">accessibles</span>.
         </h2>
         <p className="text-gray-600 mb-12 text-center mx-auto w-full sm:w-2/3 lg:w-1/2">
@@ -78,7 +78,7 @@ export default function PricingSection() {
           {pricingData.map((plan, index) => (
             <div key={index} className="bg-white border border-blueCustom rounded-2xl p-6 md:p-8">
               <h3 className="text-2xl md:text-3xl font-semibold text-blueCustom mb-4">{plan.title} <span className="text-black text-xl">(Sur devis)</span></h3>
-              {/* <p className="text-3xl font-bold text-gray-900 text-left pl-4">
+              {/* <p className="text-3xl font-medium text-gray-900 text-left pl-4">
                 {isAnnual
                   ? `${(plan.monthlyPrice * 12 * 0.9).toFixed(2)} €`
                   : `${plan.monthlyPrice.toFixed(2)} €`}

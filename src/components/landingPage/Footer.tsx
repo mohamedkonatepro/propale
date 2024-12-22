@@ -4,12 +4,12 @@ import SocialMediaIcons from '../common/SocialMediaIcons';
 const Footer = () => {
   return (
     <footer className="w-full bg-blue-50 py-6">
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-2">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-20 py-2">
         <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Logo et nom de l'entreprise */}
           <div className="flex items-center space-x-3 mb-4 md:mb-0">
             <Image src="/logo.svg" alt="Logo Propale" width={40} height={40} />
-            <span className="text-lg font-bold text-gray-800">Propale</span>
+            <span className="text-lg font-medium text-gray-800">Propale</span>
           </div>
 
           {/* Liens légaux au centre */}

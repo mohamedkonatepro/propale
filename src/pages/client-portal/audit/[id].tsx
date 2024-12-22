@@ -78,7 +78,7 @@ const Audit: React.FC = () => {
           <div className="flex-grow">
             <div className="bg-white px-4 rounded-t-2xl flex justify-between min-h-36">
               <div className='flex flex-col justify-start mt-5'>
-                <h4 className="text-black text-2xl font-semibold mb-2">Workflow</h4>
+                <h4 className="text-black text-2xl font-medium mb-2">Workflow</h4>
                 <h6 className="text-gray-400 text-base font-normal">{companySettings?.workflow.name}</h6>
               </div>
               {companySettings?.composition_workflow && <div className='flex flex-col justify-start mt-5'>
@@ -86,7 +86,7 @@ const Audit: React.FC = () => {
                   <h4 className="text-blueCustom text-2xl text-center font-semibold mb-5">{completionPercentage}%</h4>
                 )}
                 <Link 
-                  href={workflowStatus === 'completed' ? `/client-portal/proposal/${id}` : `/client-portal/workflow/${id}`}
+                  href={workflowStatus === 'completed' ? `/client-portal/proposal/${id}/list` : `/client-portal/workflow/${id}`}
                   className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
                   rel="noopener noreferrer"
                 >

@@ -53,7 +53,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
   return (
     <div className="flex-1 p-6">
       <div className='flex flex-col'>
-        <h3 className="text-2xl font-bold mt-5">Espace administrateur</h3>
+        <h3 className="text-2xl font-medium mt-5">Espace administrateur</h3>
       </div>
       {page === 'folders' ? (
         <>

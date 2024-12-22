@@ -38,7 +38,7 @@ export const loadProposalData = async (
           content: React.createElement(
             'div',
             { className: 'relative' },
-            React.createElement('div', { className: 'font-bold' }, proposal.title),
+            React.createElement('div', { className: 'font-medium' }, proposal.title),
             React.createElement('div', null, proposal.description),
             React.createElement(
               'button',

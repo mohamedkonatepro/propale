@@ -56,7 +56,7 @@ const ContactListContent: React.FC<ContactListContentProps> = ({
 
   return (
     <div className='bg-white p-8 rounded-2xl'>
-      {title && <h3 className='text-2xl text-center mb-5 font-semibold'>{title}</h3>}
+      {title && <h3 className='text-2xl text-center mb-5 font-medium'>{title}</h3>}
       <div className="flex justify-end mb-4">
         <button
           className="flex items-center bg-blueCustom text-white px-4 py-2 rounded-md ml-4"
@@ -85,7 +85,7 @@ const ContactListContent: React.FC<ContactListContentProps> = ({
               <div>
                 {contact.is_primary_contact && <div className="ml-4 w-fit px-2 py-1 text-xs bg-blue-100 text-black border border-blueCustom rounded-full">Contact principal</div>}
                 <div className="ml-4 flex items-center ">
-                  <p className="font-bold">{contact.firstname} {contact.lastname}</p>
+                  <p className="font-medium">{contact.firstname} {contact.lastname}</p>
                   <RxDividerVertical className="h-full" />
                   <p className="text-gray-500 text-sm">{contact.position}</p>
                 </div>

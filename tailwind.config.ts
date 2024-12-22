@@ -18,6 +18,12 @@ const config = {
       },
     },
     extend: {
+      screens: {
+        'lg-only': '1180px',
+      },
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'], // Add Poppins as the default sans-serif font
+      },
       boxShadow: {
         'custom-left': '-3px 0px 2px 0px #0000001A',
       },

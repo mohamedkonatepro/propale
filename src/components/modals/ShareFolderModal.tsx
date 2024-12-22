@@ -50,7 +50,7 @@ const ShareFolderModal: React.FC<ShareFolderModalProps> = ({ isOpen, onClose, av
                 <div className="shadow-2xl w-10 h-10 rounded-full flex items-center justify-center bg-blue-200 text-blueCustom text-xs shadow-custom-left mr-3">
                   {getInitials(user.firstname, user.lastname)}
                 </div>
-                  <p className="font-bold">{user.firstname} {user.lastname}</p>
+                  <p className="font-medium">{user.firstname} {user.lastname}</p>
                   <PiLineVerticalThin />
                   <p className="text-gray-500 text-sm">{user.email}</p>
                 </div>
@@ -80,7 +80,7 @@ const ShareFolderModal: React.FC<ShareFolderModalProps> = ({ isOpen, onClose, av
                   {user.is_primary_contact && <div className="ml-4 w-fit px-2 py-1 text-xs bg-blue-100 text-black border border-blueCustom rounded-full">Contact principal</div>}
 
                     <div className="ml-4 flex items-center ">
-                      <p className="font-bold">{user.firstname} {user.lastname}</p>
+                      <p className="font-medium">{user.firstname} {user.lastname}</p>
                       <RxDividerVertical className="h-full" />
                       <p className="text-gray-500 text-sm">{user.position}</p>
                     </div>

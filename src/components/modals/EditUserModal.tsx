@@ -88,7 +88,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         </button>
       </div>
       <div className="flex justify-center items-center pb-2 mb-4">
-        <h2 className="text-xl font-semibold">Informations utilisateur</h2> 
+        <h2 className="text-xl font-medium">Informations utilisateur</h2> 
         {!edit && <button type="button" className="text-sm text-blueCustom flex ml-2" onClick={() => setEdit(true)}><GrFormEdit className="text-blueCustom" size={25} /> <div className='mt-1'>Modifier</div></button> }
       </div>
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
@@ -102,8 +102,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               <GrFormEdit className="text-blueCustom" size={30} />
             </button>}
           </div>
-          <h3 className="text-lg font-bold mt-4">{defaultValues.firstname} {defaultValues.lastname}</h3>
-          <div className='flex'><label className="text-sm font-medium text-black">ID : </label><p className="text-sm text-gray-500 ml-1">ID67304093</p></div>
+          <h3 className="text-lg font-medium mt-4">{defaultValues.firstname} {defaultValues.lastname}</h3>
+          <div className='flex'><label className="text-sm font-medium text-black">ID : </label><p className="text-sm text-gray-500 ml-1">{defaultValues.code}</p></div>
           {!edit && <span className={`text-sm border px-5 py-1 rounded-full mt-5 ${defaultValues.blocked ? 'bg-red-100 text-red-600 border-red-600' : 'bg-green-100 text-green-600 border-green-600'}`}>
             {defaultValues.blocked ? 'Inactif' : 'Actif'}
           </span>}

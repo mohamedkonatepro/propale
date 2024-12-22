@@ -60,34 +60,34 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md flex flex-col justify-between" style={{ minHeight: '650px' }}>
+      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md flex flex-col justify-between" style={{ minHeight: '650px' }}>
         <div className="flex flex-col items-center">
           <LoginHeader />
 
-          <h3 className="text-xl font-bold mb-6">Connexion</h3>
+          <h3 className="text-xl font-medium mb-6 mt-6">Connexion</h3>
           {message.length > 1 && <CustomAlert message={message[1]} />}
           
           <form className="w-full" onSubmit={handleSubmit(handleLogin)}>
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">Email</label>
               <input
                 type="email"
                 placeholder="tonadress@mail.com"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                className="bg-backgroundGray border border-none rounded-lg w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 {...register('email')}
               />
               {errors.email && <p className="text-red-500 text-xs italic">{errors.email.message}</p>}
             </div>
             <div className="mb-6">
               <div className='flex justify-between'>
-                <label className="block text-gray-700 text-sm font-bold mb-2">Mot de passe</label>
+                <label className="block text-gray-700 text-sm font-medium mb-2">Mot de passe</label>
                 <a href="#" className="text-sm text-blueCustom" onClick={navigateToForgotPassword}>Mot de passe oublié ?</a>
               </div>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="********"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  className="bg-backgroundGray border border-none rounded-lg w-full py-3 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   {...register('password')}
                 />
                 <button
@@ -110,13 +110,13 @@ const Login = () => {
               </Button>
             </div>
           </form>
-          <div className="my-4 w-full flex items-center">
+          <div className="my-4 w-3/4 flex items-center">
             <hr className="w-full border-gray-300" />
             <span className="mx-2 text-gray-500">ou</span>
             <hr className="w-full border-gray-300" />
           </div>
           <Button
-            className="bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-100 rounded shadow w-full flex items-center justify-center"
+            className="bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-100 rounded-lg shadow flex items-center justify-center"
             type="button"
             onClick={handleGoogleLogin}
           >

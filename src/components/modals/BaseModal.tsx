@@ -39,7 +39,7 @@ const BaseModal: React.FC<BaseModalProps> = ({ isOpen, onRequestClose, title, ch
         <button onClick={onRequestClose}><FaTimes /></button>
       </div>
       <div className="flex justify-center items-center pb-2">
-        <h2 className="text-2xl font-semibold">{title}</h2>
+        <h2 className="text-2xl font-medium">{title}</h2>
       </div>
       {children}
     </Modal>

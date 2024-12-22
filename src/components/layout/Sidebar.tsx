@@ -123,7 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
       </button>
       <Link href={isSuperAdmin ? '/dashboard' : `/dashboard/folders/${isProspect ? company?.company_id : company?.id}`} className="flex mb-6">
         <Image src="/logo.svg" alt="Propale" width={isCollapsed ? 30 : 40} height={isCollapsed ? 30 : 40} className="mr-2" />
-        {!isCollapsed && <span className="text-2xl font-bold">Propale</span>}
+        {!isCollapsed && <span className="text-2xl font-medium">Propale</span>}
       </Link>
       {user && <UserProfile user={user} isCollapsed={isCollapsed} handleEditUser={handleEditUser} />}
       {selectedUser && (
