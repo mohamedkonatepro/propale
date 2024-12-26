@@ -16,7 +16,7 @@ export default async function sendEmail(req: NextApiRequest, res: NextApiRespons
   const msg = {
     sender: {
       name: "Propale",
-      email: process.env.NEXT_PUBLIC_BREVO_FROM_EMAIL || 'ahmed.kante@katech-web.com',
+      email: process.env.NEXT_PUBLIC_BREVO_FROM_EMAIL || 'no-reply@propale.co',
     },
     to,  // Array of { email: string } objects
     subject,

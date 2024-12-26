@@ -28,7 +28,7 @@ export default function ContactSection() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          to: [{email: process.env.NEXT_PUBLIC_BREVO_TO_EMAIL ?? "ahmed.kante@katech-web.com"}],
+          to: [{email: process.env.NEXT_PUBLIC_BREVO_TO_EMAIL ?? "no-reply@propale.co"}],
           subject: "Message depuis votre site Propale",
           html: `
             <h2>Nouvelle demande de contact</h2>
