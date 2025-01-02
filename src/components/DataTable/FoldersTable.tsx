@@ -25,7 +25,7 @@ const FoldersTable: React.FC<FoldersTableProps> = ({
   companies, handleOpenModal, handleSearch, openProspectModal, openDeleteModal,
 }) => {
   const { user } = useUser();
-  const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+  const BASE_URL = process.env.NEXT_PUBLIC_URL || "https://propale-test.vercel.app";
 
   const handleCopyToClipboard = (url: string) => {
     const fullUrl = `${BASE_URL}/${url}`;
