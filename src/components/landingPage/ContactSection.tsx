@@ -59,7 +59,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="bg-white py-8" id="contact">
+    <section className="bg-[#FBFDFE] py-8" id="contact">
       <div className="mx-auto px-4 sm:px-6 lg:px-20">
         <div className="lg:flex lg:items-center lg:justify-between">
           {/* Texte à gauche */}

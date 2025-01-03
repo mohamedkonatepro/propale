@@ -58,7 +58,7 @@ export default function PricingSection() {
   ];
 
   return (
-    <section className="bg-white py-16" id="pricing">
+    <section className="bg-[#FBFDFE] py-16" id="pricing">
       <div className="mx-auto px-4 sm:px-6 lg:px-20 text-center">
         {/* Heading and Subheading */}
         <h2 className="text-2xl sm:text-3xl font-medium text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">

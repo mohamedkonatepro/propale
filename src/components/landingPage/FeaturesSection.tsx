@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const FeaturesSection: React.FC = () => {
   return (
-    <section className="bg-white py-16" id="features">
+    <section className="bg-[#FBFDFE] py-16" id="features">
       <div className="mx-auto px-4 sm:px-6 lg:px-20 text-center">
         {/* Heading and Subheading */}
         <h2 className="text-3xl font-medium text-gray-900 mb-4 text-center mx-auto w-full sm:w-3/4 lg:w-1/2">
