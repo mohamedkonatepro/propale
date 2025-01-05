@@ -70,6 +70,9 @@ export const useStepperState = (
     if (index !== -1 && index <= currentStepIndex) {
       setCurrentStepIndex(index);
       setCurrentQuestionIndex(0);
+    } else if (finish) {
+      setCurrentStepIndex(index);
+      setCurrentQuestionIndex(0);
     }
   }, [steps, currentStepIndex]);
 
@@ -77,6 +80,8 @@ export const useStepperState = (
     if (!currentStep) return;
     const questionIndex = currentStep.questions.findIndex(q => q.id === questionId);
     if (questionIndex !== -1 && questionIndex <= currentQuestionIndex) {
+      setCurrentQuestionIndex(questionIndex);
+    } else if (finish) {
       setCurrentQuestionIndex(questionIndex);
     }
   }, [currentStep, currentQuestionIndex]);
