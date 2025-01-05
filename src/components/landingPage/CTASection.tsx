@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 const CTASection: React.FC = () => {
   return (
-    <section className="bg-[#FBFDFE] pt-16">
+    <section className="bg-[#FBFDFE] pt-8">
       <div className="mx-auto px-4 sm:px-6 lg:px-20">
         <div className="lg:flex lg:items-center">
           {/* Partie gauche : Texte et bouton */}

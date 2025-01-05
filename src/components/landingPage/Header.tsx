@@ -33,7 +33,7 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10); // Change state when scrolling 10px
+      setIsScrolled(window.scrollY > 10);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -46,26 +46,30 @@ const Header = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    setIsMenuOpen(false); // Close menu after logout
+    setIsMenuOpen(false);
   };
 
   const handleDashboardRedirect = async () => {
     if (user) {
       const { data } = await supabase.auth.getSession();
       await handleSessionAndRedirect(user, data.session, router);
-      setIsMenuOpen(false); // Close menu after navigation
+      setIsMenuOpen(false);
     }
   };
 
   return (
     <header
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'backdrop-blur-md bg-white/0' : 'backdrop-blur-none bg-transparent'
+      className={`fixed w-full z-50 transition-all duration-300 h-20 ${
+        isScrolled ? 'bg-white/0 backdrop-blur-md' : 'bg-transparent'
       }`}
+      style={{
+        WebkitBackdropFilter: isScrolled ? 'blur(10px)' : 'none',
+        backdropFilter: isScrolled ? 'blur(10px)' : 'none',
+        backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+      }}
     >
       <div className="w-full px-4 sm:px-6 lg:px-20">
         <div className="flex justify-between items-center h-16">
-          {/* Logo et nom de l'entreprise */}
           <div className="flex items-center">
             <Image src="/logo.svg" alt="Logo" width={40} height={40} />
             <span className="ml-3 text-xl font-medium text-gray-800">Propale</span>
@@ -92,7 +96,6 @@ const Header = () => {
             <a href="#contact" className="text-blueCustom hover:text-blue-700">
               Contact
             </a>
-
             {!user ? (
               <a
                 onClick={() => router.push('/auth/login')}
@@ -116,7 +119,6 @@ const Header = () => {
                 </a>
               </div>
             )}
-
             <a
               href="#contact"
               className="px-4 py-3 bg-blueCustom text-white rounded-md text-sm font-medium hover:bg-blue-700 border border-blueCustom"
@@ -152,7 +154,6 @@ const Header = () => {
             >
               Contact
             </a>
-
             {!user ? (
               <a
                 onClick={() => {
@@ -179,7 +180,6 @@ const Header = () => {
                 </a>
               </>
             )}
-
             <a
               href="#contact"
               onClick={() => setIsMenuOpen(false)}
