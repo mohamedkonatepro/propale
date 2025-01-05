@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { Company, Profile } from '@/types/models';
 import { supabase, supabaseAdmin } from '@/lib/supabaseClient';
-import { createCompany, fetchCompaniesByCompanyId, updateCompany } from '@/services/companyService';
+import { createCompany, deleteCompany, fetchCompaniesByCompanyId, updateCompany } from '@/services/companyService';
 import { createUser, deleteUserAuth, sendPasswordResetEmail } from '@/services/userService';
 import { createProfile, fetchProfilesWithUserDetails, updateUserProfile } from '@/services/profileService';
 import { associateProfileWithCompany } from '@/services/companyProfileService';
@@ -103,16 +103,7 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
 
   const handleDeleteEntity = async () => {
     if (page === 'folders' && entityToDeleteId) {
-      const profiles = await fetchProfilesWithUserDetails(entityToDeleteId);
-      await supabase.from('company').delete().eq('id', entityToDeleteId);
-
-      const companies = await fetchCompaniesByCompanyId(entityToDeleteId);
-      for (const company of companies) {
-        await supabase.from('company').delete().eq('id', company.id);
-      }
-      for (const profile of profiles) {
-        await deleteUserAuth(profile.id);
-      }
+      await deleteCompany(entityToDeleteId);
       toast.success("L'entreprise a bien été supprimée !");
     } else if (entityToDeleteId) {
       const { error } = await deleteUserAuth(entityToDeleteId);

@@ -31,4 +31,18 @@ const Home = () => {
   );
 };
 
+export async function getServerSideProps() {
+  const metaData = {
+    title: "Propale - Votre Solution de Gestion Commerciale",
+    description:
+      "Découvrez Propale, la plateforme ultime pour gérer vos devis, factures, et prospects avec efficacité. Inscrivez-vous dès aujourd'hui !",
+    keywords: "propale, gestion commerciale, devis, factures, CRM, SaaS",
+  };
+
+  return {
+    props: {
+      metaData,
+    },
+  };
+}
 export default Home;
