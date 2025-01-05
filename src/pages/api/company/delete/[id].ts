@@ -77,6 +77,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           throw new Error(`Error deleting question-product mappings for workflow ID ${workflowId}`);
         }
 
+        // Delete associated dropdown values
+        const { error: dropdownError } = await supabase
+          .from('dropdown_values')
+          .delete()
+          .in('question_id', questionIds);
+
         // Delete associated products
         const { error: productError } = await supabase
           .from('products')
@@ -89,13 +95,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .delete()
           .eq('workflow_id', workflowId);
 
-        // Delete associated dropdown values
-        const { error: dropdownError } = await supabase
-          .from('dropdown_values')
-          .delete()
-          .in('question_id', questionIds);
-
         if (productError || questionError || dropdownError) {
+          console.error(productError?.message, questionError?.message, dropdownError?.message)
           throw new Error(`Error deleting workflow associations for workflow ID ${workflowId}`);
         }
       }
@@ -107,6 +108,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('company_id', companyId);
 
       if (deleteWorkflowError) {
+        console.error(deleteWorkflowError.message)
         throw new Error(`Error deleting workflows for company ID ${companyId}`);
       }
 
@@ -117,16 +119,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('company_id', companyId);
 
       if (profileError || !profileData) {
+        console.error(profileError.message)
         throw new Error('Error fetching profile data');
       }
+
+
+      const profileIds = profileData.map((item) => item.profile_id);
 
       // Delete related data in tables without cascade
       const { data: sessionIds, error: sessionError } = await supabase
         .from("stepper_sessions")
         .select("id")
-        .eq("prospect_id", companyId);
+        .or(`prospect_id.eq.${companyId},profile_id.in.(${profileIds.join(',')})`);
 
       if (sessionError) {
+        console.error(sessionError.message)
         throw new Error("Error fetching stepper session IDs");
       }
 
@@ -140,6 +147,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .in("session_id", sessionIdList);
 
         if (responseError) {
+          console.error(responseError.message)
           throw new Error("Error deleting stepper responses");
         }
       }
@@ -148,9 +156,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { error: sessionDeleteError } = await supabase
         .from("stepper_sessions")
         .delete()
-        .eq("prospect_id", companyId);
+        .in("id", sessionIdList);
 
       if (sessionDeleteError) {
+        console.error(sessionDeleteError.message)
         throw new Error("Error deleting stepper sessions");
       }
 
@@ -158,20 +167,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { error: proposalError } = await supabase
         .from("proposals")
         .delete()
-        .eq("prospect_id", companyId);
+        .or(`prospect_id.eq.${companyId},created_by.in.(${profileIds.join(',')})`);
 
       if (proposalError) {
+        console.error(proposalError.message)
         throw new Error("Error deleting proposals");
       }
 
-      // Delete each corresponding user via Supabase Admin
       for (const profile of profileData) {
-        const result = await supabaseAdmin.auth.admin.deleteUser(profile.profile_id);
-        if (result.error) {
-          throw new Error(`Error deleting user with profile id ${profile.profile_id}`);
+        try {
+          const { data: deletedProfiles, error: deleteProfileError } = await supabase
+            .from('profiles')
+            .delete()
+            .eq('id', profile.profile_id)
+            .neq('role', "super_admin")
+            .select('id');
+      
+          if (deleteProfileError) {
+            throw new Error(`Error deleting profile with id ${profile.profile_id}: ${deleteProfileError.message}`);
+          }
+      
+          // Si aucun profil n'a été supprimé, passer au suivant
+          if (!deletedProfiles || deletedProfiles.length === 0) {
+            console.warn(`No profile deleted with id ${profile.profile_id}. Skipping auth deletion.`);
+            continue;
+          }
+      
+          // Supprimer l'utilisateur via Supabase Admin pour chaque ID supprimé
+          for (const deletedProfile of deletedProfiles) {
+            const result = await supabaseAdmin.auth.admin.deleteUser(deletedProfile.id);
+            if (result.error) {
+              throw new Error(`Error deleting user with profile id ${deletedProfile.id}: ${result.error.message}`);
+            }
+          }
+        } catch (error) {
+          console.error(`An error occurred while processing profile with id ${profile.profile_id}: ${error}`);
         }
       }
-
+      
+      
       // Delete the company from the 'company' table
       const { error: companyError } = await supabase
         .from('company')
@@ -179,6 +213,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('id', companyId);
 
       if (companyError) {
+        console.error(companyError.message)
         throw new Error('Error deleting company');
       }
     }
