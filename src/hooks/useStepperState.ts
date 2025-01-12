@@ -10,6 +10,7 @@ interface Step {
 export const useStepperState = (
   initialQuestions: any[], 
   finish: boolean,
+  setNavigateStep: React.Dispatch<React.SetStateAction<boolean>>,
   initialState?: {
     currentStepId?: string;
     currentQuestionId?: string;
@@ -67,10 +68,11 @@ export const useStepperState = (
 
   const handleStepClick = useCallback((stepId: string) => {
     const index = steps.findIndex(s => s.id === stepId);
-    if (index !== -1 && index <= currentStepIndex) {
+    if (finish) {
       setCurrentStepIndex(index);
       setCurrentQuestionIndex(0);
-    } else if (finish) {
+      setNavigateStep(true);
+    } else if (index !== -1 && index <= currentStepIndex) {
       setCurrentStepIndex(index);
       setCurrentQuestionIndex(0);
     }
@@ -79,9 +81,10 @@ export const useStepperState = (
   const handleQuestionClick = useCallback((questionId: string) => {
     if (!currentStep) return;
     const questionIndex = currentStep.questions.findIndex(q => q.id === questionId);
-    if (questionIndex !== -1 && questionIndex <= currentQuestionIndex) {
+    if (finish) {
       setCurrentQuestionIndex(questionIndex);
-    } else if (finish) {
+      setNavigateStep(true);
+    } else if (questionIndex !== -1 && questionIndex <= currentQuestionIndex) {
       setCurrentQuestionIndex(questionIndex);
     }
   }, [currentStep, currentQuestionIndex]);

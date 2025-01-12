@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Checkbox } from './Checkbox';
 import { DbProduct } from '@/types/dbTypes';
 import { Question } from '@/types/models';
 import { DateRange } from 'react-day-picker';
-import { DatePickerWithRange } from './DatePickerWithRange';
 import { Button } from './Button';
 import Link from 'next/link';
 import { FaArrowRight } from "react-icons/fa";
@@ -21,6 +19,7 @@ interface RenderQuestionContentProps {
   currentAnswer: string | string[] | undefined;
   finish: boolean;
   companyId: string;
+  navigateStep: boolean;
 }
 
 const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({ 
@@ -31,7 +30,8 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
   storeAnswer,
   currentAnswer,
   finish,
-  companyId
+  companyId,
+  navigateStep
 }) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
@@ -164,8 +164,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
     <div className="bg-gray-100 p-4 h-full rounded">
       <div className={`flex w-full h-full justify-center items-center`}>
         <div className="w-full">
-          {!finish && renderQuestionInput()}
-          {finish && (
+          {!finish || navigateStep ? renderQuestionInput() : (
           <div className='flex flex-col justify-center items-center'>
             <h4 className="text-xl font-semibold mb-4">{'Félicitations, vous avez terminé l’audit !'}</h4>
             <div className='pl-10'>

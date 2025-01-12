@@ -34,6 +34,7 @@ const StepperPage: React.FC = () => {
   const [company, setCompany] = useState<Company | null>(null);
   const [prospect, setProspect] = useState<Company | null>(null);
   const [access, setAccess] = useState<boolean>(true);
+  const [navigateStep, setNavigateStep] = useState<boolean>(false);
   const [storedAnswers, setStoredAnswers] = useState<Array<{
     question: DbQuestion;
     answer: string | string[];
@@ -120,14 +121,13 @@ const StepperPage: React.FC = () => {
     currentStep,
     currentQuestion,
     activeQuestionId,
-    answers,
     handleStepClick,
     handleQuestionClick,
     handleNextClick: originalHandleNextClick,
     handlePreviousClick,
     setAnswer,
     getQuestionResponses,
-  } = useStepperState(companySettings?.workflow.questions || [], finish, initialState);
+  } = useStepperState(companySettings?.workflow.questions || [], finish, setNavigateStep, initialState);
 
   const storeAnswer = useCallback((question: Question, answer: string | string[], products: DbProduct[]) => {
     if (!question.id) {
@@ -345,18 +345,19 @@ const StepperPage: React.FC = () => {
               </div>
             )}
             <div className="h-full">
-              {currentQuestion && companySettings.workflow.products && (
-                <RenderQuestionContent 
-                  question={currentQuestion}
-                  products={companySettings.workflow.products}
-                  onAnswer={(value) => handleAnswer(currentQuestion.id, value)}
-                  responses={getQuestionResponses(currentQuestion.id)}
-                  storeAnswer={storeAnswer}
-                  currentAnswer={storedAnswers.find(a => a.question.id === currentQuestion.id)?.answer}
-                  finish={finish}
-                  companyId={id as string}
-                />
-              )}
+            {currentQuestion && companySettings.workflow.products && (
+              <RenderQuestionContent 
+                question={currentQuestion}
+                products={companySettings.workflow.products}
+                onAnswer={(value) => handleAnswer(currentQuestion.id, value)}
+                responses={getQuestionResponses(currentQuestion.id)}
+                storeAnswer={storeAnswer}
+                currentAnswer={storedAnswers.find(a => a.question.id === currentQuestion.id)?.answer}
+                finish={finish}
+                companyId={id as string}
+                navigateStep={navigateStep}
+              />
+            )}
             </div>
           </div>
           {!finish && <div className="mt-8 flex justify-between">

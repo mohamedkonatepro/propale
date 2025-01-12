@@ -7,8 +7,8 @@ import { FaArrowRight } from "react-icons/fa";
 import { getStepperSession } from '@/services/stepperService';
 import { fetchCompanySettings } from '@/services/companySettingsService';
 import { DbCompanySettings } from '@/types/dbTypes';
-import { hasAccessToAudit } from '@/constants/permissions';
 import ProgressBar from '@/components/common/ProgressBar';
+import { ROLES } from '@/constants/roles';
 
 
 const Audit: React.FC = () => {
@@ -62,6 +62,10 @@ const Audit: React.FC = () => {
   if (error) return <div>Erreur : {error}</div>;
 
   const getButtonText = () => {
+    if (user?.role === ROLES.SUPER_ADMIN && workflowStatus === 'completed') {
+      return "Voir l'audit";
+    }
+    
     switch (workflowStatus) {
       case 'saved':
         return "Continuer l'audit";
@@ -71,6 +75,7 @@ const Audit: React.FC = () => {
         return "Démarrer l'audit";
     }
   };
+  
 
   return (
       <div className="flex flex-1 items-center justify-center overflow-hidden">
@@ -81,19 +86,19 @@ const Audit: React.FC = () => {
                 <h4 className="text-black text-2xl font-medium mb-2">Workflow</h4>
                 <h6 className="text-gray-400 text-base font-normal">{companySettings?.workflow.name}</h6>
               </div>
-              {companySettings?.composition_workflow && <div className='flex flex-col justify-start mt-5'>
+              {companySettings?.composition_workflow || user?.role === ROLES.SUPER_ADMIN ? <div className='flex flex-col justify-start mt-5'>
                 {(
                   <h4 className="text-blueCustom text-2xl text-center font-semibold mb-5">{completionPercentage}%</h4>
                 )}
                 <Link 
-                  href={workflowStatus === 'completed' ? `/client-portal/proposal/${id}/list` : `/client-portal/workflow/${id}`}
+                  href={workflowStatus === 'completed' && user?.role !== ROLES.SUPER_ADMIN ? `/client-portal/proposal/${id}/list` : `/client-portal/workflow/${id}`}
                   className="text-sm flex items-center justify-center text-white bg-blueCustom py-2 px-2 rounded-lg text-center"
                   rel="noopener noreferrer"
                 >
                   {getButtonText()}
                   <FaArrowRight className="ml-2" />
                 </Link>
-              </div>}
+              </div> : ''}
             </div>
             <ProgressBar percentage={completionPercentage} />
           </div>
