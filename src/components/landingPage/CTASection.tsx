@@ -15,8 +15,7 @@ const CTASection: React.FC = () => {
               Plus qu’un CRM, c’est un tunnel de vente intelligent qui transforme votre façon de vendre
             </p>
             <p className="text-gray-600 mt-6 pb-6">
-              Gagner du temps grâce à un parcours de ventre rapide, simple et fluide qui augmente votre connaissance de vos prospects et améliore votre taux de conversion
-              Maximiser vos ventes avec des propositions précises de services, tarifs et services additionnels adaptés aux besoins de chaque prospect
+              Gagner du temps grâce à un parcours de vente rapide, simple et fluide qui augmente votre connaissance de vos prospects et améliore votre taux de conversion.
             </p>
             <a
               href="#contact"
