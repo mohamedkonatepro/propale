@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { DbProduct } from '@/types/dbTypes';
+import { DbProduct, DbQuestion } from '@/types/dbTypes';
 import { Question } from '@/types/models';
 import { DateRange } from 'react-day-picker';
 import { Button } from './Button';
@@ -17,10 +17,39 @@ interface RenderQuestionContentProps {
   responses: { value: string; label: string }[];
   storeAnswer: (question: Question, answer: string | string[], products: DbProduct[]) => void;
   currentAnswer: string | string[] | undefined;
+  currentQuestion: string | undefined;
   finish: boolean;
   companyId: string;
   navigateStep: boolean;
 }
+
+const detectQuestionType = (currentAnswer: string | string[] | undefined): string => {
+  if (!currentAnswer) {
+    return "FreeText";
+  }
+
+  if (Array.isArray(currentAnswer)) {
+    if (currentAnswer.every((item) => typeof item === "string")) {
+      return "Dropdown";
+    }
+  } else if (typeof currentAnswer === "string") {
+    if (currentAnswer.includes(",")) {
+      const dates = currentAnswer.split(",").map((date) => new Date(date));
+      if (dates.every((date) => !isNaN(date.getTime()))) {
+        return "DateRange";
+      }
+    }
+
+    if (currentAnswer.toLowerCase() === "yes" || currentAnswer.toLowerCase() === "no") {
+      return "YesNo";
+    }
+
+    return "FreeText";
+  }
+
+  return "FreeText";
+}
+
 
 const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({ 
   question, 
@@ -31,7 +60,8 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
   currentAnswer,
   finish,
   companyId,
-  navigateStep
+  navigateStep,
+  currentQuestion
 }) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
@@ -63,12 +93,16 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
     }
   };
 
+  if (finish) {
+    question.type = detectQuestionType(currentAnswer) as  "YesNo" | "Dropdown" | "DateRange" | "FreeText";
+  }
+
   const renderQuestionInput = () => {
     switch (question.type) {
       case 'YesNo':
         return (
           <div className='flex flex-col'>
-            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{finish ? currentQuestion : question.text}</div>
             <div className='pl-10'>
               <Select 
                 options={responses}
@@ -84,20 +118,31 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
           value: dv.value,
           label: dv.value
         }));
+
+        const currentAnswerOptions = Array.isArray(currentAnswer)
+        ? currentAnswer.map((dv) => ({
+            value: dv,
+            label: dv,
+          }))
+        : [];
+
+        console.log(options, currentAnswer)
         return (
           <div className='flex flex-col'>
-            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{finish ? currentQuestion : question.text}</div>
             <div className='pl-10'>
               <Select
                 isMulti
                 options={options}
                 placeholder="Sélectionner"
                 value={
-                  Array.isArray(currentAnswer) 
+                  finish
+                    ? currentAnswerOptions
+                    : Array.isArray(currentAnswer)
                     ? options?.filter(o => currentAnswer.includes(o.value))
-                    : currentAnswer 
-                      ? options?.find(o => o.value === currentAnswer)
-                      : null
+                    : currentAnswer
+                    ? options?.find(o => o.value === currentAnswer)
+                    : null
                 }
                 onChange={(selectedOptions: any) => handleChange(selectedOptions.map((option: any) => option.value))}
               />
@@ -107,7 +152,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
         case 'DateRange':
           return (
             <div className="flex flex-col justify-center items-center">
-              <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
+              <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{finish ? currentQuestion : question.text}</div>
               <div className="pl-10 mt-5 w-full">
                 <DateRangePicker
                   startDate={dateRange?.from}
@@ -143,7 +188,7 @@ const RenderQuestionContent: React.FC<RenderQuestionContentProps> = ({
       case 'FreeText':
         return (
           <div className='flex flex-col'>
-            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{question.text}</div>
+            <div className="text-3xl text-left text-gray-700 font-medium pl-10 mb-4">{finish ? currentQuestion : question.text}</div>
             <div className='w-full pl-10 flex items-center'>
               <textarea 
                 value={currentAnswer as string || ''}

@@ -37,6 +37,7 @@ const StepperPage: React.FC = () => {
   const [navigateStep, setNavigateStep] = useState<boolean>(false);
   const [storedAnswers, setStoredAnswers] = useState<Array<{
     question: DbQuestion;
+    question_text: string;
     answer: string | string[];
     products: DbProduct[];
   }>>([]);
@@ -79,6 +80,7 @@ const StepperPage: React.FC = () => {
         // Récupération des réponses restaurées
         let restoredAnswers = savedSession.responses.map(r => ({
           question: settings?.workflow.questions.find(q => q.id === r.question_id) as DbQuestion,
+          question_text: r.question_text,
           answer: JSON.parse(r.answer || ''),
           products: r.product_id ? [settings?.workflow.products.find(p => p.id === r.product_id) as DbProduct] : []
         }));
@@ -147,7 +149,7 @@ const StepperPage: React.FC = () => {
 
     setStoredAnswers(prevAnswers => [
       ...prevAnswers.filter(a => a.question.id !== question.id),
-      { question: dbQuestion, answer, products }
+      { question: dbQuestion, answer, products, question_text: question.text }
     ]);
   }, [companySettings]);
 
@@ -353,6 +355,7 @@ const StepperPage: React.FC = () => {
                 responses={getQuestionResponses(currentQuestion.id)}
                 storeAnswer={storeAnswer}
                 currentAnswer={storedAnswers.find(a => a.question.id === currentQuestion.id)?.answer}
+                currentQuestion={storedAnswers.find(a => a.question.id === currentQuestion.id)?.question_text}
                 finish={finish}
                 companyId={id as string}
                 navigateStep={navigateStep}
