@@ -130,7 +130,7 @@ export const createOrUpdateCompanySettings = async (settings: CompanySettings): 
           id: workflowId,
           company_id: settings.company_id,
           name: settings.workflow.name
-        }], { onConflict: 'id' })
+        }], { onConflict: 'company_id' })
         .select()
         .single();
 
