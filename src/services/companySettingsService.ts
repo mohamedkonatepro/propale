@@ -202,17 +202,16 @@ async function updateWorkflowQuestions(workflowId: string, newQuestions: Questio
 
   let existingQuestionIds = existingQuestions.map(q => q.id);
 
-  // Deal with each new question
-  for (const question of newQuestions) {
-    await updateOrCreateQuestion(question, workflowId);
-    existingQuestionIds = existingQuestionIds.filter(id => id !== question.id);
-  }
-
   // Delete questions that no longer exist
   for (const questionIdToDelete of existingQuestionIds) {
     if (questionIdToDelete) {
       await deleteQuestion(questionIdToDelete);
     }
+  }
+  // Deal with each new question
+  for (const question of newQuestions) {
+    await updateOrCreateQuestion(question, workflowId);
+    existingQuestionIds = existingQuestionIds.filter(id => id !== question.id);
   }
 }
 
