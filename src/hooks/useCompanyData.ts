@@ -1,29 +1,62 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Company } from '@/types/models';
-import { fetchCompanyById, updateCompany, createCompany, createProspect, countCompaniesByParentId } from '@/services/companyService';
+import { fetchCompanyById, updateCompany } from '@/services/companyService';
+import { CompanyWorkflowService } from '@/services/companyWorkflowService';
 import { toast } from 'react-toastify';
-import { fetchCompanySettings } from '@/services/companySettingsService';
 
 const useCompanyData = (companyId: string) => {
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // ✅ Référence vers le contrôleur d'abort actuel
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    // ✅ Annuler la requête précédente si elle existe
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // ✅ Créer un nouveau contrôleur pour cette requête
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    
     setLoading(true);
+    setError(null);
+    
     try {
       const companyData = await fetchCompanyById(companyId);
-      setCompany(companyData);
+      
+      // ✅ Vérifier si la requête n'a pas été annulée
+      if (!abortController.signal.aborted) {
+        setCompany(companyData);
+      }
     } catch (err) {
-      setError('Erreur lors de la récupération de l\'entreprise.');
+      // ✅ Ignorer les erreurs d'annulation
+      if (!abortController.signal.aborted) {
+        setError('Erreur lors de la récupération de l\'entreprise.');
+      }
     } finally {
-      setLoading(false);
+      // ✅ Réinitialiser le loading seulement si ce n'est pas annulé
+      if (!abortController.signal.aborted) {
+        setLoading(false);
+      }
     }
-  };
+  }, [companyId]);
 
   useEffect(() => {
     fetchData();
-  }, [companyId]);
+  }, [fetchData]);
+
+  // ✅ Cleanup: Annuler les requêtes en cours au unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const updateCompanyData = async (data: any) => {
     try {
@@ -36,39 +69,46 @@ const useCompanyData = (companyId: string) => {
 
   const createNewCompany = async (data: any) => {
     try {
-      const currentFolderCount = await countCompaniesByParentId(data.companyId);
-      const settings = await fetchCompanySettings(data.companyId);
-    
-      if (!settings) {
-        throw new Error("Impossible de récupérer les paramètres de l'entreprise parente");
-      }
-    
-      if (currentFolderCount >= settings.folders_allowed) {
-        throw new Error("Le nombre maximum de dossiers autorisés a été atteint");
-      }
-      await createCompany(data);
-      toast.success(`${data.name} à bien été ajouté à la liste.`);
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
+      // ✅ LOGIQUE MÉTIER EXTRAITE - Délégation au service spécialisé
+      const result = await CompanyWorkflowService.createCompanyWithWorkflow(data);
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Recharger les données après création réussie
+        fetchData();
       } else {
-        toast.error("Une erreur est survenue lors de la création du dossier");
+        toast.error(result.message);
+        setError(result.message);
       }
+    } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Une erreur inattendue est survenue";
+      
+      toast.error(errorMessage);
       setError('Erreur lors de la création de l\'entreprise.');
     }
   };
 
   const createNewProspect = async (data: any) => {
     try {
-      const result = await createProspect(data);
-      if (typeof result === 'string') {
-        setError(result);
-      } else if (!result) {
-        toast.error('Une erreur est survenue lors de la création du prospect.');
+      // ✅ LOGIQUE MÉTIER EXTRAITE - Délégation au service spécialisé
+      const result = await CompanyWorkflowService.createProspectWithWorkflow(data);
+      
+      if (result.success) {
+        toast.success(result.message);
+        // Recharger les données après création réussie
+        fetchData();
       } else {
-        toast.success('Le prospect a été créé avec succès.');
+        toast.error(result.message);
+        setError(result.message);
       }
-    } catch (err) {
+    } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Une erreur inattendue est survenue";
+      
+      toast.error(errorMessage);
       setError('Erreur lors de la création du prospect.');
     }
   };

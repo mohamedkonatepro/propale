@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let query = supabase
       .from('company')
       .select('*')
-      .eq('company_id', '')
+      .is('company_id', null)
       .is('type', null);
 
     if (search) {

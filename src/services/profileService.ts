@@ -1,6 +1,12 @@
 import { supabase } from '@/lib/supabaseClient';
 import { Profile } from '@/types/models';
 import { createUser, sendPasswordResetEmail } from './userService';
+import { 
+  validateCreateProfileData, 
+  validateUpdateProfileData,
+  CreateProfileInput,
+  UpdateProfileInput 
+} from '@/validation/profileValidation';
 
 export const getUserDetails = async (token?: string): Promise<Profile | null> => {
   const { data: { user }, error: userError } = await supabase.auth.getUser(token);
@@ -22,26 +28,33 @@ export const getUserDetails = async (token?: string): Promise<Profile | null> =>
   return data as Profile;
 };
 
-export const createProfile = async (dataModal: any): Promise<void> => {
+export const createProfile = async (dataModal: unknown): Promise<void> => {
+  const validatedData = validateCreateProfileData(dataModal);
+  
   const { error } = await supabase
     .from('profiles')
     .insert([{
-      id: dataModal.userId,
-      firstname: dataModal.firstname,
-      lastname: dataModal.lastname,
-      position: dataModal.position,
-      phone: dataModal.phone,
-      email: dataModal.email,
-      role: dataModal.role,
+      id: validatedData.userId,
+      firstname: validatedData.firstname,
+      lastname: validatedData.lastname,
+      position: validatedData.position,
+      phone: validatedData.phone,
+      email: validatedData.email,
+      role: validatedData.role,
       blocked: false,
-      is_primary_contact: dataModal.is_primary_contact || false,
+      is_primary_contact: validatedData.is_primary_contact,
     }])
     .single();
 
   if (error) {
     console.error('Error creating profile:', error);
-    throw error;
+    throw new Error(`Failed to create profile: ${error.message}`);
   }
+};
+
+export const fetchProfilesWithCountsOptimized = async (companyId: string, search?: string): Promise<Array<Profile & {folder_count: number}>> => {
+  const { ProfileRepository } = await import('@/repositories/profileRepository');
+  return await ProfileRepository.findWithCountsByCompanyId(companyId, search);
 };
 
 export const fetchProfilesWithUserDetails = async (companyId: string, search?: string): Promise<Profile[]> => {
@@ -103,7 +116,7 @@ export const fetchProfileCountByProfileId = async (profileId: string): Promise<n
   return count ?? 0;
 };
 
-export const updateUserProfile = async (data: Profile, userUpdatedId?: string) => {
+export const updateUserProfile = async (data: Profile, userUpdatedId?: string): Promise<void> => {
   const { error } = await supabase
     .from('profiles')
     .update({
@@ -119,7 +132,9 @@ export const updateUserProfile = async (data: Profile, userUpdatedId?: string) =
     })
     .eq('id', data.id);
 
-  return error;
+  if (error) {
+    throw new Error(`Failed to update profile: ${error.message}`);
+  }
 };
 
 export const fetchPrimaryContactByCompanyId = async (companyId: string): Promise<Profile | null> => {

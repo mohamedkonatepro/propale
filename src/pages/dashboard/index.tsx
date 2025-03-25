@@ -25,7 +25,7 @@ const Home: React.FC<HomeProps> = ({ page }) => {
     if (searchQuery === '') {
       fetchData();
     }
-  }, [searchQuery]);
+  }, [searchQuery, fetchData]);
 
   const {
     isModalOpen,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Company } from '@/types/models';
 import { fetchCompaniesByCompanyId, fetchCompaniesWithParentByProfileId, deleteCompany } from '@/services/companyService';
 import { useUser } from '@/context/userContext';
@@ -12,26 +12,59 @@ const useCompanies = (companyId: string, search: string) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
+  
+  // ✅ Référence vers le contrôleur d'abort actuel
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    // ✅ Annuler la requête précédente si elle existe
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // ✅ Créer un nouveau contrôleur pour cette requête
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    
     setLoading(true);
+    setError(null);
+    
     try {
       const data = user?.role === ROLES.SALES
         ? await fetchCompaniesWithParentByProfileId(user.id, search)
         : await fetchCompaniesByCompanyId(companyId, search);
-      setCompanies(data);
+      
+      // ✅ Vérifier si la requête n'a pas été annulée
+      if (!abortController.signal.aborted) {
+        setCompanies(data);
+      }
     } catch (err) {
-      setError('Erreur lors de la récupération des dossiers.');
+      // ✅ Ignorer les erreurs d'annulation
+      if (!abortController.signal.aborted) {
+        setError('Erreur lors de la récupération des dossiers.');
+      }
     } finally {
-      setLoading(false);
+      // ✅ Réinitialiser le loading seulement si ce n'est pas annulé
+      if (!abortController.signal.aborted) {
+        setLoading(false);
+      }
     }
-  };
+  }, [companyId, search, user]);
 
   useEffect(() => {
     if (user) {
       fetchData();
     }
-  }, [companyId, search, user]);
+  }, [fetchData, user]);
+
+  // ✅ Cleanup: Annuler les requêtes en cours au unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const removeCompany = async (companyId: string) => {
     try {

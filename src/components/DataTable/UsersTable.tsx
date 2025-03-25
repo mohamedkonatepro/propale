@@ -12,8 +12,7 @@ import { useUser } from '@/context/userContext';
 import { MdFolderOpen } from 'react-icons/md';
 
 type UsersTableProps = {
-  profiles: Profile[];
-  foldersCount: { [key: string]: number };
+  profiles: Array<Profile & {folder_count: number}>;
   handleSearch: (search: string) => void;
   handleAddButtonClick: () => void;
   handleEditUser: (user: Profile) => void;
@@ -22,7 +21,7 @@ type UsersTableProps = {
 };
 
 const UsersTable: React.FC<UsersTableProps> = ({
-  profiles, foldersCount, handleSearch, handleAddButtonClick, handleEditUser, openDeleteModal, openManageAccessModal,
+  profiles, handleSearch, handleAddButtonClick, handleEditUser, openDeleteModal, openManageAccessModal,
 }) => {
   const { user } = useUser();
 
@@ -88,10 +87,10 @@ const UsersTable: React.FC<UsersTableProps> = ({
         </Button>
       ),
       cell: ({ row }) => {
-        const folderCount = foldersCount[row.original.id];
+        const folderCount = (row.original as Profile & {folder_count: number}).folder_count || 0;
         return (
           <div className="text-center flex items-center justify-center h-full">
-            {folderCount !== undefined ? folderCount : 0}
+            {folderCount}
           </div>
         );
       },

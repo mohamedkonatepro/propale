@@ -80,8 +80,9 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
       await updateCompany(data as Company);
     } else {
       const profileData = data as Profile;
-      const error = await updateUserProfile(profileData, profileData.id);
-      if (error) {
+      try {
+        await updateUserProfile(profileData, profileData.id);
+      } catch (error) {
         console.error('Error updating user profile:', error);
         return;
       }

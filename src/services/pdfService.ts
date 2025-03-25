@@ -1,27 +1,21 @@
-export const generatePdf = async (url: string, nameFile: string) => {
+import { ExternalRepository } from '@/repositories/externalRepository';
+import { ValidationError, logError, handleValidationError } from '@/utils/errors';
+import { validateGeneratePdfData } from '@/validation/pdfValidation';
+
+export const generatePdf = async (url: string, nameFile: string): Promise<void> => {
   try {
-    const response = await fetch('/api/generatePdf', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url }),
-    });
+    // Validation des données d'entrée
+    const validatedData = validateGeneratePdfData({ url, nameFile });
 
-    if (!response.ok) {
-      throw new Error('Failed to generate PDF');
-    }
-
-    const blob = await response.blob();
-    const downloadUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.setAttribute('download', `${nameFile}.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    const blob = await ExternalRepository.generatePdf({ url: validatedData.url });
+    const filename = validatedData.nameFile.endsWith('.pdf') ? validatedData.nameFile : `${validatedData.nameFile}.pdf`;
+    
+    ExternalRepository.downloadBlob(blob, filename);
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    if (error instanceof Error && error.message.includes('validation')) {
+      handleValidationError(error);
+    }
+    logError(error, 'PDFService/generatePdf');
     throw error;
   }
 };

@@ -26,7 +26,7 @@ const Users: React.FC = () => {
   const [userIdToDelete, setUserIdToDelete] = useState<string | null>(null);
 
   const { company } = useCompanyData(id as string);
-  const { profiles, foldersCount, updateProfile, createNewUser, fetchData } = useProfiles(id as string, searchUser);
+  const { profiles, updateProfile, createNewUser, fetchData } = useProfiles(id as string, searchUser);
   const { userAccess, setUserAccess, initialFolders, saveManageAccess: saveManageAccessOriginal } = useUserAccess(selectedUser?.id || '', id as string);
 
   const { 
@@ -106,7 +106,6 @@ const Users: React.FC = () => {
       <Header title={company?.name} subtitle="Utilisateurs" siren={company?.siren} />
       <UsersTable
         profiles={profiles}
-        foldersCount={foldersCount}
         handleSearch={setSearchUser}
         handleAddButtonClick={openAddUserModal}
         handleEditUser={handleEditUser}

@@ -72,8 +72,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
 
   const handleSubmitEdit = async (data: Profile) => {
     if (user?.id) {
-      const error = await updateUserProfile(data, user.id);
-      if (error) {
+      try {
+        await updateUserProfile(data, user.id);
+      } catch (error) {
         console.error('Error updating user profile:', error);
         return;
       }

@@ -65,7 +65,7 @@ export const fetchCompanySettings = async (companyId: string): Promise<DbCompany
       const { data: mappingData, error: mappingError } = await supabase
         .from('question_product_mapping')
         .select('*')
-        .in('question_id', workflow.questions.map((q: any) => q.id));
+        .in('question_id', workflow.questions.map((q: { id: string }) => q.id));
 
       if (mappingError) throw mappingError;
 
@@ -73,8 +73,8 @@ export const fetchCompanySettings = async (companyId: string): Promise<DbCompany
       workflow.questions = workflow.questions.map((question: any) => ({
         ...question,
         mapping: mappingData
-          .filter((m: any) => m.question_id === question.id)
-          .reduce((acc: any, m: any) => ({ ...acc, [m.response_key]: m.product_id }), {})
+          .filter((m: { question_id: string }) => m.question_id === question.id)
+          .reduce((acc: Record<string, string>, m: { response_key: string; product_id: string }) => ({ ...acc, [m.response_key]: m.product_id }), {})
       }));
     } else {
       // If no workflow exists, create an empty workflow by default
@@ -241,7 +241,7 @@ async function updateOrCreateQuestion(question: Question, workflowId: string) {
     if (question.dropdownValues && question.dropdownValues.length > 0) {
       await supabase
         .from('dropdown_values')
-        .insert(question.dropdownValues.map((dropdownValue: any) => ({
+        .insert(question.dropdownValues.map((dropdownValue: { value: string }) => ({
           question_id: upsertedQuestion.id,
           value: typeof dropdownValue === 'string' ? dropdownValue : dropdownValue.value
         })));

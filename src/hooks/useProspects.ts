@@ -36,7 +36,7 @@ const useProspects = (
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, search]);
+  }, [fetchData]);
 
   const addProspect = async (prospect: CompanyFormInputs) => {
     try {

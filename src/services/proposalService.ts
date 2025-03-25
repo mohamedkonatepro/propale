@@ -1,4 +1,5 @@
 import { Need, Paragraph, Profile, Proposal, ProposalData } from "@/types/models";
+import { supabase } from '@/lib/supabaseClient';
 
 export const createProposal = async (data: ProposalData): Promise<{
   proposal: Proposal;
@@ -131,5 +132,86 @@ export const updateProposalStatus = async (proposalId: string, status: string): 
   } catch (error) {
     console.error('Failed to update proposal status:', error);
     throw new Error('Error updating proposal status');
+  }
+};
+
+// Business logic methods for direct database operations
+
+export const createProposalWithDetails = async (data: ProposalData): Promise<{
+  proposal: Proposal;
+  needs: Need[];
+  paragraphs: Paragraph[];
+}> => {
+  try {
+    // Create the proposal
+    const { data: proposal, error: proposalError } = await supabase
+      .from('proposals')
+      .insert([{
+        name: data.name,
+        company_id: data.companyId,
+        company_name: data.companyName,
+        company_siren: data.companySiren,
+        prospect_id: data.prospectId,
+        prospect_name: data.prospectName,
+        prospect_siren: data.prospectSiren,
+        created_by: data.createdBy,
+        status: data.status,
+        title: data.title,
+        description: data.description,
+        show_title: data.showTitle,
+        total_price: data.totalPrice,
+        mention_realise: data.mention_realise
+      }])
+      .select('*')
+      .single<Proposal>();
+
+    if (proposalError) {
+      throw new Error(proposalError.message);
+    }
+
+    // Insert needs
+    const needsToInsert = data.needs.map((need: Need, index: number) => ({
+      proposal_id: proposal.id,
+      name: need.name,
+      description: need.description,
+      quantity: need.quantity,
+      price: need.price,
+      show_name: need.showName,
+      show_price: need.showPrice,
+      show_quantity: need.showQuantity,
+      order_position: index
+    }));
+
+    const { data: needsData, error: needsError } = await supabase
+      .from('proposal_needs')
+      .insert(needsToInsert)
+      .select('*');
+
+    if (needsError) {
+      throw new Error(needsError.message);
+    }
+
+    // Insert paragraphs
+    const paragraphsToInsert = data.paragraphs.map((paragraph: Paragraph, index: number) => ({
+      proposal_id: proposal.id,
+      name: paragraph.name,
+      description: paragraph.description,
+      show_name: paragraph.showName,
+      order_position: index
+    }));
+
+    const { data: paragraphsData, error: paragraphsError } = await supabase
+      .from('proposal_paragraphs')
+      .insert(paragraphsToInsert)
+      .select('*');
+
+    if (paragraphsError) {
+      throw new Error(paragraphsError.message);
+    }
+
+    return { proposal, needs: needsData, paragraphs: paragraphsData };
+  } catch (error) {
+    console.error('Error creating proposal with details:', error);
+    throw error;
   }
 };

@@ -40,13 +40,17 @@ const useUserAccess = (userId: string, companyId?: string) => {
       const accessToAdd = new Set(Array.from(updatedAccess).filter(x => !currentAccess.has(x)));
       const accessToRemove = new Set(Array.from(currentAccess).filter(x => !updatedAccess.has(x)));
 
-      for (let companyId of Array.from(accessToAdd)) {
-        await associateProfileWithCompany(selectedUserId, companyId);
-      }
+      // ✅ VERSION OPTIMISÉE - Opérations en parallèle au lieu de séquentiel
+      const addPromises = Array.from(accessToAdd).map(companyId => 
+        associateProfileWithCompany(selectedUserId, companyId)
+      );
+      
+      const removePromises = Array.from(accessToRemove).map(companyId => 
+        removeProfileFromCompany(selectedUserId, companyId)
+      );
 
-      for (let companyId of Array.from(accessToRemove)) {
-        await removeProfileFromCompany(selectedUserId, companyId);
-      }
+      // Exécuter toutes les opérations en parallèle
+      await Promise.all([...addPromises, ...removePromises]);
 
       setUserAccess(updatedAccess);
       toast.success("Les accès ont été mis à jour avec succès.");
