@@ -28,7 +28,7 @@ const useProspects = (
       }
     } catch (err) {
       console.error('Error fetching prospects:', err);
-      setError('Erreur lors de la récupération des prospects.');
+      setError('Error retrieving prospects.');
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ const useProspects = (
       }
     } catch (err) {
       console.error('Error creating prospect:', err);
-      setError('Erreur lors de la création du prospect.');
+      setError('Error creating the prospect.');
     }
   };
 
@@ -58,7 +58,7 @@ const useProspects = (
       );
     } catch (err) {
       console.error('Error updating prospect:', err);
-      setError('Erreur lors de la modification du prospect.');
+      setError('Error updating the prospect.');
     }
   };
 
@@ -68,7 +68,7 @@ const useProspects = (
       setProspects((prev) => prev.filter((p) => p.id !== prospectId));
     } catch (err) {
       console.error('Error deleting prospect:', err);
-      setError('Erreur lors de la suppression du prospect.');
+      setError('Error deleting the prospect.');
     }
   };
 

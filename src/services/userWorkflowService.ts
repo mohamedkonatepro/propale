@@ -50,8 +50,8 @@ export class UserWorkflowService {
       return {
         success: true,
         userId: user.id,
-        profileId: user.id, // En supposant que profile.id === user.id
-        message: `${profileData.firstname} ${profileData.lastname} a été ajouté·e avec succès. Un email de confirmation a été envoyé.`
+        profileId: user.id, // Assuming that profile.id === user.id
+        message: `${profileData.firstname} ${profileData.lastname} has been successfully added. A confirmation email has been sent.`
       };
 
     } catch (error) {
@@ -59,7 +59,7 @@ export class UserWorkflowService {
       
       const errorMessage = error instanceof Error 
         ? error.message 
-        : "Une erreur est survenue lors de la création de l'utilisateur";
+        : "An error occurred during user creation";
       
       return {
         success: false,

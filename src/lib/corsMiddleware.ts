@@ -4,8 +4,8 @@ import Cors from "cors";
 // Initializing the cors middleware
 // You can read more about the available options here: https://github.com/expressjs/cors#configuration-options
 export const cors = Cors({
-  methods: ['GET', 'HEAD', 'POST', "*"], // Méthodes autorisées
-  origin: '*', // Autorise toutes les origines
+  methods: ['GET', 'HEAD', 'POST', "*"], // Allowed methods
+  origin: '*', // Allow all origins
 });
 // Helper method to wait for a middleware to execute before continuing
 // And to throw an error when an error happens in a middleware

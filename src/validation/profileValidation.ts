@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Validation pour la création d'un profil
+// Validation for profile creation
 export const createProfileSchema = z.object({
   userId: z.string().uuid('Invalid user ID'),
   firstname: z.string().min(1, 'First name is required').max(100, 'First name too long'),
@@ -12,7 +12,7 @@ export const createProfileSchema = z.object({
   is_primary_contact: z.boolean().default(false),
 });
 
-// Validation pour la mise à jour d'un profil
+// Validation for profile update
 export const updateProfileSchema = z.object({
   id: z.string().uuid('Invalid profile ID'),
   firstname: z.string().min(1, 'First name is required').max(100, 'First name too long'),
@@ -25,11 +25,11 @@ export const updateProfileSchema = z.object({
   is_primary_contact: z.boolean().optional(),
 });
 
-// Types dérivés des schémas Zod
+// Types derived from Zod schemas
 export type CreateProfileInput = z.infer<typeof createProfileSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 
-// Fonctions helper pour valider et nettoyer les données
+// Helper functions to validate and sanitize data
 export function validateCreateProfileData(data: unknown): CreateProfileInput {
   const result = createProfileSchema.safeParse(data);
   

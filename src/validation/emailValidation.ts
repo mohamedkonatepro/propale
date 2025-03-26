@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Validation pour l'envoi d'emails
+// Validation for email sending
 export const sendEmailSchema = z.object({
   contactsEmail: z.array(z.string().email('Invalid email format')).min(1, 'At least one email required'),
   content: z.string().min(1, 'Email content is required'),
@@ -22,11 +22,11 @@ export const sendEmailByContactsSchema = z.object({
   }).optional(),
 });
 
-// Types dérivés
+// Derived types
 export type SendEmailInput = z.infer<typeof sendEmailSchema>;
 export type SendEmailByContactsInput = z.infer<typeof sendEmailByContactsSchema>;
 
-// Fonctions de validation
+// Validation functions
 export function validateSendEmailData(data: unknown): SendEmailInput {
   const result = sendEmailSchema.safeParse(data);
   

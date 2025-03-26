@@ -45,10 +45,10 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
       await sendPasswordResetEmail(companyData.email);
       setIsModalOpen(false);
       await fetchData();
-      toast.success(`${companyCreated.name} a bien été ajouté à la liste.`);
+      toast.success(`${companyCreated.name} has been successfully added to the list.`);
     } catch (error) {
       console.error('Error creating company:', error);
-      toast.error(`Erreur lors de la création de l'entreprise: ${formInputs.name}`);
+      toast.error(`Error creating the company: ${formInputs.name}`);
     }
   };
 
@@ -63,10 +63,10 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
 
       setIsModalOpen(false);
       fetchData();
-      toast.success(`${profileData.firstname} ${profileData.lastname} a bien été ajouté·e à la liste.`);
+      toast.success(`${profileData.firstname} ${profileData.lastname} has been successfully added to the list.`);
     } catch (error) {
       console.error('Error creating user:', error);
-      toast.error(`Erreur lors de la création de l'utilisateur: ${formInputs.firstname} ${formInputs.lastname}`);
+      toast.error(`Error creating the user: ${formInputs.firstname} ${formInputs.lastname}`);
     }
   };
 
@@ -105,14 +105,14 @@ const useEntityManagement = (page: string, fetchData: () => void) => {
   const handleDeleteEntity = async () => {
     if (page === 'folders' && entityToDeleteId) {
       await deleteCompany(entityToDeleteId);
-      toast.success("L'entreprise a bien été supprimée !");
+      toast.success("The company has been successfully deleted!");
     } else if (entityToDeleteId) {
       const { error } = await deleteUserAuth(entityToDeleteId);
       if (error) {
-        toast.error("Erreur lors de la suppression de l'utilisateur");
+        toast.error("Error deleting the user");
         return;
       }
-      toast.success("L'utilisateur a bien été supprimé !");
+      toast.success("The user has been successfully deleted!");
     }
     fetchData();
     closeModalDelete();

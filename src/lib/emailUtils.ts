@@ -6,24 +6,24 @@ export const generateProposalEmailContent = (
 ): string => {
   return `
     <div style="font-family: Arial, sans-serif; color: #333;">
-      <p>Bonjour ${firstName} ${lastName},</p>
+      <p>Hello ${firstName} ${lastName},</p>
       <p>
-        Nous vous remercions d’avoir complété le questionnaire de ${companyName}.
-        Vous pouvez consulter la proposition en cliquant sur le lien suivant :
+        Thank you for completing the questionnaire from ${companyName}.
+        You can view the proposal by clicking on the following link:
       </p>
       <p>
         <a href="${proposalUrl}" style="color: #0056b3; text-decoration: none; font-weight: bold;">
-          Voir la proposition commerciale
+          View the commercial proposal
         </a>
       </p>
       <p>
-        L’équipe ${companyName} se tient à votre disposition pour toute demande
-        d’informations complémentaires.
+        The ${companyName} team is at your disposal for any additional
+        information requests.
       </p>
-      <p>Cordialement,<br />L’équipe ${companyName}</p>
+      <p>Best regards,<br />The ${companyName} team</p>
       <footer style="margin-top: 20px; color: #999;">
         <p>
-          Ceci est un email généré automatiquement. Veuillez ne pas y répondre.
+          This is an automatically generated email. Please do not reply.
         </p>
       </footer>
     </div>

@@ -17,7 +17,7 @@ import { createOrUpdateCompanySettings, fetchCompanySettings } from '@/services/
 import dynamic from 'next/dynamic';
 import { countProfilesByCompanyId } from '@/services/profileService';
 import { Button } from '@/components/common/Button';
-import { companySettingsSchema } from '@/schemas/workflowAndSettingsSchema'; // Import du schéma Zod
+import { companySettingsSchema } from '@/schemas/workflowAndSettingsSchema'; // Import of the Zod schema
 import { z } from 'zod';
 import { countStepperSessionByCompanyId } from '@/services/stepperService';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';

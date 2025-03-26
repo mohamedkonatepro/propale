@@ -173,7 +173,7 @@ export const updateProspectStatus = async (prospectId: string, status: string): 
 
 export const createCompanyRecord = async (dataModal: unknown): Promise<Company> => {
   try {
-    // Validation des données d'entrée
+    // Input data validation
     const validatedData = validateCompanyData(dataModal);
     
     return await CompanyRepository.create({
@@ -202,7 +202,7 @@ export const createCompanyRecord = async (dataModal: unknown): Promise<Company> 
 };
 
 export const updateCompanyRecord = async (id: string, data: any): Promise<void> => {
-  // Validation des données d'entrée avec l'ID
+  // Input data validation avec l'ID
   const validatedData = validateUpdateCompanyData({ ...data, id });
   
   await CompanyRepository.update(validatedData.id, validatedData);
@@ -210,7 +210,7 @@ export const updateCompanyRecord = async (id: string, data: any): Promise<void> 
 
 export const createProspectWithContacts = async (dataModal: unknown): Promise<Company> => {
   try {
-    // Validation des données d'entrée
+    // Input data validation
     const validatedData = validateProspectData(dataModal);
     
     // Step 1: Create the prospect company

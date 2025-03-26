@@ -12,14 +12,14 @@ const Footer = () => {
             <span className="text-lg font-medium text-gray-800">Propale</span>
           </div>
 
-          {/* Liens légaux au centre */}
+          {/* Legal links in the center */}
           <div className="flex flex-col md:flex-row text-center mb-4 md:mb-0">
             <a href="#mentions" className="text-blueCustom hover:text-blue-700 mx-2">Mentions légales</a>
             <a href="#conditions" className="text-blueCustom hover:text-blue-700 mx-2">Conditions générales de vente</a>
             <a href="#privacy" className="text-blueCustom hover:text-blue-700 mx-2">Politique de confidentialité</a>
           </div>
 
-          {/* Réseaux sociaux à droite */}
+          {/* Social networks on the right */}
           <div className="text-center">
             <SocialMediaIcons />
           </div>

@@ -4,7 +4,7 @@ import { validateGeneratePdfData } from '@/validation/pdfValidation';
 
 export const generatePdf = async (url: string, nameFile: string): Promise<void> => {
   try {
-    // Validation des données d'entrée
+    // Input data validation
     const validatedData = validateGeneratePdfData({ url, nameFile });
 
     const blob = await ExternalRepository.generatePdf({ url: validatedData.url });

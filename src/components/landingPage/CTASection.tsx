@@ -25,7 +25,7 @@ const CTASection: React.FC = () => {
             </a>
           </div>
 
-          {/* Partie droite : SVG agrandi et collé à droite */}
+          {/* Right side: Enlarged SVG positioned to the right */}
           <div className="lg:w-1/2 mt-8 lg:mt-0 flex justify-center lg:justify-end">
             <div className="relative w-full h-64 sm:h-80 md:h-96 lg:h-[570px] mt-6">
               <Image

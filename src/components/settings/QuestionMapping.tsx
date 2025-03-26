@@ -29,11 +29,11 @@ const QuestionMapping: React.FC<QuestionMappingProps> = ({ question, products = 
     const newMapping = { ...question.mapping };
     
     if (oldValue && newMapping[oldValue]) {
-      // Transférer la valeur mappée de l'ancienne clé à la nouvelle
+      // Transfer the mapped value from the old key to the new one
       newMapping[newValue] = newMapping[oldValue];
       delete newMapping[oldValue];
     } else {
-      // Si pas de mapping existant, initialiser avec une chaîne vide
+      // If no existing mapping, initialize with an empty string
       newMapping[newValue] = '';
     }
 

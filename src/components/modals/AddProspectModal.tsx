@@ -127,7 +127,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onRequestCl
         return;
       }
 
-      // Vérification des emails des contacts supplémentaires
+      // Check emails of additional contacts
       if (additionalContacts) {
         const additionalContactEmails = additionalContacts.map(contact => contact.email);
         const uniqueAdditionalContactEmails = new Set(additionalContactEmails);

@@ -212,10 +212,10 @@ export const createContact = async (contact: Profile, companyId: string): Promis
   if (!user) throw new Error('Failed to create primary contact user');
   
   await sendPasswordResetEmail(contact.email);
-  // Créer le profil
+  // Create the profile
   await createProfile({...contact, userId: user.id });
 
-  // Associer le profil à l'entreprise
+  // Associate the profile with the company
   const { error: associationError } = await supabase
     .from('companies_profiles')
     .insert([{ company_id: companyId, profile_id: user.id }])

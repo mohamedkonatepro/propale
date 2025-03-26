@@ -26,7 +26,7 @@ class MyDocument extends Document<CustomDocumentProps> {
 
     const initialProps = await Document.getInitialProps(ctx);
 
-    // Vérifiez si l'URL commence par /create-prospect/
+    // Check if the URL starts with /create-prospect/
     const isCreateProspectPage = ctx.req?.url?.startsWith('/create-prospect/');
 
     return { ...initialProps, isCreateProspectPage };

@@ -37,7 +37,7 @@ const useProfiles = (companyId: string, search: string) => {
     } catch (err) {
       // ✅ Ignore cancellation errors
       if (!abortController.signal.aborted) {
-        setError('Erreur lors de la récupération des utilisateurs.');
+        setError('Error retrieving users.');
       }
     } finally {
       // ✅ Reset loading only if not cancelled
@@ -63,9 +63,9 @@ const useProfiles = (companyId: string, search: string) => {
   const updateProfile = async (data: Profile, userId: string) => {
     try {
       await updateUserProfile(data, userId);
-      toast.success(`${data.firstname} ${data.lastname} à bien été modifié dans la liste.`);
+      toast.success(`${data.firstname} ${data.lastname} has been successfully updated in the list.`);
     } catch (err) {
-      setError('Erreur lors de la modification de l\'utilisateur.');
+      setError('Error updating the user.');
     }
   };
 
@@ -88,7 +88,7 @@ const useProfiles = (companyId: string, search: string) => {
         : "Une erreur inattendue est survenue";
       
       toast.error(errorMessage);
-      setError('Erreur lors de la création de l\'utilisateur.');
+      setError('Error creating the user.');
     }
   };
 

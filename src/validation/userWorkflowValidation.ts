@@ -1,16 +1,16 @@
 import { z } from 'zod';
 import { userSchema } from '../schemas/user';
 
-// Schéma pour le workflow de création d'utilisateur
+// Schema for user creation workflow
 export const createUserWorkflowSchema = z.object({
   formInputs: userSchema,
   companyId: z.string().uuid('Company ID must be a valid UUID').min(1, 'Company ID is required')
 });
 
-// Types dérivés
+// Derived types
 export type CreateUserWorkflowInput = z.infer<typeof createUserWorkflowSchema>;
 
-// Fonction de validation
+// Validation function
 export function validateCreateUserWorkflowData(data: unknown): CreateUserWorkflowInput {
   const result = createUserWorkflowSchema.safeParse(data);
   

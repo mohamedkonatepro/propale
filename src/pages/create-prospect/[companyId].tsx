@@ -21,7 +21,7 @@ const AddProspectPage: React.FC = () => {
   const companyId = Array.isArray(router.query.companyId) ? router.query.companyId[0] : router.query.companyId;
 
   const [company, setCompany] = useState<Company | null>(null); 
-  const [isCompanyLoading, setIsCompanyLoading] = useState(true); // Nouvel état pour le chargement de l'entreprise
+  const [isCompanyLoading, setIsCompanyLoading] = useState(true); // New state for company loading
   const [isLoading, setIsLoading] = useState(false);
   const [messageAlertEmail, setMessageAlertEmail] = useState('');
   const [messageAlertSiren, setMessageAlertSiren] = useState('');
@@ -48,13 +48,13 @@ const AddProspectPage: React.FC = () => {
 
   useEffect(() => {
     const getCompany = async () => {
-      setIsCompanyLoading(true); // Démarrer le chargement
+      setIsCompanyLoading(true); // Start loading
       try {
         const result = await fetchCompanyById(companyId as string);
         setCompany(result);
       } catch (error) {
         console.error('Erreur lors de la récupération de l’entreprise :', error);
-        setCompany(null); // Définir company à null en cas d'erreur
+        setCompany(null); // Set company to null in case of error
       } finally {
         setIsCompanyLoading(false); // Terminer le chargement
       }

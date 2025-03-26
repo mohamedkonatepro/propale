@@ -77,7 +77,7 @@ const StepperPage: React.FC = () => {
       setAccess(true);
   
       if (savedSession) {
-        // Récupération des réponses restaurées
+        // Retrieve restored responses
         let restoredAnswers = savedSession.responses.map(r => ({
           question: settings?.workflow.questions.find(q => q.id === r.question_id) as DbQuestion,
           question_text: r.question_text,
@@ -85,7 +85,7 @@ const StepperPage: React.FC = () => {
           products: r.product_id ? [settings?.workflow.products.find(p => p.id === r.product_id) as DbProduct] : []
         }));
   
-        // Si la session est "completed", ne garder que les questions avec des réponses
+        // If the session is "completed", only keep questions with answers
         if (savedSession.session.status === 'completed') {
           restoredAnswers = restoredAnswers.filter(({ answer }) => answer !== null && answer !== '');
         }

@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [company, setCompany] = useState<Company>();
   const [profileCount, setProfileCount] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState(false);  // State pour gérer le loader
+  const [isLoading, setIsLoading] = useState(false);  // State to manage the loader
   const { user, refetchUser } = useUser();
   const isSuperAdmin = user?.role === ROLES.SUPER_ADMIN;
   const router = useRouter();
@@ -86,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
   const handleSettingsClick = async () => {
     setIsLoading(true);  // Active le loader
     await router.push(`/dashboard/settings/${isProspect ? company?.company_id : company?.id}`);
-    setIsLoading(false);  // Désactive le loader après redirection
+    setIsLoading(false);  // Disable loader after redirect
   };
 
   useEffect(() => {
@@ -171,10 +171,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage = "folders", setPage, isD
           href="#"
           icon={SlSettings}
           text="Paramètres"
-          onClick={handleSettingsClick}  // Utilise handleSettingsClick pour gérer le clic
+          onClick={handleSettingsClick}  // Use handleSettingsClick to handle the click
           active={currentPage === "settings"}
           isCollapsed={isCollapsed}
-          isLoading={isLoading}  // Passe l'état de chargement en prop
+          isLoading={isLoading}  // Pass loading state as prop
         />}
 
         <div className='flex ml-3 cursor-pointer' onClick={logoutModalState.openModal}>

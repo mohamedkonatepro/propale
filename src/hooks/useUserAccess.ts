@@ -24,7 +24,7 @@ const useUserAccess = (userId: string, companyId?: string) => {
           setInitialFolders(folders);
         }
       } catch (err) {
-        setError('Erreur lors de la récupération des accès de l\'utilisateur.');
+        setError('Error retrieving user access.');
       } finally {
         setLoading(false);
       }
@@ -40,7 +40,7 @@ const useUserAccess = (userId: string, companyId?: string) => {
       const accessToAdd = new Set(Array.from(updatedAccess).filter(x => !currentAccess.has(x)));
       const accessToRemove = new Set(Array.from(currentAccess).filter(x => !updatedAccess.has(x)));
 
-      // ✅ VERSION OPTIMISÉE - Opérations en parallèle au lieu de séquentiel
+      // ✅ OPTIMIZED VERSION - Parallel operations instead of sequential
       const addPromises = Array.from(accessToAdd).map(companyId => 
         associateProfileWithCompany(selectedUserId, companyId)
       );
@@ -49,13 +49,13 @@ const useUserAccess = (userId: string, companyId?: string) => {
         removeProfileFromCompany(selectedUserId, companyId)
       );
 
-      // Exécuter toutes les opérations en parallèle
+      // Execute all operations in parallel
       await Promise.all([...addPromises, ...removePromises]);
 
       setUserAccess(updatedAccess);
-      toast.success("Les accès ont été mis à jour avec succès.");
+      toast.success("Access has been successfully updated.");
     } catch (err) {
-      setError('Erreur lors de la mise à jour des accès.');
+      setError('Error updating access.');
     }
   };
 

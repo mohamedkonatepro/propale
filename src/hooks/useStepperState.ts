@@ -97,7 +97,7 @@ export const useStepperState = (
       setCurrentStepIndex(prevIndex => prevIndex + 1);
       setCurrentQuestionIndex(0);
     } else {
-      console.log("Questionnaire terminé");
+      console.log("Questionnaire completed");
     }
   }, [currentStep, currentQuestionIndex, currentStepIndex, steps.length]);
 

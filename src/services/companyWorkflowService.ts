@@ -10,20 +10,20 @@ export interface CreateCompanyWorkflowResult {
 
 export class CompanyWorkflowService {
   /**
-   * Workflow complet de création d'entreprise avec toutes les validations métier
+   * Complete company creation workflow with all business validations
    */
   static async createCompanyWithWorkflow(data: any): Promise<CreateCompanyWorkflowResult> {
     try {
-      // 1. Validation des règles métier (limites de dossiers)
+      // 1. Business rules validation (folder limits)
       await BusinessRulesService.validateCompanyCreation(data.companyId);
       
-      // 2. Création de l'entreprise
+      // 2. Company creation
       const company = await createCompany(data);
       
       return {
         success: true,
         companyId: company?.id,
-        message: `${data.name} a été ajouté avec succès à la liste.`
+        message: `${data.name} has been successfully added to the list.`
       };
 
     } catch (error) {
@@ -31,7 +31,7 @@ export class CompanyWorkflowService {
       
       const errorMessage = error instanceof Error 
         ? error.message 
-        : "Une erreur est survenue lors de la création du dossier";
+        : "An error occurred during folder creation";
       
       return {
         success: false,
@@ -41,17 +41,17 @@ export class CompanyWorkflowService {
   }
 
   /**
-   * Workflow complet de création de prospect
+   * Complete prospect creation workflow
    */
   static async createProspectWithWorkflow(data: any): Promise<CreateCompanyWorkflowResult> {
     try {
-      // Pour les prospects, on utilise directement le service existant
+      // For prospects, we use the existing service directly
       const result = await createCompany(data);
       
       return {
         success: !!result,
         companyId: result?.id,
-        message: result ? 'Le prospect a été créé avec succès.' : 'Erreur lors de la création du prospect.'
+        message: result ? 'The prospect has been created successfully.' : 'Error during prospect creation.'
       };
 
     } catch (error) {
@@ -59,7 +59,7 @@ export class CompanyWorkflowService {
       
       return {
         success: false,
-        message: 'Erreur lors de la création du prospect.'
+        message: 'Error during prospect creation.'
       };
     }
   }

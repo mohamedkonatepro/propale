@@ -9,7 +9,7 @@ interface ActionModalProps {
   message: string;
   cancelButtonText?: string;
   confirmButtonText: string;
-  icon?: string; // Permet de passer une icône personnalisée
+  icon?: string; // Allows passing a custom icon
 }
 
 const ActionModal: React.FC<ActionModalProps> = ({

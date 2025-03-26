@@ -28,7 +28,7 @@ export const loadProposalData = async (
     if (proposal.title && proposal.description) {
       setLeftColumn([] as any);
       setRightColumn((prev) => [
-        { id: 'header', type: 'header', content: 'En-tête' },
+        { id: 'header', type: 'header', content: 'Header' },
         {
           id: proposal.id,
           type: 'description',
@@ -88,10 +88,10 @@ export const loadProposalData = async (
             ...prev.filter((item: Item) => item.type !== 'paragraph'),
             ...defaultParagraphs.map((defaultParagraph): Item => ({
               id: defaultParagraph.id,
-              type: 'paragraph', // Spécifier que le type est 'paragraph'
-              name: defaultParagraph?.name || 'Paragraphe par défaut',
+              type: 'paragraph', // Specify that the type is 'paragraph'
+              name: defaultParagraph?.name || 'Default paragraph',
               showName: true,
-              description: defaultParagraph?.description || 'Ceci est le texte du paragraphe par défaut.',
+              description: defaultParagraph?.description || 'This is the default paragraph text.',
               content: React.createElement(ParagraphContent, { data: { ...defaultParagraph, showName: true, isDefault: true }, id: defaultParagraph.id, onEdit: handleEditParagraph }),
             })),
           ]);

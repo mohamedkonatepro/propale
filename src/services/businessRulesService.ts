@@ -15,13 +15,13 @@ export class BusinessRulesService {
 
     if (!settings) {
       throw new ValidationError(
-        "Impossible de récupérer les paramètres de l'entreprise parente"
+        "Unable to retrieve parent company settings"
       );
     }
 
     if (currentFolderCount >= settings.folders_allowed) {
       throw new ValidationError(
-        "Le nombre maximum de dossiers autorisés a été atteint"
+        "The maximum number of allowed folders has been reached"
       );
     }
   }
@@ -37,13 +37,13 @@ export class BusinessRulesService {
 
     if (!settings) {
       throw new ValidationError(
-        "Impossible de récupérer les paramètres de l'entreprise"
+        "Unable to retrieve company settings"
       );
     }
 
     if (currentUserCount >= settings.users_allowed) {
       throw new ValidationError(
-        "Le nombre maximum d'utilisateurs autorisés a été atteint"
+        "The maximum number of allowed users has been reached"
       );
     }
   }
@@ -60,7 +60,7 @@ export class BusinessRulesService {
         await this.validateCompanyCreation(companyId);
         break;
       default:
-        throw new ValidationError('Type d\'entité non supporté');
+        throw new ValidationError('Unsupported entity type');
     }
   }
 }

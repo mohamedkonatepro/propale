@@ -13,7 +13,7 @@ export const useDragAndDrop = (
     const { source, destination } = result;
 
     if (!destination) {
-      toast.error("L'élément ne peut pas être placé à cette position.");
+      toast.error("The item cannot be placed at this position.");
       return;
     }
 
@@ -41,7 +41,7 @@ export const useDragAndDrop = (
           const updatedRightColumn = rightColumn.filter(item => item.id !== movedItem.id);
           setRightColumn(enforceRightColumnConstraints(updatedRightColumn));
         } else {
-          toast.error("L'élément ne peut pas être placé à cette position.");
+          toast.error("The item cannot be placed at this position.");
           return;
         }
       } else {
@@ -50,7 +50,7 @@ export const useDragAndDrop = (
           setLeftColumn(newSourceColumn);
           setRightColumn(enforceRightColumnConstraints(newDestColumn));
         } else {
-          toast.error("L'élément ne peut pas être placé à cette position.");
+          toast.error("The item cannot be placed at this position.");
           return;
         }
       }

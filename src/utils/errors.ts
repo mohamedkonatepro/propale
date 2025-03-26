@@ -1,4 +1,4 @@
-// Classe d'erreur personnalisée pour l'application
+// Custom error class for the application
 export class AppError extends Error {
   public readonly code: string;
   public readonly statusCode: number;
@@ -16,12 +16,12 @@ export class AppError extends Error {
     this.statusCode = statusCode;
     this.isOperational = isOperational;
     
-    // Maintient la stack trace
+    // Maintains the stack trace
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
-// Erreurs spécifiques pour différentes couches
+// Specific errors for different layers
 export class ValidationError extends AppError {
   constructor(message: string, details?: string[]) {
     super(
@@ -36,7 +36,7 @@ export class DatabaseError extends AppError {
   constructor(message: string, originalError?: unknown) {
     super(message, 'DATABASE_ERROR', 500);
     
-    // Log l'erreur originale pour le debugging
+    // Log the original error for debugging
     if (originalError) {
       console.error('Original database error:', originalError);
     }
@@ -71,12 +71,12 @@ export class ExternalServiceError extends AppError {
   }
 }
 
-// Fonction helper pour déterminer si une erreur est opérationnelle
+// Helper function to determine if an error is operational
 export function isOperationalError(error: unknown): boolean {
   return error instanceof AppError && error.isOperational;
 }
 
-// Logger d'erreurs centralisé
+// Centralized error logger
 export function logError(error: unknown, context?: string): void {
   const timestamp = new Date().toISOString();
   const contextInfo = context ? `[${context}] ` : '';
@@ -94,7 +94,7 @@ export function logError(error: unknown, context?: string): void {
   }
 }
 
-// Wrapper pour convertir les erreurs Supabase
+// Wrapper to convert Supabase errors
 export function handleDatabaseError(error: any, context: string): never {
   logError(error, `Database/${context}`);
   
@@ -113,7 +113,7 @@ export function handleDatabaseError(error: any, context: string): never {
   throw new DatabaseError(`Database operation failed in ${context}`, error);
 }
 
-// Wrapper pour les erreurs de validation Zod
+// Wrapper for Zod validation errors
 export function handleValidationError(error: any): never {
   if (error?.errors && Array.isArray(error.errors)) {
     const details = error.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`);

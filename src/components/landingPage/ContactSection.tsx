@@ -62,7 +62,7 @@ export default function ContactSection() {
     <section className="bg-[#FBFDFE] py-8" id="contact">
       <div className="mx-auto px-4 sm:px-6 lg:px-20">
         <div className="lg:flex lg:items-center lg:justify-between">
-          {/* Texte à gauche */}
+          {/* Text on the left */}
           <div className="lg:w-1/2 mb-12 lg:mb-0">
             <h2 className="text-2xl lg:text-4xl font-medium text-gray-900 mb-4">
               Comment pouvons-nous vous <span className="text-blueCustom">aider</span> ?
@@ -72,10 +72,10 @@ export default function ContactSection() {
             </p>
           </div>
 
-          {/* Formulaire à droite */}
+          {/* Form on the right */}
           <div className="lg:w-1/2 p-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {/* Nom et prénom */}
+              {/* First and last name */}
               <div className="flex gap-4">
                 <div className="w-1/2">
                   <label className="block text-labelGray mb-2">Nom</label>
@@ -99,7 +99,7 @@ export default function ContactSection() {
                 </div>
               </div>
 
-              {/* Téléphone */}
+              {/* Phone */}
               <div>
                 <label className="block text-labelGray mb-2">Téléphone</label>
                 <input

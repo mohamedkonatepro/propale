@@ -29,23 +29,23 @@ export const getOption = (value: any, options: any) => options.find((option: any
 
 
 export const formatAmount = (amount: number | string): string => {
-  let numericAmount = parseFloat(amount as string); // Conversion au cas où ce serait une chaîne
+  let numericAmount = parseFloat(amount as string); // Convert in case it's a string
 
   if (isNaN(numericAmount)) {
     console.error('Invalid amount value:', amount);
-    return '0.00'; // Retourner une valeur par défaut
+    return '0.00'; // Return a default value
   }
 
-  // Arrondir à deux décimales
+  // Round to two decimal places
   const amountString = numericAmount.toFixed(2);
 
-  // Séparer la partie entière et la partie décimale
+  // Separate the integer part and the decimal part
   const [integerPart, decimalPart] = amountString.split(".");
 
-  // Formatage avec espace comme séparateur de milliers
+  // Format with space as thousands separator
   const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 
-  // Retourner le montant formaté
+  // Return the formatted amount
   return `${formattedIntegerPart}.${decimalPart}`;
 }
 

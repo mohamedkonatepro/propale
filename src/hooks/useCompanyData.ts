@@ -9,16 +9,16 @@ const useCompanyData = (companyId: string) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   
-  // ✅ Référence vers le contrôleur d'abort actuel
+  // ✅ Reference to current abort controller
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchData = useCallback(async () => {
-    // ✅ Annuler la requête précédente si elle existe
+    // ✅ Cancel previous request if it exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     
-    // ✅ Créer un nouveau contrôleur pour cette requête
+    // ✅ Create new controller for this request
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     
@@ -28,17 +28,17 @@ const useCompanyData = (companyId: string) => {
     try {
       const companyData = await fetchCompanyById(companyId);
       
-      // ✅ Vérifier si la requête n'a pas été annulée
+      // ✅ Check if request wasn't cancelled
       if (!abortController.signal.aborted) {
         setCompany(companyData);
       }
     } catch (err) {
-      // ✅ Ignorer les erreurs d'annulation
+      // ✅ Ignore cancellation errors
       if (!abortController.signal.aborted) {
-        setError('Erreur lors de la récupération de l\'entreprise.');
+        setError('Error retrieving the company.');
       }
     } finally {
-      // ✅ Réinitialiser le loading seulement si ce n'est pas annulé
+      // ✅ Reset loading only if not cancelled
       if (!abortController.signal.aborted) {
         setLoading(false);
       }
@@ -49,7 +49,7 @@ const useCompanyData = (companyId: string) => {
     fetchData();
   }, [fetchData]);
 
-  // ✅ Cleanup: Annuler les requêtes en cours au unmount
+  // ✅ Cleanup: Cancel ongoing requests on unmount
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -61,20 +61,20 @@ const useCompanyData = (companyId: string) => {
   const updateCompanyData = async (data: any) => {
     try {
       await updateCompany(data);
-      toast.success(`${data.name} à bien été modifié.`);
+      toast.success(`${data.name} has been successfully updated.`);
     } catch (err) {
-      setError('Erreur lors de la modification de l\'entreprise.');
+      setError('Error updating the company.');
     }
   };
 
   const createNewCompany = async (data: any) => {
     try {
-      // ✅ LOGIQUE MÉTIER EXTRAITE - Délégation au service spécialisé
+      // ✅ BUSINESS LOGIC EXTRACTED - Delegation to specialized service
       const result = await CompanyWorkflowService.createCompanyWithWorkflow(data);
       
       if (result.success) {
         toast.success(result.message);
-        // Recharger les données après création réussie
+        // Reload data after successful creation
         fetchData();
       } else {
         toast.error(result.message);
@@ -86,18 +86,18 @@ const useCompanyData = (companyId: string) => {
         : "Une erreur inattendue est survenue";
       
       toast.error(errorMessage);
-      setError('Erreur lors de la création de l\'entreprise.');
+      setError('Error creating the company.');
     }
   };
 
   const createNewProspect = async (data: any) => {
     try {
-      // ✅ LOGIQUE MÉTIER EXTRAITE - Délégation au service spécialisé
+      // ✅ BUSINESS LOGIC EXTRACTED - Delegation to specialized service
       const result = await CompanyWorkflowService.createProspectWithWorkflow(data);
       
       if (result.success) {
         toast.success(result.message);
-        // Recharger les données après création réussie
+        // Reload data after successful creation
         fetchData();
       } else {
         toast.error(result.message);
@@ -109,7 +109,7 @@ const useCompanyData = (companyId: string) => {
         : "Une erreur inattendue est survenue";
       
       toast.error(errorMessage);
-      setError('Erreur lors de la création du prospect.');
+      setError('Error creating the prospect.');
     }
   };
 

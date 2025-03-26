@@ -17,7 +17,7 @@ export interface PdfGenerationRequest {
 
 export class ExternalRepository {
   
-  // Service d'envoi d'email
+  // Email sending service
   static async sendEmail(emailData: EmailRequest): Promise<void> {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/sendEmail`, {
@@ -33,7 +33,7 @@ export class ExternalRepository {
         throw new ExternalServiceError('Email Service', errorData.error || `HTTP ${response.status}`);
       }
 
-      // Pas de données à retourner pour l'envoi d'email
+      // No data to return for email sending
     } catch (error) {
       if (error instanceof ExternalServiceError) {
         throw error;
@@ -44,7 +44,7 @@ export class ExternalRepository {
     }
   }
 
-  // Service de génération PDF
+  // PDF generation service
   static async generatePdf(pdfData: PdfGenerationRequest): Promise<Blob> {
     try {
       const response = await fetch('/api/generatePdf', {
@@ -61,7 +61,7 @@ export class ExternalRepository {
 
       const blob = await response.blob();
       
-      // Vérifier que c'est bien un PDF
+      // Verify that it's actually a PDF
       if (!blob.type.includes('application/pdf')) {
         throw new ExternalServiceError('PDF Service', 'Invalid PDF response');
       }
@@ -77,7 +77,7 @@ export class ExternalRepository {
     }
   }
 
-  // Fonction helper pour download
+  // Helper function for download
   static downloadBlob(blob: Blob, filename: string): void {
     try {
       const downloadUrl = window.URL.createObjectURL(blob);
@@ -88,7 +88,7 @@ export class ExternalRepository {
       link.click();
       link.remove();
       
-      // Nettoyer l'URL object
+      // Clean up the URL object
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
       logError(error, 'FileDownload');

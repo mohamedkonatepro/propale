@@ -4,7 +4,7 @@ import { handleDatabaseError, NotFoundError } from '@/utils/errors';
 
 export class CompanyRepository {
   
-  // Méthodes de lecture
+  // Read methods
   static async findById(id: string): Promise<Company | null> {
     const { data, error } = await supabase
       .from('company')
@@ -92,14 +92,14 @@ export class CompanyRepository {
     for (const company of companies) {
       let currentCompany = company;
       
-      // Remonte la hiérarchie jusqu'à la racine
+      // Climb the hierarchy to the root
       while (currentCompany.company_id) {
         const parent = await this.findById(currentCompany.company_id);
         if (!parent) break;
         currentCompany = parent;
       }
 
-      // Si on arrive à une compagnie sans parent, c'est la racine
+      // If we reach a company without a parent, it's the root
       if (!currentCompany.company_id) {
         return currentCompany;
       }
@@ -225,7 +225,7 @@ export class CompanyRepository {
       throw new Error(`Error fetching sub-companies: ${subCompaniesError.message}`);
     }
     
-    // Compte récursivement les prospects dans chaque sous-company
+    // Recursively count prospects in each sub-company
     if (subCompanies && subCompanies.length > 0) {
       for (const subCompany of subCompanies) {
         const subCount = await this.countAllProspectsRecursively(subCompany.id);
@@ -236,7 +236,7 @@ export class CompanyRepository {
     return totalCount;
   }
 
-  // Méthodes de validation
+  // Validation methods
   static async checkSiretUnique(siret: string, excludeCompanyId?: string): Promise<boolean> {
     let query = supabase
       .from('company')
@@ -275,7 +275,7 @@ export class CompanyRepository {
     return !data || data.length === 0;
   }
 
-  // Méthodes de création/modification
+  // Creation/modification methods
   static async create(companyData: Partial<Company> & {company_id?: string | null}): Promise<Company> {
     const { data, error } = await supabase
       .from('company')

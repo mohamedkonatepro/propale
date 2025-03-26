@@ -149,9 +149,9 @@ export class ProfileRepository {
     return data?.map(item => item.company_id) || [];
   }
 
-  // Méthode optimisée pour éviter le problème N+1
+  // Optimized method to avoid N+1 problem
   static async findWithCountsByCompanyId(companyId: string, search?: string): Promise<Array<Profile & {folder_count: number}>> {
-    // 1. Récupérer tous les profils avec leurs détails utilisateur
+    // 1. Fetch all profiles with their user details
     const { data: companyProfiles, error: companyProfilesError } = await supabase
       .from('companies_profiles')
       .select('profile_id')
@@ -167,7 +167,7 @@ export class ProfileRepository {
 
     const profileIds = companyProfiles.map(cp => cp.profile_id);
 
-    // 2. Récupérer tous les profils en une requête
+    // 2. Fetch all profiles in one query
     let profilesQuery = supabase
       .from('profiles')
       .select('*')
@@ -187,7 +187,7 @@ export class ProfileRepository {
       return [];
     }
 
-    // 3. Récupérer tous les comptes en une seule requête avec IN  
+    // 3. Fetch all counts in one query with IN
     const { data: countData, error: countError } = await supabase
       .from('companies_profiles')
       .select('profile_id')
@@ -197,13 +197,13 @@ export class ProfileRepository {
       throw new Error(`Error fetching profile counts: ${countError.message}`);
     }
 
-    // 4. Créer un map des comptes par profile_id
+    // 4. Create a map of counts by profile_id
     const countMap: { [profileId: string]: number } = {};
     countData?.forEach(item => {
       countMap[item.profile_id] = (countMap[item.profile_id] || 0) + 1;
     });
 
-    // 5. Combiner les données
+    // 5. Combine the data
     return profiles.map((profile: Profile) => ({
       ...profile,
       folder_count: Math.max(0, (countMap[profile.id] || 1) - 1)

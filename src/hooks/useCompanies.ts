@@ -13,16 +13,16 @@ const useCompanies = (companyId: string, search: string) => {
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
   
-  // ✅ Référence vers le contrôleur d'abort actuel
+  // ✅ Reference to current abort controller
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchData = useCallback(async () => {
-    // ✅ Annuler la requête précédente si elle existe
+    // ✅ Cancel previous request if it exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     
-    // ✅ Créer un nouveau contrôleur pour cette requête
+    // ✅ Create new controller for this request
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     
@@ -34,17 +34,17 @@ const useCompanies = (companyId: string, search: string) => {
         ? await fetchCompaniesWithParentByProfileId(user.id, search)
         : await fetchCompaniesByCompanyId(companyId, search);
       
-      // ✅ Vérifier si la requête n'a pas été annulée
+      // ✅ Check if request wasn't cancelled
       if (!abortController.signal.aborted) {
         setCompanies(data);
       }
     } catch (err) {
-      // ✅ Ignorer les erreurs d'annulation
+      // ✅ Ignore cancellation errors
       if (!abortController.signal.aborted) {
-        setError('Erreur lors de la récupération des dossiers.');
+        setError('Error retrieving folders.');
       }
     } finally {
-      // ✅ Réinitialiser le loading seulement si ce n'est pas annulé
+      // ✅ Reset loading only if not cancelled
       if (!abortController.signal.aborted) {
         setLoading(false);
       }
@@ -57,7 +57,7 @@ const useCompanies = (companyId: string, search: string) => {
     }
   }, [fetchData, user]);
 
-  // ✅ Cleanup: Annuler les requêtes en cours au unmount
+  // ✅ Cleanup: Cancel ongoing requests on unmount
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {
@@ -70,9 +70,9 @@ const useCompanies = (companyId: string, search: string) => {
     try {
       await deleteCompany(companyId);
       setCompanies(companies.filter(company => company.id !== companyId));
-      toast.success("Le dossier a bien été supprimé !");
+      toast.success("The folder has been successfully deleted!");
     } catch (err) {
-      setError('Erreur lors de la suppression du dossier.');
+      setError('Error deleting the folder.');
     }
   };
 

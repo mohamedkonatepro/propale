@@ -5,7 +5,7 @@ import { validateSendEmailData, validateSendEmailByContactsData } from '@/valida
 
 export const sendEmailByContacts = async (contacts: Profile[], content: string, subject: string, space: boolean = true, user?: Profile): Promise<void> => {
   try {
-    // Validation des données d'entrée
+    // Input data validation
     const validatedData = validateSendEmailByContactsData({
       contacts,
       content,
@@ -45,7 +45,7 @@ export const sendEmail = async (
   space: boolean = true,
 ): Promise<void> => {
   try {
-    // Validation des données d'entrée
+    // Input data validation
     const validatedData = validateSendEmailData({
       contactsEmail,
       content,

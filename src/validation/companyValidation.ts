@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Validation pour la création d'une entreprise
+// Validation for company creation
 export const createCompanySchema = z.object({
   name: z.string().min(1, 'Company name is required').max(255, 'Company name too long'),
   siren: z.string().length(9, 'SIREN must be exactly 9 digits').regex(/^\d+$/, 'SIREN must contain only digits'),
@@ -18,14 +18,14 @@ export const createCompanySchema = z.object({
   company_id: z.string().uuid().optional().or(z.literal('')),
 });
 
-// Validation pour la mise à jour d'une entreprise
+// Validation for company update
 export const updateCompanySchema = createCompanySchema.partial().extend({
   id: z.string().uuid('Invalid company ID'),
 });
 
-// Validation pour la création d'un prospect avec contacts
+// Validation for prospect creation with contacts
 export const createProspectSchema = createCompanySchema.extend({
-  // Informations du contact principal
+  // Primary contact information
   firstname: z.string().min(1, 'First name is required').max(100, 'First name too long'),
   lastname: z.string().min(1, 'Last name is required').max(100, 'Last name too long'),
   email: z.string().email('Invalid email format').max(255, 'Email too long'),
@@ -34,7 +34,7 @@ export const createProspectSchema = createCompanySchema.extend({
   role: z.string().max(50, 'Role too long').optional(),
   password: z.string().min(6, 'Password must be at least 6 characters').optional(),
   
-  // Contacts additionnels
+  // Additional contacts
   additionalContacts: z.array(z.object({
     firstname: z.string().min(1, 'First name is required').max(100, 'First name too long'),
     lastname: z.string().min(1, 'Last name is required').max(100, 'Last name too long'),
@@ -45,12 +45,12 @@ export const createProspectSchema = createCompanySchema.extend({
   })).optional().default([]),
 });
 
-// Types dérivés des schémas Zod
+// Types derived from Zod schemas
 export type CreateCompanyInput = z.infer<typeof createCompanySchema>;
 export type UpdateCompanyInput = z.infer<typeof updateCompanySchema>;
 export type CreateProspectInput = z.infer<typeof createProspectSchema>;
 
-// Fonction helper pour valider et nettoyer les données
+// Helper function to validate and sanitize data
 export function validateCompanyData(data: unknown): CreateCompanyInput {
   const result = createCompanySchema.safeParse(data);
   

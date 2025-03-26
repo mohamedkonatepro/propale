@@ -7,16 +7,16 @@ export const useFetchEntities = (page: string, userId?: string, searchCompany?: 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   
-  // ✅ Référence vers le contrôleur d'abort actuel
+  // ✅ Reference to the current abort controller
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchData = useCallback(async () => {
-    // ✅ Annuler la requête précédente si elle existe
+    // ✅ Cancel previous request if it exists
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
     
-    // ✅ Créer un nouveau contrôleur pour cette requête
+    // ✅ Create a new controller for this request
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     
@@ -43,7 +43,7 @@ export const useFetchEntities = (page: string, userId?: string, searchCompany?: 
     fetchData();
   }, [fetchData]);
 
-  // ✅ Cleanup: Annuler les requêtes en cours au unmount
+  // ✅ Cleanup: Cancel ongoing requests on unmount
   useEffect(() => {
     return () => {
       if (abortControllerRef.current) {

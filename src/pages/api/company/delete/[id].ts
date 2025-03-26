@@ -187,13 +187,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             throw new Error(`Error deleting profile with id ${profile.profile_id}: ${deleteProfileError.message}`);
           }
       
-          // Si aucun profil n'a été supprimé, passer au suivant
+          // If no profile was deleted, move to the next
           if (!deletedProfiles || deletedProfiles.length === 0) {
             console.warn(`No profile deleted with id ${profile.profile_id}. Skipping auth deletion.`);
             continue;
           }
       
-          // Supprimer l'utilisateur via Supabase Admin pour chaque ID supprimé
+          // Delete the user via Supabase Admin for each deleted ID
           for (const deletedProfile of deletedProfiles) {
             const result = await supabaseAdmin.auth.admin.deleteUser(deletedProfile.id);
             if (result.error) {

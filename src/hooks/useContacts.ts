@@ -35,7 +35,7 @@ const useContacts = (companyId: string) => {
     try {
       if (contact.id) {
         await updateContact(contact, selectedCompany.id);
-        toast.success('Le contact a bien été modifié');
+        toast.success('The contact has been successfully updated');
       } else {
         const currentContactCount = await countProfilesByCompanyId(selectedCompany.id);
         const companyParent = await findTopMostParentCompany(selectedCompany)
@@ -43,16 +43,16 @@ const useContacts = (companyId: string) => {
           const settings = await fetchCompanySettings(companyParent.id);
           
           if (!settings) {
-            throw new Error("Impossible de récupérer les paramètres de l'entreprise parente");
+            throw new Error("Unable to retrieve parent company settings");
           }
           
           if (currentContactCount >= settings.contacts_per_prospect) {
-            throw new Error("Le nombre maximum de contacts par prospect a été atteint");
+            throw new Error("Maximum number of contacts per prospect has been reached");
           }
         }
         
         await createContact(contact, selectedCompany.id);
-        toast.success('Le contact a bien été ajouté');
+        toast.success('The contact has been successfully added');
       }
       
       await fetchContacts();
